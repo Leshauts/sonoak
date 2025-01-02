@@ -1,5 +1,5 @@
 # sonoak
-Lecteur audio sur Raspberry Pi avec interface utilisateur web (écran 7pouces), supportant multiple sources audio (Spotify, Bluetooth, Jack, Soundcast)
+Lecteur audio pour Raspberry Pi avec interface utilisateur web , supportant multiple sources audio (Spotify via librespot, Bluetooth, Jack, Soundcast)
 
 **Matériel nécessaire :**
 * Raspberry Pi 3B+ ou 4
