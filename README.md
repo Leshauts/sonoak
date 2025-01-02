@@ -7,6 +7,7 @@ Lecteur audio pour Raspberry Pi avec interface utilisateur web , supportant mult
 * Écran
 * Carte SD (16GB+ recommandé)
 
+
 **Partie 1 : Base Audio**
 1. Installation :
     * DietPi + HifiBerry
