@@ -1,13 +1,13 @@
 # sonoak
 Lecteur audio sur Raspberry Pi avec interface utilisateur web (écran 7pouces), supportant multiple sources audio (Spotify, Bluetooth, Jack, Soundcast)
 
-Matériel nécessaire :
+**Matériel nécessaire :**
 * Raspberry Pi 3B+ ou 4
 * HifiBerry AMP2 ou AMP4
 * Écran
 * Carte SD (16GB+ recommandé)
 
-Partie 1 : Base Audio
+**Partie 1 : Base Audio**
 1. Installation :
     * DietPi + HifiBerry
     * Librespot
@@ -21,14 +21,14 @@ Partie 1 : Base Audio
         * Responsive
         * Contrôles essentiels
 
-Partie 2 : Sources Audio
+**Partie 2 : Sources Audio**
 * Spotify (Librespot) 
 * Bluetooth
 * Entrée Jack
 * Soundcast (son du Mac au Raspberry)
 * Radio Internet (Radio Browser API)
 
-Partie 3 : Améliorations audio
+**Partie 3 : Améliorations audio**
 * ALSA Equalizer
     * Contrôlable depuis l'interface
     * Préréglages (Jazz, Rock, etc)
@@ -37,7 +37,7 @@ Partie 3 : Améliorations audio
     * Fréquences ?
     * Gauche / droite
 
-Partie 4 : Système / UI
+**Partie 4 : Système / UI**
 * Mode Kiosk :
     * Boot personnalisé
     * Splash screen
