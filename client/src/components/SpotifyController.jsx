@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const SpotifyController = () => {
   const [playerState, setPlayerState] = useState({
@@ -8,72 +8,111 @@ const SpotifyController = () => {
       artist: "",
       album: "",
       albumArt: ""
-    }
+    },
+    lastUpdate: Date.now()
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  const fetchCurrentTrack = useCallback(async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/player/current-track');
+      if (!response.ok) throw new Error('Failed to fetch current track');
+      const data = await response.json();
+      
+      if (data.currentTrack?.title && 
+          data.currentTrack?.artist) {
+        setPlayerState(data);
+      }
+    } catch (error) {
+      console.error('Error fetching current track:', error);
+    }
+  }, []);
 
   useEffect(() => {
     const ws = new WebSocket('ws://localhost:3001');
     
     ws.onopen = () => {
       console.log('WebSocket Connected');
-      fetch('http://localhost:3001/api/player/current-track')
-        .then(res => res.json())
-        .then(data => {
-          console.log('Initial state:', data);
-          setPlayerState(data);
-        });
+      fetchCurrentTrack();
     };
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      setPlayerState(prevState => ({
-        ...prevState,
-        playing: data.playing,
-        currentTrack: {
-          ...data.currentTrack,
-          albumArt: data.currentTrack.albumArt
-        }
-      }));
+      if (data.type === 'state_update') {
+        console.log('Received state update:', {
+          title: data.currentTrack?.title,
+          hasArt: !!data.currentTrack?.albumArt
+        });
+
+        setPlayerState(prevState => {
+          // Ne pas mettre à jour si les données sont plus anciennes
+          if (data.lastUpdate <= prevState.lastUpdate) {
+            return prevState;
+          }
+
+          return {
+            playing: isLoading ? prevState.playing : data.playing,
+            currentTrack: {
+              ...data.currentTrack,
+              // Garder l'ancienne image si la nouvelle est manquante
+              albumArt: data.currentTrack?.albumArt || prevState.currentTrack.albumArt
+            },
+            lastUpdate: data.lastUpdate
+          };
+        });
+      }
     };
 
-    return () => ws.close();
-  }, []);
+    return () => {
+      ws.close();
+    };
+  }, [fetchCurrentTrack, isLoading]);
 
   const handlePlayPause = async () => {
     setIsLoading(true);
     const action = playerState.playing ? 'pause' : 'play';
+    
     try {
-      await fetch(`http://localhost:3001/api/player/${action}`, {
+      const response = await fetch(`http://localhost:3001/api/player/${action}`, {
         method: 'POST'
       });
+      if (!response.ok) throw new Error(`Failed to ${action}`);
+      // Ne pas modifier l'état ici, laisser le WebSocket le faire
     } catch (error) {
       console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
-    setTimeout(() => setIsLoading(false), 500);
   };
 
   const handleSkip = async (direction) => {
     setIsLoading(true);
     try {
-      await fetch(`http://localhost:3001/api/player/${direction}`, {
+      const response = await fetch(`http://localhost:3001/api/player/${direction}`, {
         method: 'POST'
       });
+      if (!response.ok) throw new Error(`Failed to ${direction}`);
+      setTimeout(() => fetchCurrentTrack(), 100);
     } catch (error) {
       console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
-    setTimeout(() => setIsLoading(false), 500);
   };
 
+  // JSX reste inchangé...
   return (
     <div className="flex flex-col items-center p-8 max-w-md mx-auto bg-white rounded-lg shadow-lg">
-      {/* Album Art */}
       <div className="w-64 h-64 mb-6 rounded-lg overflow-hidden shadow-lg">
         {playerState.currentTrack.albumArt ? (
           <img 
             src={playerState.currentTrack.albumArt} 
             alt="Album artwork" 
             className="w-full h-full object-cover"
+            onError={(e) => {
+              console.error('Error loading album art:', e);
+              e.target.src = ''; // Effacer l'image en cas d'erreur
+            }}
           />
         ) : (
           <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -82,7 +121,6 @@ const SpotifyController = () => {
         )}
       </div>
 
-      {/* Track Info */}
       <div className="w-full text-center mb-8">
         <h2 className="text-xl font-bold truncate">
           {playerState.currentTrack.title}
@@ -95,7 +133,6 @@ const SpotifyController = () => {
         </p>
       </div>
 
-      {/* Controls */}
       <div className="flex items-center space-x-6">
         <button 
           onClick={() => handleSkip('previous')}
