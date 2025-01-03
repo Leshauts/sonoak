@@ -1,10 +1,11 @@
-import Player from './components/Player';
+import React from 'react';
 import './App.css';
+import SpotifyController from './components/SpotifyController';
 
 function App() {
   return (
     <div className="App">
-      <Player />
+      <SpotifyController />
     </div>
   );
 }

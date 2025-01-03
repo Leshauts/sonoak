@@ -1,10 +1,36 @@
 #!/bin/bash
-if [ "$PLAYER_EVENT" = "track_changed" ]; then
-    # Format les artistes (remplace les newlines par des virgules)
-    FORMATTED_ARTISTS=$(echo "$ARTISTS" | tr '\n' ',')
-    echo "track_changed | $TRACK_ID | $NAME | $FORMATTED_ARTISTS | $ALBUM" >> /Users/leo/sonoak/server/spotify-event.log
-elif [ "$PLAYER_EVENT" = "playing" ]; then
-    echo "playing | $TRACK_ID | $POSITION_MS" >> /Users/leo/sonoak/server/spotify-event.log
-elif [ "$PLAYER_EVENT" = "paused" ]; then
-    echo "paused | $TRACK_ID" >> /Users/leo/sonoak/server/spotify-event.log
-fi
+LOG_FILE="$(pwd)/spotify-event.log"
+
+# Récupérer la première URL de couverture
+get_first_cover() {
+    echo "$COVERS" | head -n 1
+}
+
+case "$PLAYER_EVENT" in
+    "track_changed")
+        COVER_URL=$(get_first_cover)
+        # Sauvegarde des métadonnées complètes avec la couverture
+        echo "track_changed | $TRACK_ID | $NAME | $ARTISTS | $ALBUM | $COVER_URL" >> "$LOG_FILE"
+        # Sauvegarde des métadonnées dans un fichier temporaire
+        echo "$NAME | $ARTISTS | $ALBUM | $COVER_URL" > "$(pwd)/current_track.tmp"
+        ;;
+    "playing")
+        if [ -f "$(pwd)/current_track.tmp" ]; then
+            # Lecture des métadonnées sauvegardées
+            IFS='|' read -r saved_name saved_artists saved_album saved_cover < "$(pwd)/current_track.tmp"
+            echo "playing | $TRACK_ID | $saved_name | $saved_artists | $saved_album | $saved_cover" >> "$LOG_FILE"
+        else
+            COVER_URL=$(get_first_cover)
+            echo "playing | $TRACK_ID | $NAME | $ARTISTS | $ALBUM | $COVER_URL" >> "$LOG_FILE"
+        fi
+        ;;
+    "paused")
+        if [ -f "$(pwd)/current_track.tmp" ]; then
+            IFS='|' read -r saved_name saved_artists saved_album saved_cover < "$(pwd)/current_track.tmp"
+            echo "paused | $TRACK_ID | $saved_name | $saved_artists | $saved_album | $saved_cover" >> "$LOG_FILE"
+        else
+            COVER_URL=$(get_first_cover)
+            echo "paused | $TRACK_ID | $NAME | $ARTISTS | $ALBUM | $COVER_URL" >> "$LOG_FILE"
+        fi
+        ;;
+esac
