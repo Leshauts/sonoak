@@ -1,4 +1,4 @@
-# Sonoak
+# Sonoak [WIP]
 Lecteur audio pour Raspberry Pi avec interface utilisateur web , supportant multiple sources audio (Spotify via librespot, Bluetooth, Jack, Soundcast)
 
 **Matériel nécessaire :**
