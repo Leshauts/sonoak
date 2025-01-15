@@ -14,20 +14,20 @@ const routes = [
     meta: { transition: 'fade' }
   },
   {
-    path: '/spotify',
-    name: 'spotify',
+    path: '/Spotify',
+    name: 'Spotify',
     component: SpotifyView,
     meta: { transition: 'fade' }
   },
   {
-    path: '/bluetooth',
-    name: 'bluetooth',
+    path: '/Bluetooth',
+    name: 'Bluetooth',
     component: BluetoothView,
     meta: { transition: 'fade' }
   },
   {
     path: '/macos',
-    name: 'macos',
+    name: 'MacOS',
     component: MacOSView,
     meta: { transition: 'fade' }
   },

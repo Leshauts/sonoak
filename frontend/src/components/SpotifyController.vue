@@ -1,14 +1,33 @@
+<!-- frontend/src/components/SpotiftController.vue -->
 <template>
   <div class="controller-wrapper">
     <div class="controller">
-      <button class="control-button" @click="previous">
-        <PreviousIcon color="var(--text-light)" variant="lg" />
+      <button 
+        class="control-button" 
+        @click="$emit('previous')"
+        :disabled="!isEnabled"
+      >
+        <PreviousIcon :color="isEnabled ? 'var(--text)' : 'var(--text-light)'" variant="lg" />
       </button>
-      <button class="control-button" @click="togglePlay">
-        <component :is="isPlaying ? 'PauseIcon' : 'PlayIcon'" color="var(--text)" variant="lg" />
+      
+      <button 
+        class="control-button play-button" 
+        @click="$emit('toggle-play')"
+        :disabled="!isEnabled"
+      >
+        <component 
+          :is="isPlaying ? 'PauseIcon' : 'PlayIcon'" 
+          :color="isEnabled ? 'var(--text)' : 'var(--text-light)'" 
+          variant="lg" 
+        />
       </button>
-      <button class="control-button" @click="next">
-        <NextIcon color="var(--text-light)" variant="lg" />
+      
+      <button 
+        class="control-button" 
+        @click="$emit('next')"
+        :disabled="!isEnabled"
+      >
+        <NextIcon :color="isEnabled ? 'var(--text)' : 'var(--text-light)'" variant="lg" />
       </button>
     </div>
   </div>
@@ -22,28 +41,26 @@ import PreviousIcon from './icons/PreviousIcon.vue'
 
 export default {
   name: 'SpotifyController',
+  
   components: {
     PlayIcon,
     PauseIcon,
     NextIcon,
     PreviousIcon
   },
-  data() {
-    return {
-      isPlaying: false
+  
+  props: {
+    isPlaying: {
+      type: Boolean,
+      default: false
+    },
+    isEnabled: {
+      type: Boolean,
+      default: true
     }
   },
-  methods: {
-    togglePlay() {
-      this.isPlaying = !this.isPlaying
-    },
-    previous() {
-      // Logique pour la piste précédente
-    },
-    next() {
-      // Logique pour la piste suivante
-    }
-  }
+  
+  emits: ['previous', 'next', 'toggle-play']
 }
 </script>
 
@@ -73,9 +90,25 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease-in-out;
 }
 
+.control-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.control-button:not(:disabled):hover {
+  transform: scale(1.1);
+}
+
+.play-button {
+  transform: scale(1.2);
+}
+
+.play-button:not(:disabled):hover {
+  transform: scale(1.3);
+}
 
 @media (max-width: 768px) {
   .controller {
