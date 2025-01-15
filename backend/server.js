@@ -325,17 +325,22 @@ app.post('/player/control/:command', async (req, res) => {
 app.post('/player/seek', async (req, res) => {
     const { position_ms } = req.body;
     console.log(`Seek demandé à: ${position_ms}ms`);
-
+    
     try {
-        let tokens = await getSpotifyTokens();
-        if (!tokens) throw new Error('Pas de tokens disponibles');
+        // Utiliser le même système que pour les autres contrôles
+        let tokens = await getAllSpotifyTokens();
+        if (!currentUserId || !tokens[currentUserId]) {
+            throw new Error('Pas de token disponible pour l\'utilisateur actif');
+        }
 
+        let userTokens = tokens[currentUserId];
+        
         try {
             const response = await axios({
                 method: 'PUT',
                 url: 'https://api.spotify.com/v1/me/player/seek',
                 headers: {
-                    'Authorization': `Bearer ${tokens.access_token}`,
+                    'Authorization': `Bearer ${userTokens.access_token}`,
                     'Content-Type': 'application/json'
                 },
                 params: {
@@ -345,9 +350,9 @@ app.post('/player/seek', async (req, res) => {
 
             if (response.status === 204) {
                 currentState.position = position_ms;
-                broadcast({
-                    type: 'position_changed',
-                    state: currentState
+                broadcast({ 
+                    type: 'position_changed', 
+                    state: currentState 
                 });
                 res.status(200).json({ success: true });
             }
@@ -355,9 +360,13 @@ app.post('/player/seek', async (req, res) => {
             if (error.response?.status === 401) {
                 // Token expiré, on rafraîchit
                 console.log('Token expiré, rafraîchissement...');
-                const newAccessToken = await refreshSpotifyToken(tokens.refresh_token);
-
-                // Mettre à jour le token et réessayer
+                const newAccessToken = await refreshSpotifyToken(userTokens.refresh_token);
+                
+                // Mettre à jour le token dans le fichier
+                tokens[currentUserId].access_token = newAccessToken;
+                await fs.writeFile(tokensPath, JSON.stringify(tokens));
+                
+                // Réessayer avec le nouveau token
                 const response = await axios({
                     method: 'PUT',
                     url: 'https://api.spotify.com/v1/me/player/seek',
@@ -372,9 +381,9 @@ app.post('/player/seek', async (req, res) => {
 
                 if (response.status === 204) {
                     currentState.position = position_ms;
-                    broadcast({
-                        type: 'position_changed',
-                        state: currentState
+                    broadcast({ 
+                        type: 'position_changed', 
+                        state: currentState 
                     });
                     res.status(200).json({ success: true });
                 }
@@ -383,7 +392,7 @@ app.post('/player/seek', async (req, res) => {
             }
         }
     } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Erreur seek:', error);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
