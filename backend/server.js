@@ -26,6 +26,9 @@ let currentState = {
     volume: 100
 };
 
+let currentUserId = null;
+
+
 // Créer le serveur WebSocket
 const wss = new WebSocket.Server({ server });
 
@@ -68,6 +71,17 @@ async function getSpotifyTokens() {
     }
 }
 
+// Fonction pour lire tous les tokens Spotify
+async function getAllSpotifyTokens() {
+    try {
+        const tokensFile = await fs.readFile(tokensPath, 'utf8');
+        return JSON.parse(tokensFile);
+    } catch (error) {
+        console.error('Erreur lecture tous les tokens:', error);
+        return {};
+    }
+}
+
 // Fonction pour envoyer les commandes à Spotify
 async function sendSpotifyCommand(command, accessToken) {
     const baseUrl = 'https://api.spotify.com/v1/me/player';
@@ -78,7 +92,7 @@ async function sendSpotifyCommand(command, accessToken) {
 
     let endpoint;
     let method = 'PUT';
-    
+
     switch (command) {
         case 'play':
             endpoint = '/play';
@@ -110,49 +124,78 @@ async function sendSpotifyCommand(command, accessToken) {
 // Fonction pour contrôler la lecture via l'API Spotify
 async function controlSpotifyPlayback(command) {
     try {
-        let tokens = await getSpotifyTokens();
-        if (!tokens) throw new Error('Pas de tokens disponibles');
+        console.log('=== Début contrôle playback ===');
+        console.log('Commande:', command);
+
+        let tokens = await getAllSpotifyTokens();
+        console.log('Utilisateur actif:', currentUserId);
+        console.log('Tokens disponibles pour les utilisateurs:', Object.keys(tokens));
+
+        if (!currentUserId || !tokens[currentUserId]) {
+            console.log('❌ Pas de token pour l\'utilisateur actif');
+            throw new Error('Pas de token disponible pour l\'utilisateur actif');
+        }
+
+        let userTokens = tokens[currentUserId];
+        console.log('Token trouvé pour l\'utilisateur actif');
 
         try {
-            // Première tentative avec le token actuel
-            return await sendSpotifyCommand(command, tokens.access_token);
+            console.log('Tentative d\'envoi de la commande...');
+            const result = await sendSpotifyCommand(command, userTokens.access_token);
+            console.log('Commande exécutée avec succès');
+            return result;
         } catch (error) {
             if (error.response?.status === 401) {
-                // Token expiré, on rafraîchit
-                console.log('Token expiré, rafraîchissement...');
-                const newAccessToken = await refreshSpotifyToken(tokens.refresh_token);
-                
-                // Mettre à jour le token dans le fichier
-                tokens.access_token = newAccessToken;
-                const allTokens = JSON.parse(await fs.readFile(tokensPath, 'utf8'));
-                const userId = Object.keys(allTokens)[0];
-                await fs.writeFile(tokensPath, JSON.stringify({
-                    [userId]: {
-                        ...allTokens[userId],
-                        access_token: newAccessToken
-                    }
-                }));
-                
-                // Réessayer avec le nouveau token
+                console.log('Token expiré, tentative de rafraîchissement...');
+                const newAccessToken = await refreshSpotifyToken(userTokens.refresh_token);
+
+                console.log('Token rafraîchi avec succès');
+                tokens[currentUserId].access_token = newAccessToken;
+                await fs.writeFile(tokensPath, JSON.stringify(tokens));
+
+                console.log('Nouvel essai avec le token rafraîchi');
                 return await sendSpotifyCommand(command, newAccessToken);
             }
             throw error;
         }
     } catch (error) {
-        console.error('Erreur contrôle Spotify:', error);
+        console.error('❌ Erreur contrôle Spotify:', error);
         throw error;
+    }
+}
+// Modifions aussi la fonction qui vérifie l'utilisateur actif
+async function getCurrentSpotifyUser(accessToken) {
+    try {
+        console.log('Vérification utilisateur avec token:', accessToken.substring(0, 10) + '...');
+        const response = await axios({
+            method: 'get',
+            url: 'https://api.spotify.com/v1/me/player',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            }
+        });
+
+        console.log('Réponse API player:', response.status);
+        if (response.status === 200 && response.data) {
+            return { isActive: true, data: response.data };
+        } else {
+            return { isActive: false };
+        }
+    } catch (error) {
+        console.log('Erreur vérification utilisateur:', error.response?.status);
+        return { isActive: false };
     }
 }
 
 // Gérer les connexions WebSocket
 wss.on('connection', (ws) => {
     console.log('Client WebSocket connecté');
-    
+
     ws.send(JSON.stringify({
         type: 'initial_state',
         state: currentState
     }));
-    
+
     ws.on('close', () => console.log('Client WebSocket déconnecté'));
 });
 
@@ -166,14 +209,59 @@ const broadcast = (data) => {
 };
 
 // Route pour les événements
-app.post('/event', (req, res) => {
+app.post('/event', async (req, res) => {
     console.log('\n=== Nouvel événement ===');
     console.log('Type:', req.body.type);
     console.log('Données complètes:', JSON.stringify(req.body, null, 2));
-    
+
     const event = req.body;
-    
-    switch(event.type) {
+
+    // Vérifier l'utilisateur actif lors des événements importants
+    if (['track_changed', 'playing', 'stopped', 'paused'].includes(event.type)) {
+        try {
+            console.log('Vérification de l\'utilisateur actif...');
+            const tokens = await getAllSpotifyTokens();
+            console.log('Tokens disponibles:', Object.keys(tokens));
+
+            // Si nous n'avons pas d'utilisateur actif, utiliser le dernier utilisateur authentifié
+            if (!currentUserId) {
+                currentUserId = Object.keys(tokens)[Object.keys(tokens).length - 1];
+                console.log('Utilisation du dernier utilisateur authentifié:', currentUserId);
+            }
+
+            // Tenter de vérifier si cet utilisateur est actif
+            const currentUserTokens = tokens[currentUserId];
+            if (currentUserTokens) {
+                try {
+                    const userPlayer = await getCurrentSpotifyUser(currentUserTokens.access_token);
+                    console.log('Statut du player pour l\'utilisateur actuel:', userPlayer.isActive);
+
+                    // Si le player n'est pas actif, essayer les autres utilisateurs
+                    if (!userPlayer.isActive) {
+                        for (const [userId, userTokens] of Object.entries(tokens)) {
+                            if (userId !== currentUserId) {
+                                const otherUserPlayer = await getCurrentSpotifyUser(userTokens.access_token);
+                                if (otherUserPlayer.isActive) {
+                                    currentUserId = userId;
+                                    console.log('Nouvel utilisateur actif trouvé:', userId);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.log('Erreur vérification player:', error.message);
+                }
+            }
+
+            console.log('Utilisateur actif final:', currentUserId);
+        } catch (error) {
+            console.error('Erreur vérification utilisateur:', error);
+        }
+    }
+
+    // Traitement normal de l'événement
+    switch (event.type) {
         case 'track_changed':
             console.log('Mise à jour des infos de la piste');
             currentState.currentTrack = {
@@ -186,27 +274,33 @@ app.post('/event', (req, res) => {
             };
             console.log('Nouvel état:', JSON.stringify(currentState.currentTrack, null, 2));
             break;
-            
+
         case 'playing':
             console.log('Mise à jour du statut de lecture');
             currentState.isPlaying = true;
             currentState.position = parseInt(event.position_ms);
             break;
-            
+
         case 'paused':
         case 'stopped':
             console.log('Mise à jour du statut de pause/arrêt');
             currentState.isPlaying = false;
             currentState.position = parseInt(event.position_ms);
             break;
-            
+
         case 'position_changed':
             currentState.position = parseInt(event.position_ms);
             break;
     }
-    
+
     console.log('Broadcast de l\'état mis à jour');
-    broadcast({ type: event.type, state: currentState });
+    broadcast({
+        type: event.type,
+        state: {
+            ...currentState,
+            activeUser: currentUserId
+        }
+    });
     res.sendStatus(200);
 });
 
@@ -214,15 +308,15 @@ app.post('/event', (req, res) => {
 app.post('/player/control/:command', async (req, res) => {
     const { command } = req.params;
     console.log(`Commande reçue: ${command}`);
-    
+
     try {
         await controlSpotifyPlayback(command);
         res.status(200).json({ success: true });
     } catch (error) {
         console.error('Erreur détaillée:', error.response?.data || error.message);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Erreur serveur',
-            details: error.response?.data || error.message 
+            details: error.response?.data || error.message
         });
     }
 });
@@ -231,7 +325,7 @@ app.post('/player/control/:command', async (req, res) => {
 app.post('/player/seek', async (req, res) => {
     const { position_ms } = req.body;
     console.log(`Seek demandé à: ${position_ms}ms`);
-    
+
     try {
         let tokens = await getSpotifyTokens();
         if (!tokens) throw new Error('Pas de tokens disponibles');
@@ -251,9 +345,9 @@ app.post('/player/seek', async (req, res) => {
 
             if (response.status === 204) {
                 currentState.position = position_ms;
-                broadcast({ 
-                    type: 'position_changed', 
-                    state: currentState 
+                broadcast({
+                    type: 'position_changed',
+                    state: currentState
                 });
                 res.status(200).json({ success: true });
             }
@@ -262,7 +356,7 @@ app.post('/player/seek', async (req, res) => {
                 // Token expiré, on rafraîchit
                 console.log('Token expiré, rafraîchissement...');
                 const newAccessToken = await refreshSpotifyToken(tokens.refresh_token);
-                
+
                 // Mettre à jour le token et réessayer
                 const response = await axios({
                     method: 'PUT',
@@ -278,9 +372,9 @@ app.post('/player/seek', async (req, res) => {
 
                 if (response.status === 204) {
                     currentState.position = position_ms;
-                    broadcast({ 
-                        type: 'position_changed', 
-                        state: currentState 
+                    broadcast({
+                        type: 'position_changed',
+                        state: currentState
                     });
                     res.status(200).json({ success: true });
                 }
