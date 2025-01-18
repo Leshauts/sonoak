@@ -1,0 +1,6 @@
+# backend/config.yml
+server:
+  enabled: true
+  address: localhost
+  port: 24879
+  allow_origin: 'http://localhost:5173'  # Pour autoriser votre frontend Vue.js

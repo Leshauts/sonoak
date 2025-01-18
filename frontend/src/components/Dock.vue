@@ -1,39 +1,49 @@
-<!-- components/Dock.vue -->
+// frontend/src/components/Dock.vue
 <template>
   <div>
-    <!-- Gradient blur background visible uniquement sur Spotify -->
     <div class="focus" :class="{ 'visible': isVisible && currentPath === '/spotify' }"></div>
-
-    <!-- Black overlay visible uniquement sur Spotify -->
     <div class="black-overlay" :class="{ 'visible': isVisible && currentPath === '/spotify' }"></div>
-
-    <!-- Dock avec les événements touch -->
-    <div class="dock-container" 
-         :class="{ 'dock-hidden': !isVisible }"
-         @touchstart="handleTouchStart"
-         @touchmove="handleTouchMove"
-         @touchend="handleTouchEnd">
+    
+    <div
+      class="dock-container"
+      :class="{ 'dock-hidden': !isVisible }"
+      @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove"
+      @touchend="handleTouchEnd"
+    >
       <nav class="dock">
-        <div v-if="showIndicator" class="dock-indicator" :style="indicatorStyle"></div>
-        <router-link v-for="(item, index) in menuItems" :key="item.path" :to="item.path" class="dock-item"
-          :class="{ 'active': currentPath === item.path }">
-          <img :src="'/src/components/services/' + item.iconName + '.svg'" :alt="item.name" class="dock-icon">
+        <div v-if="currentPath !== '/'" class="dock-indicator" :style="indicatorStyle"></div>
+        <router-link
+          v-for="(item, index) in menuItems"
+          :key="item.path"
+          :to="item.path"
+          class="dock-item"
+          :class="{ 'active': currentPath === item.path }"
+          @click="handleNavClick(item.path)"
+        >
+          <img
+            :src="`/src/components/services/${item.iconName}.svg`"
+            :alt="item.name"
+            class="dock-icon"
+          />
         </router-link>
       </nav>
     </div>
 
-    <!-- Zone de swipe uniquement visible sur Spotify -->
-    <div v-if="currentPath === '/spotify'" 
-         class="swipe-zone" 
-         :style="{ height: isVisible ? '80%' : '8%' }"
-         @touchstart="handleTouchStart"
-         @touchmove="handleTouchMove" 
-         @touchend="handleTouchEnd">
-    </div>
+    <div
+      v-if="currentPath === '/spotify'"
+      class="swipe-zone"
+      :style="{ height: isVisible ? '80%' : '8%' }"
+      @touchstart="handleTouchStart"
+      @touchmove="handleTouchMove"
+      @touchend="handleTouchEnd"
+    ></div>
   </div>
 </template>
 
 <script>
+import { API_BASE_URL } from '../config'
+
 export default {
   name: 'Dock',
   data() {
@@ -43,106 +53,155 @@ export default {
       touchStartY: null,
       isSwiping: false,
       menuItems: [
-        {
-          name: 'Spotify',
-          path: '/spotify',
-          iconName: 'spotify'
-        },
-        {
-          name: 'Bluetooth',
-          path: '/bluetooth',
-          iconName: 'bluetooth'
-        },
-        {
-          name: 'MacOS',
-          path: '/macos',
-          iconName: 'mac-os'
-        }
-      ]
+        { name: 'Spotify', path: '/spotify', iconName: 'spotify' },
+        { name: 'Bluetooth', path: '/bluetooth', iconName: 'bluetooth' },
+        { name: 'MacOS', path: '/macos', iconName: 'mac-os' },
+      ],
     }
   },
   computed: {
-    showIndicator() {
-      return this.currentPath !== '/'
-    },
     indicatorStyle() {
       const pathToIndexMap = {
         '/spotify': 0,
         '/bluetooth': 1,
-        '/macos': 2
+        '/macos': 2,
       }
-
       const currentIndex = pathToIndexMap[this.currentPath] || 0
       const totalWidth = 72
-
-      return {
-        transform: `translateX(${currentIndex * totalWidth + 20}px)`
-      }
+      return { transform: `translateX(${currentIndex * totalWidth + 20}px)` }
     }
   },
   methods: {
-    async handleNavClick(item) {
-      await this.$router.push(item.path)
+    async handleNavClick(path) {
+      try {
+        const serviceMap = {
+          '/spotify': 'spotify',
+          '/bluetooth': 'bluetooth',
+          '/macos': 'macos',
+        }
+        
+        const activeService = serviceMap[path]
+        if (activeService) {
+          console.log(`Starting ${activeService} service...`)
+          await fetch(`${API_BASE_URL}/audio/${activeService}/start`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          })
+          
+          // Arrêter les autres services
+          const otherServices = Object.keys(serviceMap)
+            .filter(key => serviceMap[key] !== activeService)
+            .map(key => serviceMap[key])
+          
+          for (const service of otherServices) {
+            console.log(`Stopping ${service} service...`)
+            await fetch(`${API_BASE_URL}/audio/${service}/stop`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+            })
+          }
+        }
+        
+        await this.$router.push(path)
+      } catch (error) {
+        console.error('Error during navigation:', error)
+      }
     },
+
+    async toggleServices(activePath) {
+      // Mapping des chemins aux services
+      const serviceMap = {
+        '/spotify': 'spotify',
+        '/bluetooth': 'bluetooth',
+        '/macos': 'macos',
+      };
+
+      const activeService = serviceMap[activePath];
+      if (!activeService) return;
+
+      try {
+        // Démarrer le service actif
+        await fetch(`${this.apiBaseUrl}/audio/${activeService}/start`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        // Arrêter les autres services
+        const otherServices = Object.values(serviceMap)
+          .filter(service => service !== activeService);
+
+        await Promise.all(otherServices.map(service =>
+          fetch(`${this.apiBaseUrl}/audio/${service}/stop`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+        ));
+      } catch (error) {
+        console.error('Error toggling services:', error);
+        throw error;
+      }
+    },
+
     handleTouchStart(event) {
       if (this.currentPath === '/spotify') {
-        this.touchStartY = event.touches[0].clientY
-        this.isSwiping = true
+        this.touchStartY = event.touches[0].clientY;
+        this.isSwiping = true;
       }
     },
-    handleTouchMove(event) {
-      if (this.currentPath === '/spotify' && this.touchStartY !== null && this.isSwiping) {
-        const currentY = event.touches[0].clientY
-        const swipeDistance = this.touchStartY - currentY
 
-        if (swipeDistance > 20 && currentY < this.touchStartY) {
-          this.showDock()
-          this.isSwiping = false
-          this.touchStartY = null
-        } else if (swipeDistance < -20 && currentY > this.touchStartY) {
-          this.hideDock()
-          this.isSwiping = false
-          this.touchStartY = null
+    handleTouchMove(event) {
+      if (this.currentPath === '/spotify' && this.isSwiping) {
+        const currentY = event.touches[0].clientY;
+        const swipeDistance = this.touchStartY - currentY;
+
+        if (swipeDistance > 20) {
+          this.showDock();
+        } else if (swipeDistance < -20) {
+          this.hideDock();
         }
       }
+    },
+
+    handleTouchEnd() {
+      this.isSwiping = false;
+      this.touchStartY = null;
     },
 
     showDock() {
       if (this.currentPath === '/spotify') {
         requestAnimationFrame(() => {
-          this.isVisible = true
-        })
+          this.isVisible = true;
+        });
       }
     },
 
     hideDock() {
       if (this.currentPath === '/spotify') {
-        this.isVisible = false
-      }
-    },
-
-    handleTouchEnd() {
-      if (this.currentPath === '/spotify') {
-        this.touchStartY = null
-        this.isSwiping = false
+        this.isVisible = false;
       }
     },
 
     initializeDockVisibility() {
-      this.isVisible = true
-    }
+      this.isVisible = true;
+    },
   },
+
   created() {
-    this.currentPath = this.$route.path
-    this.initializeDockVisibility()
+    this.currentPath = this.$route.path;
+    this.initializeDockVisibility();
   },
+
   watch: {
     '$route'(to) {
-      this.currentPath = to.path
-      this.isVisible = true
-    }
-  }
-}
+      this.currentPath = to.path;
+      this.isVisible = true; // Réinitialiser la visibilité à chaque changement de route
+    },
+  },
+};
 </script>
 
 <style scoped>
