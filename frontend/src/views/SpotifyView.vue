@@ -1,4 +1,4 @@
-frontend/src/views/SpotiftView.vue
+<!-- frontend/src/views/SpotiftView.vue -->
 <template>
   <div class="spotify-view">
     <div class="cover-image">

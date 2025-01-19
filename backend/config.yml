@@ -1,6 +1,17 @@
-# backend/config.yml
 server:
   enabled: true
-  address: localhost
+  address: "0.0.0.0"
   port: 24879
-  allow_origin: 'http://localhost:5173'  # Pour autoriser votre frontend Vue.js
+  allow_origin: "http://localhost:5173"
+
+audio_backend: "pulseaudio"
+audio_device: "default"
+
+device_name: 'SonoakAmp'
+device_type: speaker
+initial_volume: 100
+disable_autoplay: true
+volume_steps: 100
+
+normalisation_pregain: 0
+normalisation_disabled: false

@@ -6,6 +6,7 @@ import SpotifyView from '../views/SpotifyView.vue';
 import BluetoothView from '../views/BluetoothView.vue';
 import MacOSView from '../views/MacOSView.vue';
 import SettingsView from '../views/SettingsView.vue';
+import { useSpotifyStore } from '../stores/spotifyStore';  // Nouvelle ligne
 
 // Services configuration
 const API_ENDPOINTS = {
@@ -94,6 +95,18 @@ router.afterEach(async (to) => {
   if (activeService) {
     await toggleServices(activeService);
   }
+});
+
+// Nouvelle navigation guard pour gérer le WebSocket Spotify
+router.beforeEach((to, from, next) => {
+  const store = useSpotifyStore();
+  
+  // Si nous quittons la route spotify
+  if (from.path === '/spotify' && to.path !== '/spotify') {
+    store.setSpotifyRoute(false);
+  }
+  
+  next();
 });
 
 export default router;

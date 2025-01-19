@@ -1,92 +1,173 @@
-// backend/app.js
-const express = require('express');
-const cors = require('cors');
-const audioManager = require('./services/audioManager');
+import express from 'express';
+import cors from 'cors';
+import { WebSocketServer } from 'ws';
+import fetch from 'node-fetch';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import audioManager from './services/audioManager.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
+const port = process.env.PORT || 3000;
+const wsPort = 24880;
+const LIBRESPOT_API = 'http://localhost:24879';
 
-// Configurer CORS pour autoriser les requêtes depuis votre frontend Vue.js
 app.use(cors({
-  origin: 'http://localhost:5173' // L'URL de votre frontend Vue
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT']
 }));
 
 app.use(express.json());
 
-// Routes pour Spotify
-app.post('/audio/spotify/start', async (req, res) => {
+// Initialize WebSocket server
+const wss = new WebSocketServer({ port: wsPort });
+wss.on('connection', (ws) => {
+  console.log('Client connected to WebSocket.');
+  ws.send(JSON.stringify({ message: 'Connection established.' }));
+});
+
+// Service management routes
+app.post('/audio/:service/start', async (req, res) => {
   try {
-    await audioManager.startSpotify();
-    res.json({ message: 'Spotify service started' });
+    const service = req.params.service;
+    switch (service) {
+      case 'spotify':
+        await audioManager.startSpotify();
+        break;
+      case 'bluetooth':
+        await audioManager.startBluetooth();
+        break;
+      case 'macos':
+        await audioManager.startMacos();
+        break;
+      default:
+        return res.status(404).json({ error: 'Service not found' });
+    }
+    res.json({ message: `${service} service started` });
   } catch (error) {
-    console.error('Error starting Spotify:', error);
+    console.error(`Error starting ${req.params.service}:`, error);
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/audio/spotify/stop', async (req, res) => {
+app.post('/audio/:service/stop', async (req, res) => {
   try {
-    await audioManager.stopSpotify();
-    res.json({ message: 'Spotify service stopped' });
+    const service = req.params.service;
+    switch (service) {
+      case 'spotify':
+        await audioManager.stopSpotify();
+        break;
+      case 'bluetooth':
+        await audioManager.stopBluetooth();
+        break;
+      case 'macos':
+        await audioManager.stopMacos();
+        break;
+      default:
+        return res.status(404).json({ error: 'Service not found' });
+    }
+    res.json({ message: `${service} service stopped` });
   } catch (error) {
-    console.error('Error stopping Spotify:', error);
+    console.error(`Error stopping ${req.params.service}:`, error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Routes pour Bluetooth
-app.post('/audio/bluetooth/start', async (req, res) => {
+// Spotify API routes
+app.post('/audio/spotify/play', async (req, res) => {
   try {
-    await audioManager.startBluetooth();
-    res.json({ message: 'Bluetooth service started' });
+    console.log('Sending play command to Spotify...');
+    const response = await fetch(`${LIBRESPOT_API}/player/resume`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    res.json({ message: 'Playback started' });
   } catch (error) {
-    console.error('Error starting Bluetooth:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/audio/bluetooth/stop', async (req, res) => {
+app.post('/audio/spotify/pause', async (req, res) => {
   try {
-    await audioManager.stopBluetooth();
-    res.json({ message: 'Bluetooth service stopped' });
+    const response = await fetch(`${LIBRESPOT_API}/player/pause`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    res.json({ message: 'Playback paused' });
   } catch (error) {
-    console.error('Error stopping Bluetooth:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Routes pour MacOS
-app.post('/audio/macos/start', async (req, res) => {
+app.post('/audio/spotify/next', async (req, res) => {
   try {
-    await audioManager.startMacos();
-    res.json({ message: 'MacOS service started' });
+    console.log('Sending next command to Spotify...');
+    const response = await fetch(`${LIBRESPOT_API}/player/next`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    res.json({ message: 'Skipped to next track' });
   } catch (error) {
-    console.error('Error starting MacOS:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/audio/macos/stop', async (req, res) => {
+app.post('/audio/spotify/prev', async (req, res) => {
   try {
-    await audioManager.stopMacos();
-    res.json({ message: 'MacOS service stopped' });
+    console.log('Sending previous command to Spotify...');
+    const response = await fetch(`${LIBRESPOT_API}/player/prev`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    res.json({ message: 'Returned to previous track' });
   } catch (error) {
-    console.error('Error stopping MacOS:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// Route pour vérifier l'état de Spotify (utilisée par le store Spotify)
+app.post('/audio/spotify/seek', async (req, res) => {
+  try {
+    const { position } = req.body;
+    const response = await fetch(`${LIBRESPOT_API}/player/seek`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ position: Math.floor(position) })
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    res.json({ message: 'Seeked to position' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/audio/spotify/status', async (req, res) => {
   try {
-    const status = await audioManager.getSpotifyStatus();
-    res.json(status);
+    if (!audioManager.services.spotify) {
+      return res.json({
+        paused: true,
+        volume: 75,
+        track: null
+      });
+    }
+    
+    const response = await fetch(`${LIBRESPOT_API}/player`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    res.json(data);
   } catch (error) {
-    console.error('Error getting Spotify status:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+  console.log(`WebSocket server running on port ${wsPort}`);
 });

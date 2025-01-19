@@ -1,9 +1,15 @@
 // backend/services/audioManager.js
-const { exec, spawn } = require('child_process');
-const util = require('util');
-const execPromise = util.promisify(exec);
-const path = require('path');
-const fs = require('fs');
+import { exec, spawn } from 'child_process';
+import { promisify } from 'util';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { promises as fs } from 'fs';
+
+const execPromise = promisify(exec);
+
+// Get current file path in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 class AudioManager {
   constructor() {
@@ -24,15 +30,16 @@ class AudioManager {
 
       console.log('Starting Spotify service...');
       
-      const librespotPath = path.join(this.basePath, 'go-librespot');
+      const librespotPath = join(this.basePath, 'go-librespot');
       console.log('Using go-librespot at:', librespotPath);
 
       // Vérifier si le fichier existe
-      if (!fs.existsSync(librespotPath)) {
+      try {
+        await fs.access(librespotPath);
+      } catch (error) {
         throw new Error(`go-librespot not found at path: ${librespotPath}`);
       }
 
-      // Utiliser spawn au lieu d'exec pour une meilleure gestion du processus
       const process = spawn(librespotPath, [], {
         cwd: this.basePath,
         stdio: ['ignore', 'pipe', 'pipe']
@@ -43,17 +50,14 @@ class AudioManager {
       return new Promise((resolve, reject) => {
         let started = false;
 
-        // Capturer la sortie standard
         process.stdout.on('data', (data) => {
           console.log('Spotify stdout:', data.toString());
         });
 
-        // Capturer les erreurs et vérifier le démarrage
         process.stderr.on('data', (data) => {
           const output = data.toString();
           console.log('Spotify stderr:', output);
           
-          // Vérifier si le service est prêt (le message apparaît dans stderr)
           if (output.includes('api server listening')) {
             started = true;
             console.log('Spotify service is ready');
@@ -61,7 +65,6 @@ class AudioManager {
           }
         });
 
-        // Gérer la fin du processus
         process.on('close', (code) => {
           console.log(`Spotify process exited with code ${code}`);
           this.services.spotify = null;
@@ -70,17 +73,15 @@ class AudioManager {
           }
         });
 
-        // Timeout si le service ne démarre pas
         setTimeout(() => {
           if (!started) {
             process.kill();
             reject(new Error('Timeout waiting for Spotify service to start'));
           }
-        }, 5000); // 5 secondes de timeout
+        }, 5000);
       });
     } catch (error) {
       console.error('Error starting Spotify:', error);
-      // Nettoyage en cas d'erreur
       if (this.services.spotify) {
         this.services.spotify.kill();
         this.services.spotify = null;
@@ -95,8 +96,6 @@ class AudioManager {
         console.log('Stopping Spotify service...');
         this.services.spotify.kill();
         this.services.spotify = null;
-        
-        // Attendre que le processus soit bien terminé
         await new Promise(resolve => setTimeout(resolve, 1000));
         console.log('Spotify service stopped');
       }
@@ -182,14 +181,6 @@ EOF`
       throw error;
     }
   }
-
-  async getSpotifyStatus() {
-    return {
-      paused: this.services.spotify === null,
-      volume: 75,
-      track: {}
-    };
-  }
 }
 
-module.exports = new AudioManager();
+export default new AudioManager();

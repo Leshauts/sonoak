@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { API_BASE_URL } from '../config'
 
 export const useSpotifyStore = defineStore('spotify', () => {
+  // État
   const currentTrack = ref({
     name: '',
     artist_names: [],
@@ -14,12 +14,11 @@ export const useSpotifyStore = defineStore('spotify', () => {
   const volume = ref(100)
   const wsConnection = ref(null)
   const wsRetryCount = ref(0)
+  const isActive = ref(false)  // Pour suivre si Spotify est actif
   const MAX_RETRY_COUNT = 10
-  // Utilisation du bon chemin WebSocket avec le endpoint /events
-  const WEBSOCKET_URL = 'ws://localhost:24879/events'
-
   let wsReconnectTimeout = null
 
+  // Fonctions
   function clearReconnectTimeout() {
     if (wsReconnectTimeout) {
       clearTimeout(wsReconnectTimeout)
@@ -27,7 +26,41 @@ export const useSpotifyStore = defineStore('spotify', () => {
     }
   }
 
+  function setSpotifyRoute(isSpotifyPage) {
+    isActive.value = isSpotifyPage
+    if (isSpotifyPage) {
+      initializeWebSocket()
+    } else {
+      cleanupConnections()
+    }
+  }
+
+  function cleanupConnections() {
+    clearReconnectTimeout()
+    if (wsConnection.value) {
+      console.log('Closing WebSocket connection')
+      wsConnection.value.close()
+      wsConnection.value = null
+    }
+    wsRetryCount.value = 0
+    // Réinitialiser l'état
+    currentTrack.value = {
+      name: '',
+      artist_names: [],
+      album_cover_url: '',
+      position: 0,
+      duration: 0,
+    }
+    isPlaying.value = false
+    volume.value = 100
+  }
+
   async function initializeWebSocket() {
+    if (!isActive.value) {
+      console.log('Spotify not active, skipping WebSocket connection')
+      return
+    }
+
     try {
       clearReconnectTimeout()
 
@@ -41,13 +74,14 @@ export const useSpotifyStore = defineStore('spotify', () => {
         return
       }
 
-      console.log(`Attempting WebSocket connection (attempt ${wsRetryCount.value + 1}/${MAX_RETRY_COUNT})...`)
-      const ws = new WebSocket(WEBSOCKET_URL)
+      console.log('Attempting WebSocket connection...')
+      const ws = new WebSocket('ws://localhost:24879/events')
       wsConnection.value = ws
 
       ws.onopen = () => {
         console.log('WebSocket connected successfully')
         wsRetryCount.value = 0
+        fetchInitialState()
       }
 
       ws.onmessage = (event) => {
@@ -93,15 +127,14 @@ export const useSpotifyStore = defineStore('spotify', () => {
       }
 
       ws.onclose = (event) => {
-        console.log(`WebSocket connection closed (${event.code}): ${event.reason}`)
+        console.log('WebSocket connection closed:', event.code)
         wsConnection.value = null
         
-        if (wsRetryCount.value < MAX_RETRY_COUNT) {
+        if (wsRetryCount.value < MAX_RETRY_COUNT && isActive.value) {
           wsRetryCount.value++
-          console.log(`Scheduling reconnection attempt ${wsRetryCount.value}/${MAX_RETRY_COUNT}...`)
           wsReconnectTimeout = setTimeout(() => {
             initializeWebSocket()
-          }, 2000)
+          }, 5000)
         }
       }
 
@@ -110,98 +143,101 @@ export const useSpotifyStore = defineStore('spotify', () => {
       }
     } catch (error) {
       console.error('Error in initializeWebSocket:', error)
-      if (wsRetryCount.value < MAX_RETRY_COUNT) {
+      if (wsRetryCount.value < MAX_RETRY_COUNT && isActive.value) {
         wsRetryCount.value++
         wsReconnectTimeout = setTimeout(() => {
           initializeWebSocket()
-        }, 2000)
+        }, 5000)
       }
-    }
-  }
-
-
-  function updateTrack(trackData) {
-    if (!trackData) return;
-    
-    currentTrack.value = {
-      name: trackData.name || '',
-      artist_names: trackData.artist_names || [],
-      album_cover_url: trackData.album_cover_url || '',
-      position: trackData.position || 0,
-      duration: trackData.duration || 0,
     }
   }
 
   async function fetchInitialState() {
+    if (!isActive.value) return
+
     try {
-      const response = await fetch(`${API_BASE_URL}/audio/spotify/status`);
-      const data = await response.json();
-      console.log('Initial state:', data);
+      const response = await fetch('http://localhost:24879/player')
+      const data = await response.json()
+      console.log('Initial state:', data)
 
-      isPlaying.value = !data.paused;
-      volume.value = data.volume || 75;
-
-      if (data.track) {
-        updateTrack(data.track);
+      if (data && data.track) {
+        currentTrack.value = {
+          name: data.track.name || '',
+          artist_names: data.track.artist_names || [],
+          album_cover_url: data.track.album_cover_url || '',
+          position: data.track.position || 0,
+          duration: data.track.duration || 0,
+        }
+        isPlaying.value = !data.paused
       }
+
+      volume.value = data?.volume ?? 100
     } catch (error) {
-      console.error('Error fetching initial state:', error);
+      console.error('Error fetching initial state:', error)
     }
   }
 
   async function togglePlay() {
     try {
-      const endpoint = isPlaying.value ? '/audio/spotify/pause' : '/audio/spotify/play';
-      await fetch(`${API_BASE_URL}${endpoint}`, {
+      const endpoint = isPlaying.value ? '/player/pause' : '/player/resume'
+      const response = await fetch(`http://localhost:24879${endpoint}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+        headers: { 'Content-Type': 'application/json' }
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
     } catch (error) {
-      console.error('Error toggling playback:', error);
+      console.error('Error toggling playback:', error)
     }
   }
 
   async function next() {
     try {
-      await fetch(`${API_BASE_URL}/audio/spotify/next`, {
+      const response = await fetch('http://localhost:24879/player/next', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}'
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
     } catch (error) {
-      console.error('Error skipping track:', error);
+      console.error('Error skipping track:', error)
     }
   }
 
   async function previous() {
     try {
-      await fetch(`${API_BASE_URL}/audio/spotify/prev`, {
+      const response = await fetch('http://localhost:24879/player/prev', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}'
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
     } catch (error) {
-      console.error('Error going to previous track:', error);
+      console.error('Error going to previous track:', error)
     }
   }
 
   async function seek(position) {
     try {
-      await fetch(`${API_BASE_URL}/audio/spotify/seek`, {
+      const response = await fetch('http://localhost:24879/player/seek', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          position: position,
-        }),
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position: Math.floor(position) })
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
     } catch (error) {
-      console.error('Error seeking position:', error);
+      console.error('Error seeking position:', error)
     }
   }
 
@@ -209,11 +245,14 @@ export const useSpotifyStore = defineStore('spotify', () => {
     currentTrack,
     isPlaying,
     volume,
+    isActive,
     initializeWebSocket,
     fetchInitialState,
     togglePlay,
     next,
     previous,
     seek,
+    setSpotifyRoute,
+    cleanupConnections
   }
 })
