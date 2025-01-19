@@ -6,12 +6,12 @@ server:
 
 audio_backend: "pulseaudio"
 audio_device: "default"
+bitrate: 320
 
 device_name: 'SonoakAmp'
 device_type: speaker
 initial_volume: 100
-disable_autoplay: true
-volume_steps: 100
+external_volume: true
 
 normalisation_pregain: 0
 normalisation_disabled: false

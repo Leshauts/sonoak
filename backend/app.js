@@ -14,18 +14,38 @@ const port = process.env.PORT || 3000;
 const wsPort = 24880;
 const LIBRESPOT_API = 'http://localhost:24879';
 
+let currentPage = '/'; // Tracks the current page for synchronization
+
 app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT']
+  origin: '*', // Allow any origin for testing on the local network
+  methods: ['GET', 'POST', 'PUT'],
 }));
 
 app.use(express.json());
 
-// Initialize WebSocket server
+// Initialize WebSocket server for page synchronization
 const wss = new WebSocketServer({ port: wsPort });
+
 wss.on('connection', (ws) => {
   console.log('Client connected to WebSocket.');
-  ws.send(JSON.stringify({ message: 'Connection established.' }));
+
+  // Send the current page to the newly connected client
+  ws.send(JSON.stringify({ type: 'updatePage', page: currentPage }));
+
+  ws.on('message', (message) => {
+    const data = JSON.parse(message);
+    if (data.type === 'navigate') {
+      currentPage = data.page; // Update the current page
+      console.log(`New page requested: ${currentPage}`);
+
+      // Broadcast the new page to all connected clients
+      wss.clients.forEach((client) => {
+        if (client.readyState === 1) {
+          client.send(JSON.stringify({ type: 'updatePage', page: currentPage }));
+        }
+      });
+    }
+  });
 });
 
 // Service management routes
