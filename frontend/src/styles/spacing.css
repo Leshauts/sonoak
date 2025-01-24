@@ -1,0 +1,22 @@
+:root {
+    --spacing-01: 4px;
+    --spacing-02: 8px;
+    --spacing-03: 12px;
+    --spacing-04: 16px;
+    --spacing-05-fixed: 24px;
+    --spacing-05: 24px;
+    --spacing-06: 32px;
+    --spacing-07: 47px;
+    --spacing-08: 64px;
+  }
+  
+  @media (max-width: 768px) {
+    :root {
+
+      --spacing-05: 16px;
+      --spacing-06: 24px;
+      --spacing-07: 32px;
+      --spacing-08: 48px;
+    }
+  }
+  
