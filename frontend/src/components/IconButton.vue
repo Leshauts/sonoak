@@ -30,6 +30,7 @@
     align-items: center;
     justify-content: center;
     transition: opacity 0.2s;
+    line-height: 0px;
   }
   
   .icon-button:hover {

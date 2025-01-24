@@ -52,7 +52,7 @@
     --h1-font: 500 24px/28px var(--font-primary);
     --h2-font: 500 22px/26px var(--font-primary);
     --text-font: 500 16px/24px var(--font-primary);
-    --number-font: 400 14px/20px var(--font-mono);
+    /* --number-font: 400 14px/20px var(--font-mono); */
     
     --h1-spacing: 0;
     --h2-spacing: 0;

@@ -12,7 +12,7 @@
             <img :src="'/src/components/services/' + item.iconName + '.svg'" :alt="item.name" class="dock-icon">
           </router-link>
         </nav>
-        <div class="dock-grabber" :style="{ opacity: Math.pow(blurPosition / 100, 2) * 0.12 }"></div>
+        <div class="dock-grabber" :style="{ opacity: Math.pow(blurPosition / 100, 2) * 0.08 }"></div>
 
       </div>
       <GradientBlur :isVisible="isVisible" position="bottom" height="50%"
@@ -23,32 +23,7 @@
 
 <script>
 import GradientBlur from './GradientBlur.vue';
-
-function SpringSolver(mass, stiffness, damping, initialVelocity) {
-  this.m_w0 = Math.sqrt(stiffness / mass);
-  this.m_zeta = damping / (2 * Math.sqrt(stiffness * mass));
-
-  if (this.m_zeta < 1) {
-    this.m_wd = this.m_w0 * Math.sqrt(1 - this.m_zeta * this.m_zeta);
-    this.m_A = 1;
-    this.m_B = (this.m_zeta * this.m_w0 + -initialVelocity) / this.m_wd;
-  } else {
-    this.m_wd = 0;
-    this.m_A = 1;
-    this.m_B = -initialVelocity + this.m_w0;
-  }
-}
-
-SpringSolver.prototype.solve = function (t) {
-  let result;
-  if (this.m_zeta < 1) {
-    result = Math.exp(-t * this.m_zeta * this.m_w0) *
-      (this.m_A * Math.cos(this.m_wd * t) + this.m_B * Math.sin(this.m_wd * t));
-  } else {
-    result = (this.m_A + this.m_B * t) * Math.exp(-t * this.m_w0);
-  }
-  return 1 - result;
-};
+import { SpringSolver } from './spring.js';
 
 export default {
   name: 'Dock',
@@ -285,7 +260,7 @@ export default {
   left: 50%;
   top: 29px;
   margin: 0 auto;
-  background: var(--text-light, #A6ACA6);
+  background: #787978;
   transition: opacity 0.2s ease;
 }
 
@@ -295,23 +270,6 @@ export default {
   }
 }
 
-.dock-item.active .dock-icon {
-  animation: dimPulse 0.3s ease-in-out;
-}
-
-@keyframes dimPulse {
-  0% {
-    filter: contrast(1);
-  }
-
-  50% {
-    filter: contrast(0.8);
-  }
-
-  100% {
-    filter: contrast(1);
-  }
-}
 
 
 @media (max-aspect-ratio: 3/2) {

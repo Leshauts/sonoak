@@ -22,7 +22,7 @@
 
       <!-- Barre de lecture -->
       <div class="playback-bar">
-        <span class="time">00:00</span>
+        <span class="time">0:00</span>
         <div class="progress-bar">
           <div class="progress" :style="{ width: '34%' }"></div>
         </div>
@@ -113,21 +113,25 @@ export default {
 .playback-bar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-03);
+  gap: var(--spacing-04);
   margin: var(--spacing-05)0;
 }
 
 .progress-bar {
   flex: 1;
-  height: var(--spacing-01);
+  height: 6px;
   background-color: var(--background-strong);
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .progress {
   height: 100%;
   background-color: var(--text);
-  border-radius: 2px;
+  border-radius: 6px;
+}
+.time {
+  width:48px;
+  text-align:center;
 }
 
 @media (max-aspect-ratio: 3/2) {
