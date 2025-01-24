@@ -10,15 +10,12 @@
           </div>
         </div>
       </div>
-      <GradientBlur :isVisible="isVisible" position="top" height="50%"
-        :style="{ transform: `translateY(${-blurPosition}%)` }" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import GradientBlur from './GradientBlur.vue'
 import { SpringSolver } from './spring.js'
 
 const isVisible = ref(false)
@@ -64,14 +61,15 @@ function hideVolume() {
 
 window.testVolume = () => {
   showVolume()
-   setTimeout(() => hideVolume(), 2000)
+  // setTimeout(() => hideVolume(), 2000)
 }
 </script>
 
 <style scoped>
 .volume-bar-wrapper {
   width: 100%;
-  padding: var(--spacing-07);
+  max-width: 280px;
+  padding: 24px 0 var(--spacing-07)  0 ;
   position: absolute;
   left: 50%;
   z-index: 10;
@@ -81,14 +79,15 @@ window.testVolume = () => {
   width: 100%;
   padding: 16px;
   border-radius: 12px;
-  background: var(--background-neutral, #FFF);
+  background: rgba(191, 191, 191, 0.32);
+  backdrop-filter: blur(12px);
 }
 
 .volume-slider {
   position: relative;
   width: 100%;
-  height: 12px;
-  background: var(--background-strong);
+  height: 6px;
+  background: var(--background-neutral);
   border-radius: 6px;
 }
 
@@ -99,5 +98,15 @@ window.testVolume = () => {
   border-radius: 6px;
   left: 0;
   top: 0;
+}
+
+
+@media (max-aspect-ratio: 3/2) {
+  .volume-bar-wrapper {
+    max-width: none;
+    padding: 32px;
+  }
+
+  
 }
 </style>

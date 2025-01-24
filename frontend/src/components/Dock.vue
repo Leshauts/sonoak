@@ -15,8 +15,8 @@
         <div class="dock-grabber" :style="{ opacity: Math.pow(blurPosition / 100, 2) * 0.08 }"></div>
 
       </div>
-      <GradientBlur :isVisible="isVisible" position="bottom" height="50%"
-        :style="{ transform: `translateY(${blurPosition}%)` }" />
+      <!-- <GradientBlur :isVisible="isVisible" position="bottom" height="50%"
+        :style="{ transform: `translateY(${blurPosition}%)` }" /> -->
     </div>
   </div>
 </template>
@@ -73,7 +73,7 @@ export default {
       };
       const currentIndex = pathToIndexMap[this.currentPath] || 0;
       return {
-        transform: `translateX(${currentIndex * 80 + 20}px)`
+        transform: `translateX(${currentIndex * 88 + 24}px)`
       };
     }
   },
@@ -200,7 +200,7 @@ export default {
 <style scoped>
 .dock-wrapper {
   /* background: red; */
-  padding: var(--spacing-07) 8% 32px 8%;
+  padding: var(--spacing-07) 8% 24px 8%;
   position: absolute;
   left: 50%;
   bottom: 0;
@@ -209,7 +209,7 @@ export default {
   z-index: 10;
 }
 
-.dock {
+/* .dock {
   display: inline-flex;
   padding: 16px 16px;
   justify-content: center;
@@ -218,8 +218,18 @@ export default {
   border-radius: 32px;
   background: var(--background);
   position: relative;
-  transition: transform 0.2s cubic-bezier(0.215, 0.61, 0.355, 1),
-    opacity 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
+} */
+
+.dock {
+  display: inline-flex;
+  padding: 16px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  border-radius: 32px;
+  background: rgba(191, 191, 191, 0.32);
+  backdrop-filter: blur(12px);
+  position: relative;
 }
 
 .dock-item {
@@ -232,8 +242,8 @@ export default {
 }
 
 .dock-icon {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   transition: transform 0.2s ease;
 }
 

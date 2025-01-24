@@ -90,6 +90,7 @@ export default {
   position: fixed;
   top: var(--spacing-06);
   right: var(--spacing-06);
+  display:none;
 }
 
 

@@ -79,11 +79,11 @@ export default {
 
 .controller {
   display: inline-flex;
-  padding: var(--spacing-02);
+  padding: var(--spacing-03);
   justify-content: center;
   align-items: center;
   gap: 16%;
-  border-radius: 16px;
+  border-radius: 24px;
   background: var(--background);
   width: 100%;
   box-sizing: border-box;

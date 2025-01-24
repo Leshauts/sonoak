@@ -10,7 +10,7 @@
     --spacing-08: 64px;
   }
   
-  @media (max-width: 768px) {
+  @media (max-aspect-ratio: 3/2) {
     :root {
 
       --spacing-05: 16px;
