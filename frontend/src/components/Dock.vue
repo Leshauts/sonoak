@@ -67,9 +67,9 @@ export default {
             hidePosition: 128,
             snap: {
               threshold: 0.1, // Min:0 — Max:0.5
-              minDragDistance: 10, // Min:1 — Max:50
+              minDragDistance: 150, // Min:1 — Max:50
               velocityThreshold: 0.5, // Min:0.3 — Max:1
-              dragThreshold: 10 // Min:1 — Max:20
+              dragThreshold: 10, // Min:1 — Max:20
             },
             animation: {
               show: {
@@ -102,9 +102,9 @@ export default {
             hidePosition: 184,
             snap: {
               threshold: 0.1,
-              minDragDistance: 20,
-              velocityThreshold: 0.5,
-              dragThreshold: 10
+              minDragDistance: 15,
+              velocityThreshold: 0,
+              dragThreshold: 15
             },
             animation: {
               show: {
@@ -112,7 +112,7 @@ export default {
                   mass: 2,
                   stiffness: 160,
                   damping: 19,
-                  velocity: 1
+                  velocity: 0
                 },
                 duration: 400
               },
@@ -120,7 +120,7 @@ export default {
                 spring: { mass: 1,
                   stiffness: 100,
                   damping: 14,
-                  velocity: 1
+                  velocity: 0
                 },
                 duration: 400
               }
@@ -185,10 +185,10 @@ export default {
       const { hidePosition } = this.activeConfig.dock;
 
       if (this.isVisible) {
-        const dockDelta = Math.min(hidePosition * 0.75, Math.pow(absDelta, 0.82));
+        const dockDelta = Math.min(hidePosition * 0.75, Math.pow(absDelta, 0.7));
         this.dockPosition = deltaY >= 0 ? dockDelta : -dockDelta;
       } else {
-        const dockDelta = Math.pow(absDelta, 0.82);
+        const dockDelta = Math.pow(absDelta, 0.7);
         this.dockPosition = Math.max(0, hidePosition - dockDelta);
       }
     },

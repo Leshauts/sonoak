@@ -78,7 +78,7 @@ window.testVolume = () => {
 .volume-bar {
   width: 100%;
   padding: 16px;
-  border-radius: 12px;
+  border-radius:12px;
   background: rgba(191, 191, 191, 0.32);
   backdrop-filter: blur(12px);
 }
@@ -86,7 +86,7 @@ window.testVolume = () => {
 .volume-slider {
   position: relative;
   width: 100%;
-  height: 6px;
+  height: 12px;
   background: var(--background-neutral);
   border-radius: 6px;
 }
@@ -104,7 +104,7 @@ window.testVolume = () => {
 @media (max-aspect-ratio: 3/2) {
   .volume-bar-wrapper {
     max-width: none;
-    padding: 32px;
+    padding: 36px;
   }
 
   
