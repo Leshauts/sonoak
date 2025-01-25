@@ -1,8 +1,5 @@
 <template>
   <div class="controller-wrapper">
-    <IconButton class="playlist-button" @click="navigateToPlaylists">
-      <PlaylistIcon color="var(--text-light)" variant="md" />
-    </IconButton>
     <div class="controller">
       <button class="control-button" @click="previous">
         <PreviousIcon color="var(--text-light)" variant="lg" />
@@ -14,9 +11,6 @@
         <NextIcon color="var(--text-light)" variant="lg" />
       </button>
     </div>
-    <IconButton class="volume-button" @click="toggleVolume">
-      <VolumeIcon color="var(--text-light)" variant="md" />
-    </IconButton>
   </div>
 </template>
 
@@ -25,8 +19,6 @@ import PlayIcon from './icons/PlayIcon.vue'
 import PauseIcon from './icons/PauseIcon.vue'
 import NextIcon from './icons/NextIcon.vue'
 import PreviousIcon from './icons/PreviousIcon.vue'
-import VolumeIcon from './icons/VolumeIcon.vue'
-import PlaylistIcon from './icons/PlaylistIcon.vue'
 import IconButton from './IconButton.vue'
 
 export default {
@@ -36,21 +28,14 @@ export default {
     PauseIcon,
     NextIcon,
     PreviousIcon,
-    VolumeIcon,
-    PlaylistIcon,
     IconButton
   },
   data() {
     return {
-      isPlaying: false,
-      isMuted: false
+      isPlaying: false
     }
   },
   methods: {
-
-    navigateToPlaylists() {
-      this.$router.push('/playlists')
-    },
     togglePlay() {
       this.isPlaying = !this.isPlaying
     },
@@ -59,11 +44,7 @@ export default {
     },
     next() {
       // Logique pour la piste suivante
-    },
-    toggleMute() {
-      this.isMuted = !this.isMuted
     }
-
   }
 }
 </script>
@@ -100,24 +81,13 @@ export default {
   transition: opacity 0.2s;
 }
 
-.volume-button {
-  display: none;
-}
-
-.playlist-button {
-  display: none;
-}
-
 @media (max-aspect-ratio: 3/2) {
-  .controller {
-    gap: 0px;
+  .controller-wrapper {
+    padding-bottom: 8px;
   }
 
-  .volume-button {
-    display: block;
-  }
-  .playlist-button {
-    display: block;
+  .controller {
+    gap: 8%;
   }
 }
 </style>

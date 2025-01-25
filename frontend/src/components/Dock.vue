@@ -24,7 +24,7 @@
             </router-link>
           </div>
         </nav>
-        <div class="dock-grabber"></div>
+        <div class="dock-grabber" :style="{ opacity: grabberOpacity }"></div>
       </div>
     </div>
   </div>
@@ -50,47 +50,101 @@ export default {
       isVisible: true,
       touchStartY: 0,
       dockPosition: 0,
-      positionConfig: {
-        default: {
-          indicatorOffset: 24,
-          indicatorStep: 88,
-          dockHidePosition: 128,
-          dragThreshold: 10
-        },
-        compact: {
-          indicatorOffset: 20,
-          indicatorStep: 80,
-          dockHidePosition: 184,
-          dragThreshold: 1
-        }
-      },
-      dockShowConfig: {
-        springConfig: { mass: 2, stiffness: 160, damping: 19, velocity: 1 },
-        duration: 400
-      },
-      dockHideConfig: {
-        springConfig: { mass: 1, stiffness: 100, damping: 14, velocity: 1 },
-        duration: 400
-      },
+      lastTouchPosition: null,
+      lastTouchTime: null,
       menuItems: [
         { name: 'Spotify', path: '/spotify', iconName: 'spotify' },
         { name: 'Bluetooth', path: '/bluetooth', iconName: 'bluetooth' },
         { name: 'MacOS', path: '/macos', iconName: 'macos' }
-      ]
+      ],
+      config: {
+        default: {
+          indicator: {
+            offset: 24,
+            step: 88
+          },
+          dock: {
+            hidePosition: 128,
+            snap: {
+              threshold: 0.1, // Min:0 — Max:0.5
+              minDragDistance: 10, // Min:1 — Max:50
+              velocityThreshold: 0.5, // Min:0.3 — Max:1
+              dragThreshold: 10 // Min:1 — Max:20
+            },
+            animation: {
+              show: {
+                spring: { 
+                mass: 2, // Min:0.5 — Max:5
+                stiffness: 160, // Min:50 — Max:200
+                damping: 19, // Min:10 — Max:30
+                velocity: 1 // Min:0 — Max:2
+              },
+                duration: 400
+              },
+              hide: {
+                spring: {
+                  mass: 1,
+                  stiffness: 100,
+                  damping: 14,
+                  velocity: 1
+                },
+                duration: 400
+              }
+            }
+          }
+        },
+        compact: {
+          indicator: {
+            offset: 20,
+            step: 80
+          },
+          dock: {
+            hidePosition: 184,
+            snap: {
+              threshold: 0.1,
+              minDragDistance: 20,
+              velocityThreshold: 0.5,
+              dragThreshold: 10
+            },
+            animation: {
+              show: {
+                spring: {
+                  mass: 2,
+                  stiffness: 160,
+                  damping: 19,
+                  velocity: 1
+                },
+                duration: 400
+              },
+              hide: {
+                spring: { mass: 1,
+                  stiffness: 100,
+                  damping: 14,
+                  velocity: 1
+                },
+                duration: 400
+              }
+            }
+          }
+        }
+      }
     }
   },
   computed: {
+    grabberOpacity() {
+      return Math.min(1, Math.pow(Math.abs(this.dockPosition) / this.activeConfig.dock.hidePosition, 4));
+    },
     isCompactDevice() {
       return window.matchMedia('(max-aspect-ratio: 3/2)').matches;
     },
     activeConfig() {
-      return this.isCompactDevice ? this.positionConfig.compact : this.positionConfig.default;
+      return this.config[this.isCompactDevice ? 'compact' : 'default'];
     },
     indicatorStyle() {
       const currentIndex = { '/spotify': 0, '/bluetooth': 1, '/macos': 2 }[this.currentPath] || 0;
-      const { indicatorOffset, indicatorStep } = this.activeConfig;
+      const { offset, step } = this.activeConfig.indicator;
       return {
-        transform: `translateX(${currentIndex * indicatorStep + indicatorOffset}px)`
+        transform: `translateX(${currentIndex * step + offset}px)`
       };
     }
   },
@@ -101,66 +155,94 @@ export default {
   },
   methods: {
     handleTouchStart(event) {
-      this.touchStartY = event.touches[0].clientY;
+      this.initializeTouch(event.touches[0].clientY);
     },
     handleMouseDown(event) {
-      this.touchStartY = event.clientY;
+      this.initializeTouch(event.clientY);
       window.addEventListener('mousemove', this.handleMouseMove);
       window.addEventListener('mouseup', this.handleMouseUp);
     },
+    initializeTouch(clientY) {
+      this.touchStartY = clientY;
+      this.lastTouchPosition = clientY;
+      this.lastTouchTime = Date.now();
+    },
     handleMouseMove(event) {
+      this.updateTouchPosition(event.clientY);
       this.handleDrag(event.clientY);
     },
-    handleMouseUp() {
-      window.removeEventListener('mousemove', this.handleMouseMove);
-      window.removeEventListener('mouseup', this.handleMouseUp);
-      this.handleDragEnd();
-    },
     handleTouchMove(event) {
+      this.updateTouchPosition(event.touches[0].clientY);
       this.handleDrag(event.touches[0].clientY);
+    },
+    updateTouchPosition(clientY) {
+      this.lastTouchPosition = clientY;
+      this.lastTouchTime = Date.now();
     },
     handleDrag(clientY) {
       const deltaY = clientY - this.touchStartY;
       const absDelta = Math.abs(deltaY);
-      const { dockHidePosition } = this.activeConfig;
+      const { hidePosition } = this.activeConfig.dock;
 
       if (this.isVisible) {
-        const dockDelta = Math.min(dockHidePosition * 0.75, Math.pow(absDelta, 0.82));
+        const dockDelta = Math.min(hidePosition * 0.75, Math.pow(absDelta, 0.82));
         this.dockPosition = deltaY >= 0 ? dockDelta : -dockDelta;
       } else {
         const dockDelta = Math.pow(absDelta, 0.82);
-        this.dockPosition = Math.max(0, dockHidePosition - dockDelta);
+        this.dockPosition = Math.max(0, hidePosition - dockDelta);
       }
     },
-    handleDragEnd() {
-      const { dragThreshold, dockHidePosition } = this.activeConfig;
+    handleDragEnd(event) {
+      const { snap, hidePosition } = this.activeConfig.dock;
+      const moveDistance = this.isVisible ?
+        Math.abs(this.dockPosition) :
+        Math.abs(this.dockPosition - hidePosition);
 
-      let shouldToggle;
-      if (this.isVisible) {
-        shouldToggle = Math.abs(this.dockPosition) > dragThreshold;
-      } else {
-        shouldToggle = Math.abs(this.dockPosition - dockHidePosition) > dragThreshold;
-      }
+      const totalDistance = Math.abs(hidePosition);
+      const movePercentage = moveDistance / totalDistance;
+      const velocity = this.calculateVelocity(event);
 
-      const endPosition = shouldToggle ? (this.isVisible ? dockHidePosition : 0) : (this.isVisible ? 0 : dockHidePosition);
+      const shouldSnap =
+        (moveDistance > snap.minDragDistance && movePercentage > snap.threshold) ||
+        Math.abs(velocity) > snap.velocityThreshold;
+
+      const endPosition = shouldSnap ?
+        (this.isVisible ? hidePosition : 0) :
+        (this.isVisible ? 0 : hidePosition);
+
+      const animConfig = this.isVisible ?
+        this.activeConfig.dock.animation.hide :
+        this.activeConfig.dock.animation.show;
 
       this.animateElement(
         this.dockPosition,
         endPosition,
-        this.isVisible ? this.dockHideConfig : this.dockShowConfig,
+        animConfig,
         (pos) => this.dockPosition = pos
       );
 
-      if (shouldToggle) {
+      if (shouldSnap) {
         this.isVisible = !this.isVisible;
       }
     },
+    calculateVelocity(event) {
+      const currentTime = Date.now();
+      const timeDelta = currentTime - this.lastTouchTime;
+
+      if (!this.lastTouchPosition || timeDelta === 0) return 0;
+
+      const touchY = event?.changedTouches ?
+        event.changedTouches[0].clientY :
+        event?.clientY || this.lastTouchPosition;
+
+      return (touchY - this.lastTouchPosition) / timeDelta;
+    },
     animateElement(startPosition, endPosition, config, updatePosition) {
       const spring = new SpringSolver(
-        config.springConfig.mass,
-        config.springConfig.stiffness,
-        config.springConfig.damping,
-        config.springConfig.velocity
+        config.spring.mass,
+        config.spring.stiffness,
+        config.spring.damping,
+        config.spring.velocity
       );
 
       const startTime = performance.now();
@@ -169,38 +251,39 @@ export default {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / config.duration, 1);
         const springProgress = spring.solve(progress);
+        const position = startPosition + (endPosition - startPosition) * springProgress;
 
-        updatePosition(startPosition + (endPosition - startPosition) * springProgress);
+        updatePosition(position);
 
-        if (progress < 1) {
+        if (progress === 1 && position !== 0 && endPosition === 0) {
+          this.smoothToZero(position);
+        } else if (progress < 1) {
           requestAnimationFrame(animate);
         }
       };
 
       requestAnimationFrame(animate);
     },
-    handleTouchEnd() {
-      const { dragThreshold, dockHidePosition } = this.activeConfig;
+    smoothToZero(startPosition) {
+      const startTime = performance.now();
 
-      let shouldToggle;
-      if (this.isVisible) {
-        shouldToggle = Math.abs(this.dockPosition) > dragThreshold;
-      } else {
-        shouldToggle = Math.abs(this.dockPosition - dockHidePosition) > dragThreshold;
-      }
+      const animate = (currentTime) => {
+        const progress = Math.min((currentTime - startTime) / 200, 1);
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        this.dockPosition = startPosition * (1 - easedProgress);
 
-      const endPosition = shouldToggle ? (this.isVisible ? dockHidePosition : 0) : (this.isVisible ? 0 : dockHidePosition);
+        if (progress < 1) requestAnimationFrame(animate);
+      };
 
-      this.animateElement(
-        this.dockPosition,
-        endPosition,
-        this.isVisible ? this.dockHideConfig : this.dockShowConfig,
-        (pos) => this.dockPosition = pos
-      );
-
-      if (shouldToggle) {
-        this.isVisible = !this.isVisible;
-      }
+      requestAnimationFrame(animate);
+    },
+    handleMouseUp(event) {
+      window.removeEventListener('mousemove', this.handleMouseMove);
+      window.removeEventListener('mouseup', this.handleMouseUp);
+      this.handleDragEnd(event);
+    },
+    handleTouchEnd(event) {
+      this.handleDragEnd(event);
     },
     LessVolume() {
       // Logique pour diminuer le volume
@@ -301,8 +384,8 @@ export default {
   left: 50%;
   top: 29px;
   margin: 0 auto;
-  background: #787978;
-  transition: opacity 0.2s ease;
+  background: #84848445;
+  /* transition: opacity 0.2s ease; */
 }
 
 @keyframes fadeIn {
@@ -315,7 +398,7 @@ export default {
 
 @media (max-aspect-ratio: 3/2) {
   .dock-grabber {
-    top: 18px;
+    top: 14px;
   }
 
   .dock-icon {
