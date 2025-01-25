@@ -1,4 +1,3 @@
-# Dock.vue
 <template>
   <div class="root"
     :style="{ position: 'fixed', width: '100%', height: '100%', pointerEvents: 'none', top: '0', left: '0' }">
@@ -6,52 +5,71 @@
       <div class="dock-wrapper" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd"
         :style="{ transform: `translateX(-50%) translateY(${dockPosition}px)` }">
         <nav class="dock">
-          <div v-if="showIndicator" class="dock-indicator" :style="indicatorStyle" />
-          <router-link v-for="(item, index) in menuItems" :key="item.path" :to="item.path" class="dock-item"
-            :class="{ 'active': currentPath === item.path }">
-            <img :src="'/src/components/services/' + item.iconName + '.svg'" :alt="item.name" class="dock-icon">
-          </router-link>
-        </nav>
-        <div class="dock-grabber" :style="{ opacity: Math.pow(blurPosition / 100, 2) * 0.08 }"></div>
+          <div v-if="isCompactDevice" class="dock-volume-controls">
 
+            <IconButton class="volume-button" @click="LessVolume">
+              <LessIcon color="var(--text-light)" variant="md" />
+            </IconButton>
+
+            <IconButton class="volume-button" @click="MoreVolume">
+              <PlusIcon color="var(--text-light)" variant="md" />
+            </IconButton>
+
+          </div>
+          <div v-if="showIndicator" class="dock-indicator" :style="indicatorStyle" />
+          <div class="dock-items-container">
+            <router-link v-for="(item, index) in menuItems" :key="item.path" :to="item.path" class="dock-item"
+              :class="{ 'active': currentPath === item.path }">
+              <img :src="'/src/components/services/' + item.iconName + '.svg'" :alt="item.name" class="dock-icon">
+            </router-link>
+          </div>
+        </nav>
+        <div class="dock-grabber"></div>
       </div>
-      <!-- <GradientBlur :isVisible="isVisible" position="bottom" height="50%"
-        :style="{ transform: `translateY(${blurPosition}%)` }" /> -->
     </div>
   </div>
 </template>
 
 <script>
-import GradientBlur from './GradientBlur.vue';
+import IconButton from './IconButton.vue';
+import LessIcon from './icons/LessIcon.vue';
+import PlusIcon from './icons/PlusIcon.vue';
 import { SpringSolver } from './spring.js';
 
 export default {
   name: 'Dock',
-  components: { GradientBlur },
+  components: {
+    IconButton,
+    LessIcon,
+    PlusIcon
+  },
   data() {
     return {
+      showIndicator: true,
       currentPath: '/spotify',
       isVisible: true,
       touchStartY: 0,
       dockPosition: 0,
-      blurPosition: 0,
-      dockTension: 0.82,
-      blurShowTension: 0.8,
-      blurHideTension: 0.8,
+      positionConfig: {
+        default: {
+          indicatorOffset: 24,
+          indicatorStep: 88,
+          dockHidePosition: 128,
+          dragThreshold: 10
+        },
+        compact: {
+          indicatorOffset: 20,
+          indicatorStep: 80,
+          dockHidePosition: 184,
+          dragThreshold: 1
+        }
+      },
       dockShowConfig: {
         springConfig: { mass: 2, stiffness: 160, damping: 19, velocity: 1 },
         duration: 400
       },
       dockHideConfig: {
         springConfig: { mass: 1, stiffness: 100, damping: 14, velocity: 1 },
-        duration: 400
-      },
-      blurShowConfig: {
-        springConfig: { mass: 1, stiffness: 140, damping: 30, velocity: 0 },
-        duration: 400
-      },
-      blurHideConfig: {
-        springConfig: { mass: 1, stiffness: 240, damping: 30, velocity: 0 },
         duration: 400
       },
       menuItems: [
@@ -62,18 +80,17 @@ export default {
     }
   },
   computed: {
-    showIndicator() {
-      return this.currentPath !== '/';
+    isCompactDevice() {
+      return window.matchMedia('(max-aspect-ratio: 3/2)').matches;
+    },
+    activeConfig() {
+      return this.isCompactDevice ? this.positionConfig.compact : this.positionConfig.default;
     },
     indicatorStyle() {
-      const pathToIndexMap = {
-        '/spotify': 0,
-        '/bluetooth': 1,
-        '/macos': 2
-      };
-      const currentIndex = pathToIndexMap[this.currentPath] || 0;
+      const currentIndex = { '/spotify': 0, '/bluetooth': 1, '/macos': 2 }[this.currentPath] || 0;
+      const { indicatorOffset, indicatorStep } = this.activeConfig;
       return {
-        transform: `translateX(${currentIndex * 88 + 24}px)`
+        transform: `translateX(${currentIndex * indicatorStep + indicatorOffset}px)`
       };
     }
   },
@@ -105,38 +122,33 @@ export default {
     handleDrag(clientY) {
       const deltaY = clientY - this.touchStartY;
       const absDelta = Math.abs(deltaY);
+      const { dockHidePosition } = this.activeConfig;
 
       if (this.isVisible) {
-        const dockDelta = Math.min(96, Math.pow(absDelta, this.dockTension));
-        const blurDelta = Math.min(100, Math.pow(absDelta, this.blurShowTension));
-
+        const dockDelta = Math.min(dockHidePosition * 0.75, Math.pow(absDelta, 0.82));
         this.dockPosition = deltaY >= 0 ? dockDelta : -dockDelta;
-        this.blurPosition = Math.max(0, deltaY >= 0 ? blurDelta : -blurDelta);
       } else {
-        const dockDelta = -Math.pow(absDelta, this.dockTension);
-        const blurDelta = -Math.pow(absDelta, this.blurHideTension);
-
-        this.dockPosition = Math.min(128, 128 + (deltaY >= 0 ? -dockDelta : dockDelta));
-        this.blurPosition = Math.max(0, Math.min(100, 100 + (deltaY >= 0 ? -blurDelta : blurDelta)));
+        const dockDelta = Math.pow(absDelta, 0.82);
+        this.dockPosition = Math.max(0, dockHidePosition - dockDelta);
       }
     },
     handleDragEnd() {
-      const threshold = 10;
-      const shouldToggle = Math.abs(this.dockPosition) > threshold;
-      const endPosition = shouldToggle ? (this.isVisible ? 128 : 0) : (this.isVisible ? 0 : 128);
+      const { dragThreshold, dockHidePosition } = this.activeConfig;
+
+      let shouldToggle;
+      if (this.isVisible) {
+        shouldToggle = Math.abs(this.dockPosition) > dragThreshold;
+      } else {
+        shouldToggle = Math.abs(this.dockPosition - dockHidePosition) > dragThreshold;
+      }
+
+      const endPosition = shouldToggle ? (this.isVisible ? dockHidePosition : 0) : (this.isVisible ? 0 : dockHidePosition);
 
       this.animateElement(
         this.dockPosition,
         endPosition,
         this.isVisible ? this.dockHideConfig : this.dockShowConfig,
         (pos) => this.dockPosition = pos
-      );
-
-      this.animateElement(
-        this.blurPosition,
-        shouldToggle ? 100 : 0,
-        this.isVisible ? this.blurHideConfig : this.blurShowConfig,
-        (pos) => this.blurPosition = pos
       );
 
       if (shouldToggle) {
@@ -168,10 +180,16 @@ export default {
       requestAnimationFrame(animate);
     },
     handleTouchEnd() {
-      const threshold = 5;
-      const currentPosition = this.isVisible ? this.dockPosition : (100 - this.dockPosition);
-      const shouldToggle = currentPosition > threshold;
-      const endPosition = shouldToggle ? (this.isVisible ? 128 : 0) : (this.isVisible ? 0 : 128);
+      const { dragThreshold, dockHidePosition } = this.activeConfig;
+
+      let shouldToggle;
+      if (this.isVisible) {
+        shouldToggle = Math.abs(this.dockPosition) > dragThreshold;
+      } else {
+        shouldToggle = Math.abs(this.dockPosition - dockHidePosition) > dragThreshold;
+      }
+
+      const endPosition = shouldToggle ? (this.isVisible ? dockHidePosition : 0) : (this.isVisible ? 0 : dockHidePosition);
 
       this.animateElement(
         this.dockPosition,
@@ -180,18 +198,15 @@ export default {
         (pos) => this.dockPosition = pos
       );
 
-      this.animateElement(
-        this.blurPosition,
-        endPosition,
-        this.isVisible ? this.blurHideConfig : this.blurShowConfig,
-        (pos) => this.blurPosition = pos
-      );
-
       if (shouldToggle) {
-        setTimeout(() => {
-          this.isVisible = !this.isVisible;
-        }, this.dockHideConfig.duration);
+        this.isVisible = !this.isVisible;
       }
+    },
+    LessVolume() {
+      // Logique pour diminuer le volume
+    },
+    MoreVolume() {
+      // Logique pour augmenter le volume
     }
   }
 }
@@ -209,27 +224,42 @@ export default {
   z-index: 10;
 }
 
-/* .dock {
-  display: inline-flex;
-  padding: 16px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  border-radius: 32px;
-  background: var(--background);
-  position: relative;
-} */
+
 
 .dock {
   display: inline-flex;
-  padding: 16px 16px;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: var(--spacing-04);
+  padding: var(--spacing-04);
   border-radius: 32px;
   background: rgba(191, 191, 191, 0.32);
   backdrop-filter: blur(12px);
   position: relative;
+}
+
+.dock-volume-controls {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: var(--spacing-02);
+}
+
+.volume-button {
+  background: var(--background-neutral);
+  border: none;
+  width: 100%;
+  padding: 8px;
+  border-radius: 16px;
+
+}
+
+.dock-items-container {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-04);
 }
 
 .dock-item {
@@ -245,6 +275,7 @@ export default {
   width: 72px;
   height: 72px;
   transition: transform 0.2s ease;
+  border-radius: 16px;
 }
 
 .dock-indicator {
@@ -285,6 +316,11 @@ export default {
 @media (max-aspect-ratio: 3/2) {
   .dock-grabber {
     top: 18px;
+  }
+
+  .dock-icon {
+    width: 64px;
+    height: 64px;
   }
 }
 </style>
