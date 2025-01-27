@@ -38,23 +38,6 @@ export default {
     }
   },
 
-  computed: {
-    connectionStatus() {
-      if (this.connectionError) return 'Erreur de connexion'
-      if (!this.wsConnected) return 'Connexion...'
-      return this.connectedDevices.length === 0 ? 'Aucun appareil connecté' : 'Connecté'
-    },
-
-    connectionStatusClass() {
-      return {
-        'text-red-600': this.connectionError,
-        'text-yellow-600': !this.wsConnected,
-        'text-green-600': this.wsConnected && this.connectedDevices.length > 0,
-        'text-gray-600': this.wsConnected && this.connectedDevices.length === 0
-      }
-    }
-  },
-
   methods: {
     getDeviceDisplayName(device) {
       return device.name === 'Unknown' ? 'Connexion en cours...' : `Connecté à ${device.name}`
