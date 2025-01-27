@@ -1,12 +1,17 @@
 <template>
   <div class="view bluetooth-view">
     <h1>Bluetooth</h1>
-    <!-- Autre contenu de la page -->
+    <BluetoothDialog />
   </div>
 </template>
 
 <script>
+import BluetoothDialog from '@/components/BluetoothDialog.vue'
+
 export default {
-  name: 'BluetoothView'
+  name: 'BluetoothView',
+  components: {
+    BluetoothDialog
+  }
 }
 </script>
