@@ -97,13 +97,10 @@ export default {
 .track-info {
   flex: 1;
   display: flex;
+  gap: var(--spacing-02);
   flex-direction: column;
   justify-content: center;
   text-align: center;
-}
-
-.track-info h1 {
-  margin-bottom: var(--spacing-04);
 }
 
 .track-info h2 {

@@ -67,7 +67,7 @@ export default {
             hidePosition: 128,
             snap: {
               threshold: 0.1, // Min:0 — Max:0.5
-              minDragDistance: 150, // Min:1 — Max:50
+              minDragDistance: 15, // Min:1 — Max:50
               velocityThreshold: 0.5, // Min:0.3 — Max:1
               dragThreshold: 10, // Min:1 — Max:20
             },
@@ -316,7 +316,7 @@ export default {
   gap: var(--spacing-04);
   padding: var(--spacing-04);
   border-radius: 32px;
-  background: rgba(191, 191, 191, 0.32);
+  background: rgba(162, 162, 162, 0.24);
   backdrop-filter: blur(12px);
   position: relative;
 }
