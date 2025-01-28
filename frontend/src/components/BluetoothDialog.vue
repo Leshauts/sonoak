@@ -2,22 +2,19 @@
   <div class="bluetooth-dialog">
     <div class="p-6">
       <div class="flex flex-col space-y-4">
-        <div v-if="connectedDevices.length === 0" class="text-gray-600">
+        <div v-if="!connectedDevice" class="text-gray-600">
           Aucun appareil connecté
         </div>
-        <div v-else>
-          <div v-for="device in connectedDevices" :key="device.address" 
-               class="flex items-center justify-between p-3 bg-white rounded-lg shadow">
-            <div class="text-green-600">
-              {{ getDeviceDisplayName(device) }}
-            </div>
-            <button
-              @click="disconnectDevice(device.address)"
-              class="px-4 py-2 bg-red-100 hover:bg-red-200 rounded text-red-700"
-            >
-              Déconnecter
-            </button>
+        <div v-else class="flex items-center justify-between p-3 bg-white rounded-lg shadow">
+          <div class="text-green-600">
+            {{ getDeviceDisplayName(connectedDevice) }}
           </div>
+          <button
+            @click="disconnectDevice(connectedDevice.address)"
+            class="px-4 py-2 bg-red-100 hover:bg-red-200 rounded text-red-700"
+          >
+            Déconnecter
+          </button>
         </div>
       </div>
     </div>
@@ -27,29 +24,26 @@
 <script>
 export default {
   name: 'BluetoothDialog',
-
   data() {
     return {
-      dialog: true,
       ws: null,
-      connectedDevices: [],
+      connectedDevice: null,
       wsConnected: false,
       connectionError: null
     }
   },
-
   methods: {
     getDeviceDisplayName(device) {
       return device.name === 'Unknown' ? 'Connexion en cours...' : `Connecté à ${device.name}`
     },
-
+    
     disconnectDevice(address) {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        console.log('Envoi de la commande de déconnexion pour:', address);
+        console.log('Envoi de la commande de déconnexion pour:', address)
         this.ws.send(JSON.stringify({
-          command: 'disconnect',
-          address: address
-        }));
+          type: 'disconnect_device',
+          data: { address }
+        }))
       }
     },
 
@@ -59,8 +53,8 @@ export default {
       }
 
       try {
-        this.ws = new WebSocket(`ws://${window.location.hostname}:8765`)
-
+        this.ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/bluetooth`)
+        
         this.ws.onopen = () => {
           console.log('WebSocket connecté')
           this.wsConnected = true
@@ -72,9 +66,10 @@ export default {
           try {
             const data = JSON.parse(event.data)
             console.log('Message reçu:', data)
-
+            
             if (data.type === 'devices_status') {
-              this.connectedDevices = data.devices
+              // Comme nous ne gérons qu'un seul appareil, nous prenons le premier de la liste
+              this.connectedDevice = data.devices[0] || null
             }
           } catch (error) {
             console.error('Erreur parsing message:', error)
@@ -99,7 +94,10 @@ export default {
 
     checkStatus() {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({ command: 'get_status' }))
+        this.ws.send(JSON.stringify({ 
+          type: 'get_status',
+          data: {}
+        }))
       }
     },
 
@@ -111,7 +109,6 @@ export default {
 
     handleDisconnect() {
       clearInterval(this.periodicCheck)
-
       setTimeout(() => {
         if (!this.wsConnected) {
           this.initWebSocket()
@@ -133,7 +130,7 @@ export default {
     this.initWebSocket()
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     this.cleanupWebSocket()
   },
 
