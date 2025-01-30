@@ -45,6 +45,8 @@ export default {
   },
   data() {
     return {
+      ws: null,
+      ignoreNextRouteChange: false,
       showIndicator: true,
       currentPath: '/spotify',
       isVisible: true,
@@ -73,12 +75,12 @@ export default {
             },
             animation: {
               show: {
-                spring: { 
-                mass: 2, // Min:0.5 — Max:5
-                stiffness: 160, // Min:50 — Max:200
-                damping: 19, // Min:10 — Max:30
-                velocity: 1 // Min:0 — Max:2
-              },
+                spring: {
+                  mass: 2, // Min:0.5 — Max:5
+                  stiffness: 160, // Min:50 — Max:200
+                  damping: 19, // Min:10 — Max:30
+                  velocity: 1 // Min:0 — Max:2
+                },
                 duration: 400
               },
               hide: {
@@ -117,7 +119,8 @@ export default {
                 duration: 400
               },
               hide: {
-                spring: { mass: 1,
+                spring: {
+                  mass: 1,
                   stiffness: 100,
                   damping: 14,
                   velocity: 0
@@ -150,10 +153,62 @@ export default {
   },
   watch: {
     $route(to) {
-      this.currentPath = to.path;
+      this.currentPath = to.path
+      this.notifyRouteChange(to.path)
+    }
+  },
+  mounted() {
+    this.initWebSocket()
+  },
+  beforeUnmount() {
+    if (this.ws) {
+      this.ws.close()
+      this.ws = null
     }
   },
   methods: {
+    initWebSocket() {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        return
+      }
+
+      this.ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/navigation`)
+
+      this.ws.onopen = () => {
+        console.log('WebSocket Navigation connecté')
+        this.ws.send(JSON.stringify({
+          type: 'get_current_route'
+        }))
+      }
+
+      this.ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          if (data.type === 'navigation_update' && data.route !== this.currentPath) {
+            this.ignoreNextRouteChange = true
+            this.$router.push(data.route)
+          }
+        } catch (error) {
+          console.error('Erreur parsing message navigation:', error)
+        }
+      }
+
+      this.ws.onclose = () => {
+        console.log('WebSocket Navigation déconnecté')
+        setTimeout(() => this.initWebSocket(), 2000)
+      }
+    },
+
+    notifyRouteChange(route) {
+      if (!this.ignoreNextRouteChange && this.ws?.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({
+          type: 'route_change',
+          data: { route }
+        }))
+      }
+      this.ignoreNextRouteChange = false
+    },
+
     handleTouchStart(event) {
       this.initializeTouch(event.touches[0].clientY);
     },

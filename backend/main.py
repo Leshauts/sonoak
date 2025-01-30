@@ -7,6 +7,7 @@ from services.snapcast.manager import SnapcastManager
 from services.snapcast.routes import router as snapcast_router, init_routes as init_snapcast_routes
 from services.spotify.manager import SpotifyManager
 from services.spotify.routes import router as spotify_router, init_routes as init_spotify_routes
+from services.navigation.manager import NavigationManager  # Nouveau import
 from websocket.manager import WebSocketManager
 import uvicorn
 
@@ -26,6 +27,7 @@ websocket_manager = WebSocketManager()
 bluetooth_manager = BluetoothManager(websocket_manager)
 snapcast_manager = SnapcastManager(websocket_manager)
 spotify_manager = SpotifyManager(websocket_manager)
+navigation_manager = NavigationManager(websocket_manager)  # Nouveau gestionnaire
 
 # Initialisation des gestionnaires d'événements
 bluetooth_events = BluetoothEventHandler(bluetooth_manager)
@@ -53,6 +55,8 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
                 await snapcast_manager.handle_message(data)
             elif service == "spotify":
                 await spotify_manager.handle_message(data)
+            elif service == "navigation":
+                await navigation_manager.handle_message(data)
             
     except Exception as e:
         print(f"WebSocket error: {e}")
@@ -62,8 +66,7 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
 @app.on_event("startup")
 async def startup_event():
     """Événement de démarrage de l'application"""
-    print("Starting Bluetooth, Snapcast and Spotify Services...")
-    # Initialisation des connexions et statuts
+    print("Starting all services...")
     await snapcast_manager.get_clients_status()
     await spotify_manager.connect_to_events()
 

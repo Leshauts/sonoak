@@ -1,17 +1,17 @@
 <template>
   <div class="view bluetooth-view">
     <h1>Bluetooth</h1>
-    <BluetoothDialog />
+    <BluetoothStatus />
   </div>
 </template>
 
 <script>
-import BluetoothDialog from '@/components/BluetoothDialog.vue'
+import BluetoothStatus from '@/components/BluetoothStatus.vue'
 
 export default {
   name: 'BluetoothView',
   components: {
-    BluetoothDialog
+    BluetoothStatus
   }
 }
 </script>

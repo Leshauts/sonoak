@@ -6,7 +6,8 @@ class WebSocketManager:
         self.active_connections: Dict[str, Set[WebSocket]] = {
             "bluetooth": set(),
             "snapcast": set(),
-            "spotify": set() 
+            "spotify": set(),
+            "navigation": set()
         }
 
     async def connect(self, websocket: WebSocket, service: str):
@@ -18,7 +19,8 @@ class WebSocketManager:
 
     def disconnect(self, websocket: WebSocket, service: str):
         """Déconnecte un client WebSocket"""
-        self.active_connections[service].remove(websocket)
+        if service in self.active_connections:
+            self.active_connections[service].discard(websocket)
 
     async def broadcast_to_service(self, message: dict, service: str):
         """Envoie un message à tous les clients d'un service spécifique"""
@@ -33,4 +35,4 @@ class WebSocketManager:
             
             # Nettoyer les connexions mortes
             for ws in disconnected_ws:
-                self.active_connections[service].remove(ws)
+                self.active_connections[service].discard(ws)

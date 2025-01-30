@@ -23,7 +23,7 @@
 
 <script>
 export default {
-  name: 'BluetoothDialog',
+  name: 'BluetoothStatus',
   data() {
     return {
       ws: null,
