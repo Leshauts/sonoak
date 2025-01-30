@@ -4,7 +4,8 @@ from fastapi import WebSocket
 class WebSocketManager:
     def __init__(self):
         self.active_connections: Dict[str, Set[WebSocket]] = {
-            "bluetooth": set()
+            "bluetooth": set(),
+            "snapcast": set()
         }
 
     async def connect(self, websocket: WebSocket, service: str):
