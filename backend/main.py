@@ -6,8 +6,9 @@ from services.bluetooth.routes import router as bluetooth_router, init_routes
 from services.snapcast.manager import SnapcastManager
 from services.snapcast.routes import router as snapcast_router, init_routes as init_snapcast_routes
 from services.spotify.manager import SpotifyManager
+from services.spotify.player_manager import SpotifyPlayerManager
 from services.spotify.routes import router as spotify_router, init_routes as init_spotify_routes
-from services.navigation.manager import NavigationManager  # Nouveau import
+from services.navigation.manager import NavigationManager
 from websocket.manager import WebSocketManager
 import uvicorn
 
@@ -23,11 +24,13 @@ app.add_middleware(
 )
 
 # Initialisation des gestionnaires
+# Initialisation des gestionnaires
 websocket_manager = WebSocketManager()
 bluetooth_manager = BluetoothManager(websocket_manager)
 snapcast_manager = SnapcastManager(websocket_manager)
 spotify_manager = SpotifyManager(websocket_manager)
-navigation_manager = NavigationManager(websocket_manager)  # Nouveau gestionnaire
+spotify_player = SpotifyPlayerManager(websocket_manager, spotify_manager)
+navigation_manager = NavigationManager(websocket_manager)
 
 # Initialisation des gestionnaires d'événements
 bluetooth_events = BluetoothEventHandler(bluetooth_manager)
@@ -54,7 +57,11 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
             elif service == "snapcast":
                 await snapcast_manager.handle_message(data)
             elif service == "spotify":
-                await spotify_manager.handle_message(data)
+                message_type = data.get("type")
+                if message_type in ["play_pause", "next_track", "previous_track", "get_status"]:
+                    await spotify_player.handle_message(data)
+                else:
+                    await spotify_manager.handle_message(data)
             elif service == "navigation":
                 await navigation_manager.handle_message(data)
             
@@ -69,6 +76,7 @@ async def startup_event():
     print("Starting all services...")
     await snapcast_manager.get_clients_status()
     await spotify_manager.connect_to_events()
+    await spotify_player.start_polling()  # Démarrage du polling Spotify player
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
