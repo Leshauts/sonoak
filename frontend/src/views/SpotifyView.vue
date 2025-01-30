@@ -1,7 +1,9 @@
 <template>
   <div class="spotify-view">
+    <SpotifyStatus />
     <!-- Bloc gauche - Image -->
     <div class="cover-image">
+      
       <img src="https://cdn-images.dzcdn.net/images/cover/594754de90ec0b807229f9c985289530/0x1900-000000-80-0-0.jpg"
         alt="Album cover" />
     </div>
@@ -36,6 +38,7 @@
 </template>
 
 <script>
+import SpotifyStatus from '@/components/SpotifyStatus.vue'
 import IconButton from '../components/IconButton.vue'
 import PlaylistIcon from '../components/icons/PlaylistIcon.vue'
 import SpotifyController from '../components/SpotifyController.vue'
@@ -45,6 +48,7 @@ import Dock from '../components/Dock.vue'
 export default {
   name: 'SpotifyView',
   components: {
+    SpotifyStatus,
     IconButton,
     PlaylistIcon,
     SpotifyController,
