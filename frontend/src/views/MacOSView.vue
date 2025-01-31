@@ -1,6 +1,5 @@
 <template>
   <div class="view macos-view">
-    <h1>MacOS</h1>
     <SnapcastStatus />
   </div>
 </template>
