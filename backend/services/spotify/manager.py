@@ -22,7 +22,7 @@ class SpotifyManager:
         """Initialise la connexion avec go-librespot et démarre le polling"""
         print(f"Initialisation de la connexion avec go-librespot sur {self.librespot_host}:{self.librespot_port}")
         if not self.initialized:
-            await self.get_status()
+            await self.get_status()  # Récupérer immédiatement le statut de connexion
             self.start_polling()
             self.initialized = True
 

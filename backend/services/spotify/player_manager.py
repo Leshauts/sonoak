@@ -66,6 +66,9 @@ class SpotifyPlayerManager:
             }
             await self.websocket_manager.broadcast_to_service(message, "spotify")
 
+        # **Ajout** : Envoyer le statut Spotify aussi
+        await self.spotify_manager.notify_status()
+
     async def handle_message(self, message: dict):
         """Gère les messages du frontend"""
         message_type = message.get("type")
