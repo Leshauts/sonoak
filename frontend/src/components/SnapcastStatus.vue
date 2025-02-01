@@ -1,17 +1,19 @@
 <template>
-    <div class="pop-in">
-        <div v-if="!serverAvailable"  class="pop-in-content">
-            <LoaderIcon variant="md" />
-            <p>Sonoak est prêt à recevoir l’audio d’un ordinateur Mac</p>
-        </div>
-        <div v-else class="pop-in-content">
-            <MacOSIcon variant="md" />
-            <div v-for="client in clients" :key="client.id">
-                <p class="text-secondary">Connecté au </p>
-                <p>Mac mini de Léo</p>
+    <Transition name="fade">
+        <div v-if="isReady" class="pop-in">
+            <div v-if="!serverAvailable" class="pop-in-content">
+                <LoaderIcon variant="md" />
+                <p>Sonoak est prêt à recevoir l'audio d'un ordinateur Mac</p>
+            </div>
+            <div v-else class="pop-in-content">
+                <MacOSIcon variant="md" />
+                <div v-for="client in clients" :key="client.id">
+                    <p class="text-secondary">Connecté au </p>
+                    <p>Mac mini de Léo</p>
+                </div>
             </div>
         </div>
-    </div>
+    </Transition>
 </template>
 
 <script>
@@ -34,7 +36,8 @@ export default {
             clients: [],
             wsConnected: false,
             serverAvailable: false,
-            connectionError: null
+            connectionError: null,
+            isReady: false // Nouvel état pour contrôler l'affichage initial
         }
     },
     methods: {
@@ -61,6 +64,9 @@ export default {
                         if (data.type === 'clients_status') {
                             this.clients = data.clients
                             this.serverAvailable = data.server_available
+                            if (!this.isReady) {
+                                this.isReady = true // Activer l'affichage une fois les données reçues
+                            }
                         }
                     } catch (error) {
                         console.error('Erreur parsing message:', error)
@@ -114,6 +120,7 @@ export default {
                 this.ws = null
             }
             this.wsConnected = false
+            this.isReady = false // Réinitialiser l'état lors du nettoyage
         }
     },
 
@@ -159,12 +166,6 @@ export default {
     gap: var(--spacing-04);
 }
 
-/* .text {
-    font: var(--text-font);
-    letter-spacing: var(--text-spacing);
-    color: var(--text);
-    text-align: center;
-} */
 .text-secondary {
     color: var(--text-secondary);
 }
@@ -174,5 +175,16 @@ export default {
         width: calc(100% - var(--spacing-08));
         max-width: 400px;
     }
+}
+
+/* Ajout des styles de transition */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
 }
 </style>

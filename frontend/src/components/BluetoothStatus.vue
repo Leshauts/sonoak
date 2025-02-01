@@ -1,29 +1,29 @@
 <template>
-  <div class="pop-in">
-    <div v-if="!connectedDevice" class="pop-in-content disconnected">
-      <LoaderIcon variant="md" />
-      <p>Sonoak est visible dans vos accessoires Bluetooth</p>
-    </div>
-    <div v-else class="pop-in-content connected">
-      <div class="main-content">
-        <BluetoothIcon variant="md" />
-
-        <div>
-          <p class="text-secondary">Connecté à</p>
-          <p class="text">{{ getDeviceDisplayName(connectedDevice) }}</p>
-        </div>
+  <Transition name="fade">
+    <div v-if="isReady" class="pop-in">
+      <div v-if="!connectedDevice" class="pop-in-content disconnected">
+        <LoaderIcon variant="md" />
+        <p>Sonoak est visible dans vos accessoires Bluetooth</p>
       </div>
-      <button @click="disconnectDevice(connectedDevice.address)" class="toDisconect">
-        <p class="text-small text-secondary">Déconnecter</p>
-      </button>
+      <div v-else class="pop-in-content connected">
+        <div class="main-content">
+          <BluetoothIcon variant="md" />
+          <div>
+            <p class="text-secondary">Connecté à</p>
+            <p class="text">{{ getDeviceDisplayName(connectedDevice) }}</p>
+          </div>
+        </div>
+        <button @click="disconnectDevice(connectedDevice.address)" class="toDisconect">
+          <p class="text-small text-secondary">Déconnecter</p>
+        </button>
+      </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script>
 import LoaderIcon from '@/components/icons/LoaderIcon.vue';
 import BluetoothIcon from '@/components/icons/BluetoothIcon.vue';
-
 
 export default {
   name: 'BluetoothStatus',
@@ -36,7 +36,8 @@ export default {
       ws: null,
       connectedDevice: null,
       wsConnected: false,
-      connectionError: null
+      connectionError: null,
+      isReady: false // Nouvel état pour contrôler l'affichage initial
     }
   },
   methods: {
@@ -56,7 +57,7 @@ export default {
 
     initWebSocket() {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        return // Éviter les connexions multiples
+        return
       }
 
       try {
@@ -75,8 +76,10 @@ export default {
             console.log('Message reçu:', data)
 
             if (data.type === 'devices_status') {
-              // Comme nous ne gérons qu'un seul appareil, nous prenons le premier de la liste
               this.connectedDevice = data.devices[0] || null
+              if (!this.isReady) {
+                this.isReady = true // Activer l'affichage une fois les données reçues
+              }
             }
           } catch (error) {
             console.error('Erreur parsing message:', error)
@@ -130,6 +133,7 @@ export default {
         this.ws = null
       }
       this.wsConnected = false
+      this.isReady = false // Réinitialiser l'état lors du nettoyage
     }
   },
 
@@ -178,6 +182,7 @@ export default {
 .pop-in-content.connected {
   gap: var(--spacing-05-fixed);
 }
+
 .pop-in-content.disconnected {
   padding-bottom: 8px;
 }
@@ -190,14 +195,12 @@ export default {
   gap: var(--spacing-04);
 }
 
-
 button.toDisconect {
   background: var(--background-neutral);
   width: 100%;
   padding: var(--spacing-02);
   border: none;
   border-radius: 8px;
-
 }
 
 @media (max-aspect-ratio: 3/2) {
@@ -205,5 +208,16 @@ button.toDisconect {
     width: calc(100% - var(--spacing-08));
     max-width: 400px;
   }
+}
+
+/* Ajout des styles de transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
