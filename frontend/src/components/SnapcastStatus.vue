@@ -146,7 +146,7 @@ export default {
 .pop-in {
     display: flex;
     width: 280px;
-    padding: 24px 16px;
+    padding: 24px;
     flex-direction: column;
     align-items: center;
     gap: 16px;
@@ -172,8 +172,7 @@ export default {
 
 @media (max-aspect-ratio: 3/2) {
     .pop-in {
-        width: calc(100% - var(--spacing-08));
-        max-width: 400px;
+        width: 256px;
     }
 }
 
