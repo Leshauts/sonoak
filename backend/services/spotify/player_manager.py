@@ -79,20 +79,35 @@ class SpotifyPlayerManager:
             url = f'http://{self.librespot_host}:{self.librespot_port}/player/playpause'
             try:
                 async with aiohttp.ClientSession() as session:
-                    await session.post(url)
+                    headers = {'Content-Type': 'application/json'}
+                    async with session.post(url, headers=headers, json={}) as response:
+                        if response.status != 200:
+                            print(f"Erreur lors de la commande play/pause: statut {response.status}")
+                        else:
+                            await self.get_playback_status()
             except Exception as e:
                 print(f"Erreur lors de la commande play/pause: {e}")
         elif message_type == "next_track":
             url = f'http://{self.librespot_host}:{self.librespot_port}/player/next'
             try:
                 async with aiohttp.ClientSession() as session:
-                    await session.post(url)
+                    headers = {'Content-Type': 'application/json'}
+                    async with session.post(url, headers=headers, json={}) as response:
+                        if response.status != 200:
+                            print(f"Erreur lors du passage à la piste suivante: statut {response.status}")
+                        else:
+                            await self.get_playback_status()
             except Exception as e:
                 print(f"Erreur lors du passage à la piste suivante: {e}")
         elif message_type == "previous_track":
             url = f'http://{self.librespot_host}:{self.librespot_port}/player/prev'
             try:
                 async with aiohttp.ClientSession() as session:
-                    await session.post(url)
+                    headers = {'Content-Type': 'application/json'}
+                    async with session.post(url, headers=headers, json={}) as response:
+                        if response.status != 200:
+                            print(f"Erreur lors du retour à la piste précédente: statut {response.status}")
+                        else:
+                            await self.get_playback_status()
             except Exception as e:
                 print(f"Erreur lors du retour à la piste précédente: {e}")

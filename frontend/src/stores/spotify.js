@@ -198,8 +198,12 @@ export const useSpotifyStore = defineStore('spotify', {
     },
 
     nextTrack() {
+      console.log('Next track button clicked') // Log de débogage
       if (this.websocket?.readyState === WebSocket.OPEN) {
+        console.log('WebSocket is open, sending next_track message') // Log de débogage
         this.websocket.send(JSON.stringify({ type: 'next_track' }))
+      } else {
+        console.log('WebSocket state:', this.websocket?.readyState) // Log en cas de problème
       }
     },
 

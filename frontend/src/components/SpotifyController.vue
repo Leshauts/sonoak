@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { useSpotifyStore } from '@/stores/spotify'
 import PlayIcon from './icons/PlayIcon.vue'
 import PauseIcon from './icons/PauseIcon.vue'
 import NextIcon from './icons/NextIcon.vue'
@@ -30,20 +31,25 @@ export default {
     PreviousIcon,
     IconButton
   },
-  data() {
-    return {
-      isPlaying: false
+  props: {
+    isPlaying: {
+      type: Boolean,
+      required: true
     }
+  },
+  setup() {
+    const spotifyStore = useSpotifyStore()
+    return { spotifyStore }
   },
   methods: {
     togglePlay() {
-      this.isPlaying = !this.isPlaying
+      this.spotifyStore.playPause()
     },
     previous() {
-      // Logique pour la piste précédente
+      this.spotifyStore.previousTrack()
     },
     next() {
-      // Logique pour la piste suivante
+      this.spotifyStore.nextTrack()
     }
   }
 }

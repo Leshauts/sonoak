@@ -60,7 +60,7 @@ export default {
   setup() {
     const spotifyStore = useSpotifyStore()
     const isDev = ref(import.meta.env.DEV)
-    return { 
+    return {
       spotifyStore,
       isDev
     }
@@ -84,7 +84,7 @@ export default {
       const rect = progressBar.getBoundingClientRect()
       const clickPosition = event.clientX - rect.left
       const percentage = clickPosition / rect.width
-      
+
       const newPosition = Math.floor(percentage * this.spotifyStore.playbackStatus.duration)
       this.spotifyStore.seekTo(newPosition)
     },
