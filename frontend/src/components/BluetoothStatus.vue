@@ -13,8 +13,10 @@
             <p class="text">{{ getDeviceDisplayName(connectedDevice) }}</p>
           </div>
         </div>
-        <button @click="disconnectDevice(connectedDevice.address)" class="toDisconect">
-          <p class="text-small text-secondary">Déconnecter</p>
+        <button @click="disconnectDevice(connectedDevice.address)" class="toDisconect" :disabled="isDisconnecting">
+          <p class="text-small text-light">
+            {{ isDisconnecting ? "Déconnexion en cours..." : "Déconnecter" }}
+          </p>
         </button>
       </div>
     </div>
@@ -37,7 +39,8 @@ export default {
       connectedDevice: null,
       wsConnected: false,
       connectionError: null,
-      isReady: false // Nouvel état pour contrôler l'affichage initial
+      isReady: false,
+      isDisconnecting: false
     }
   },
   methods: {
@@ -47,11 +50,18 @@ export default {
 
     disconnectDevice(address) {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        console.log('Envoi de la commande de déconnexion pour:', address)
+        this.isDisconnecting = true; // Active l'état de déconnexion en cours
+        console.log('Envoi de la commande de déconnexion pour:', address);
+
         this.ws.send(JSON.stringify({
           type: 'disconnect_device',
           data: { address }
-        }))
+        }));
+
+        // Attendre la confirmation avant de remettre l'état à false
+        setTimeout(() => {
+          this.isDisconnecting = false;
+        }, 3000); // Ajuste selon le délai réel de réponse WebSocket
       }
     },
 
@@ -159,7 +169,7 @@ export default {
 .pop-in {
   display: flex;
   width: 280px;
-  padding: 24px 24px 16px 24px;
+  padding: 24px 16px 16px 16px;
   flex-direction: column;
   align-items: center;
   border-radius: 16px;
@@ -192,6 +202,7 @@ export default {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  padding: 0 var(--spacing-02) 0 var(--spacing-02);
   gap: var(--spacing-04);
 }
 

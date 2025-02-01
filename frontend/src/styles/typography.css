@@ -52,6 +52,10 @@
     color: var(--text-secondary) !important;
   }
 
+  .text-light {
+    color: var(--text-light) !important;
+  }
+
   .text-small {
     font: var(--text-small-font);
     letter-spacing: var(--text-spacing);
