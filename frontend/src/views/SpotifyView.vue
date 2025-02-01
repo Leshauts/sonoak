@@ -37,15 +37,20 @@
           @next="spotifyStore.nextTrack" @previous="spotifyStore.previousTrack" />
       </div>
     </div>
+    <ApiDebugger v-if="isDev" />
+
   </div>
 </template>
 
 <script>
+import { ref } from 'vue'
 import { useSpotifyStore } from '@/stores/spotify'
 import SpotifyStatus from '@/components/SpotifyStatus.vue'
 import IconButton from '@/components/IconButton.vue'
 import PlaylistIcon from '@/components/icons/PlaylistIcon.vue'
 import SpotifyController from '@/components/SpotifyController.vue'
+
+import ApiDebugger from '@/components/debug/ApiDebugger.vue' 
 
 export default {
   name: 'SpotifyView',
@@ -53,11 +58,16 @@ export default {
     SpotifyStatus,
     IconButton,
     PlaylistIcon,
-    SpotifyController
+    SpotifyController,
+    ApiDebugger
   },
   setup() {
     const spotifyStore = useSpotifyStore()
-    return { spotifyStore }
+    const isDev = ref(import.meta.env.DEV)
+    return { 
+      spotifyStore,
+      isDev
+    }
   },
   computed: {
     progressWidth() {
