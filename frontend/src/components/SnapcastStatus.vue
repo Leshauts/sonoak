@@ -1,27 +1,28 @@
 <template>
     <div class="pop-in">
-        <AppleIcon class="icon" variant="md" />
-        <div v-if="!serverAvailable" class="text">
-            Sonoak est prêt à recevoir l’audio d’un ordinateur Mac
+        <div v-if="!serverAvailable"  class="pop-in-content">
+            <LoaderIcon variant="md" />
+            <p>Sonoak est prêt à recevoir l’audio d’un ordinateur Mac</p>
         </div>
-        <div v-else-if="clients.length === 0" class="text">
-            Aucun client Snapcast connecté
-        </div>
-        <div v-else>
-            <div v-for="client in clients" :key="client.id" class="text">
-                <p class="text-secondary">Connecté au </p>Mac mini de Léo
+        <div v-else class="pop-in-content">
+            <MacOSIcon variant="md" />
+            <div v-for="client in clients" :key="client.id">
+                <p class="text-secondary">Connecté au </p>
+                <p>Mac mini de Léo</p>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import AppleIcon from '@/components/icons/AppleIcon.vue';
+import MacOSIcon from '@/components/icons/MacOSIcon.vue';
+import LoaderIcon from '@/components/icons/LoaderIcon.vue';
 
 export default {
     name: 'SnapcastStatus',
     components: {
-        AppleIcon,
+        MacOSIcon,
+        LoaderIcon
     },
     props: {
         serverAvailable: Boolean,
@@ -144,26 +145,34 @@ export default {
     gap: 16px;
     border-radius: 16px;
     background: var(--background, #F7F7F7);
-    position: fixed;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    text-align: center;
 }
 
+.pop-in-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-04);
+}
 
-.text {
+/* .text {
     font: var(--text-font);
     letter-spacing: var(--text-spacing);
     color: var(--text);
     text-align: center;
-}
+} */
 .text-secondary {
     color: var(--text-secondary);
 }
 
 @media (max-aspect-ratio: 3/2) {
     .pop-in {
-        width: 256px;
+        width: calc(100% - var(--spacing-08));
+        max-width: 400px;
     }
 }
 </style>

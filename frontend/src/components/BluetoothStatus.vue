@@ -1,29 +1,36 @@
 <template>
-  <div class="bluetooth-dialog">
-    <div class="p-6">
-      <div class="flex flex-col space-y-4">
-        <div v-if="!connectedDevice" class="text-gray-600">
-          Aucun appareil connecté
-        </div>
-        <div v-else class="flex items-center justify-between p-3 bg-white rounded-lg shadow">
-          <div class="text-green-600">
-            {{ getDeviceDisplayName(connectedDevice) }}
-          </div>
-          <button
-            @click="disconnectDevice(connectedDevice.address)"
-            class="px-4 py-2 bg-red-100 hover:bg-red-200 rounded text-red-700"
-          >
-            Déconnecter
-          </button>
+  <div class="pop-in">
+    <div v-if="!connectedDevice" class="pop-in-content disconnected">
+      <LoaderIcon variant="md" />
+      <p>Sonoak est visible dans vos accessoires Bluetooth</p>
+    </div>
+    <div v-else class="pop-in-content connected">
+      <div class="main-content">
+        <BluetoothIcon variant="md" />
+
+        <div>
+          <p class="text-secondary">Connecté à</p>
+          <p class="text">{{ getDeviceDisplayName(connectedDevice) }}</p>
         </div>
       </div>
+      <button @click="disconnectDevice(connectedDevice.address)" class="toDisconect">
+        <p class="text-small text-secondary">Déconnecter</p>
+      </button>
     </div>
   </div>
 </template>
 
 <script>
+import LoaderIcon from '@/components/icons/LoaderIcon.vue';
+import BluetoothIcon from '@/components/icons/BluetoothIcon.vue';
+
+
 export default {
   name: 'BluetoothStatus',
+  components: {
+    LoaderIcon,
+    BluetoothIcon
+  },
   data() {
     return {
       ws: null,
@@ -34,9 +41,9 @@ export default {
   },
   methods: {
     getDeviceDisplayName(device) {
-      return device.name === 'Unknown' ? 'Connexion en cours...' : `Connecté à ${device.name}`
+      return device.name === 'Unknown' ? 'Connexion en cours...' : `${device.name}`
     },
-    
+
     disconnectDevice(address) {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         console.log('Envoi de la commande de déconnexion pour:', address)
@@ -54,7 +61,7 @@ export default {
 
       try {
         this.ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/bluetooth`)
-        
+
         this.ws.onopen = () => {
           console.log('WebSocket connecté')
           this.wsConnected = true
@@ -66,7 +73,7 @@ export default {
           try {
             const data = JSON.parse(event.data)
             console.log('Message reçu:', data)
-            
+
             if (data.type === 'devices_status') {
               // Comme nous ne gérons qu'un seul appareil, nous prenons le premier de la liste
               this.connectedDevice = data.devices[0] || null
@@ -94,7 +101,7 @@ export default {
 
     checkStatus() {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({ 
+        this.ws.send(JSON.stringify({
           type: 'get_status',
           data: {}
         }))
@@ -143,3 +150,60 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.pop-in {
+  display: flex;
+  width: 280px;
+  padding: 24px 16px 16px 16px;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 16px;
+  background: var(--background, #F7F7F7);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.pop-in-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: var(--spacing-04);
+}
+
+.pop-in-content.connected {
+  gap: var(--spacing-05-fixed);
+}
+.pop-in-content.disconnected {
+  padding-bottom: 8px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: var(--spacing-04);
+}
+
+
+button.toDisconect {
+  background: var(--background-neutral);
+  width: 100%;
+  padding: var(--spacing-02);
+  border: none;
+  border-radius: 8px;
+
+}
+
+@media (max-aspect-ratio: 3/2) {
+  .pop-in {
+    width: calc(100% - var(--spacing-08));
+    max-width: 400px;
+  }
+}
+</style>

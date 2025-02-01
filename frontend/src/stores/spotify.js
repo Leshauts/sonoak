@@ -167,29 +167,18 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
-    async seekTo(position) {
-      try {
-        const response = await fetch('http://localhost:3678/player/seek', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            position: position
-          })
-        })
-
-        if (response.ok) {
-          this.progressTime = position
-          this.startTime = Date.now() - position
-          if (this.playbackStatus.isPlaying) {
-            this.startProgressTimer()
-          }
-        }
-      } catch (error) {
-        console.error('Erreur lors du seek:', error)
-      }
-    },
+    // async seekTo(position) {
+    //   try {
+    //     if (this.websocket?.readyState === WebSocket.OPEN) {
+    //       this.websocket.send(JSON.stringify({
+    //         type: 'seek',
+    //         position: position
+    //       }))
+    //     }
+    //   } catch (error) {
+    //     console.error('Erreur lors du seek:', error)
+    //   }
+    // },
 
     playPause() {
       if (this.websocket?.readyState === WebSocket.OPEN) {

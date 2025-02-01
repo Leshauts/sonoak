@@ -26,7 +26,7 @@
         <!-- Barre de lecture -->
         <div class="playback-bar" v-if="spotifyStore.playbackStatus">
           <span class="time">{{ formatTime(spotifyStore.progressTime) }}</span>
-          <div class="progress-bar" @click="handleSeek" ref="progressBar">
+          <div class="progress-bar">
             <div class="progress" :style="{ width: progressWidth }"></div>
           </div>
           <span class="time">{{ formatTime(spotifyStore.playbackStatus.duration) }}</span>
@@ -85,8 +85,23 @@ export default {
       const clickPosition = event.clientX - rect.left
       const percentage = clickPosition / rect.width
 
+      // Calculer la position en millisecondes
       const newPosition = Math.floor(percentage * this.spotifyStore.playbackStatus.duration)
+
+      // Envoyer la commande seek au store
       this.spotifyStore.seekTo(newPosition)
+
+      // Mettre à jour immédiatement l'interface utilisateur
+      this.spotifyStore.progressTime = newPosition
+      this.spotifyStore.startTime = Date.now() - newPosition
+
+      // Redémarrer le timer si la musique est en cours de lecture
+      if (this.spotifyStore.playbackStatus?.isPlaying) {
+        this.spotifyStore.startProgressTimer()
+      }
+
+      // Ajouter un log pour le débogage
+      console.log('Seek to position:', newPosition, 'ms')
     },
     formatTime(ms) {
       if (!ms) return '0:00'

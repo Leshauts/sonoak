@@ -371,7 +371,7 @@ export default {
   gap: var(--spacing-04);
   padding: var(--spacing-04);
   border-radius: 32px;
-  background: rgba(162, 162, 162, 0.24);
+  background: rgba(220, 220, 220, 0.24);
   backdrop-filter: blur(12px);
   position: relative;
 }

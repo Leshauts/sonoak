@@ -2,60 +2,72 @@
   :root {
     --font-primary: "Neue Montreal";
     --font-mono: "Suisse Intl Mono";
-    
+
     --h1-font: 500 32px/38px var(--font-primary);
     --h2-font: 500 24px/28px var(--font-primary);
     --text-font: 500 18px/22px var(--font-primary);
+    --text-small-font: 500 16px/20px var(--font-primary);
     --number-font: 400 16px/normal var(--font-mono);
-    
+
     --h1-spacing: 0.32px;
     --h2-spacing: 0.24px;
     --text-spacing: 0.18px;
   }
-  
+
   @font-face {
     font-family: 'Neue Montreal';
     src: url('../assets/fonts/NeueMontreal-Medium.otf');
   }
-  
+
   @font-face {
     font-family: 'Suisse Intl Mono';
     src: url('../assets/fonts/SuisseIntlMono-Regular.otf');
   }
-  
+
 
   h1 {
     font: var(--h1-font);
     letter-spacing: var(--h1-spacing);
     color: var(--text);
   }
-  
+
   h2 {
     font: var(--h2-font);
     letter-spacing: var(--h2-spacing);
     color: var(--text);
   }
-  
+
   p {
     font: var(--text-font);
     letter-spacing: var(--text-spacing);
     color: var(--text);
   }
 
-.time {
-  font: var(--number-font);
-  color: var(--text-light);
-}
-
-@media (max-width: 768px) {
-  :root {
-    --h1-font: 500 24px/28px var(--font-primary);
-    --h2-font: 500 22px/26px var(--font-primary);
-    --text-font: 500 16px/24px var(--font-primary);
-    /* --number-font: 400 14px/20px var(--font-mono); */
-    
-    --h1-spacing: 0;
-    --h2-spacing: 0;
-    --text-spacing: 0;
+  .time {
+    font: var(--number-font);
+    color: var(--text-light);
   }
-}
+
+  .text-secondary {
+    color: var(--text-secondary) !important;
+  }
+
+  .text-small {
+    font: var(--text-small-font);
+    letter-spacing: var(--text-spacing);
+    color: var(--text);
+  }
+
+
+  @media (max-width: 768px) {
+    :root {
+      --h1-font: 500 24px/28px var(--font-primary);
+      --h2-font: 500 22px/26px var(--font-primary);
+      /* --text-font: 500 16px/24px var(--font-primary); */
+      /* --number-font: 400 14px/20px var(--font-mono); */
+
+      --h1-spacing: 0;
+      --h2-spacing: 0;
+      --text-spacing: 0;
+    }
+  }

@@ -111,3 +111,17 @@ class SpotifyPlayerManager:
                             await self.get_playback_status()
             except Exception as e:
                 print(f"Erreur lors du retour à la piste précédente: {e}")
+        elif message_type == "seek":
+            url = f'http://{self.librespot_host}:{self.librespot_port}/player/seek'
+            try:
+                position = message.get("position")
+                async with aiohttp.ClientSession() as session:
+                    headers = {'Content-Type': 'application/json'}
+                    data = {"position": position}
+                    async with session.post(url, headers=headers, json=data) as response:
+                        if response.status != 200:
+                            print(f"Erreur lors du seek: statut {response.status}")
+                        else:
+                            await self.get_playback_status()
+            except Exception as e:
+                print(f"Erreur lors du seek: {e}")
