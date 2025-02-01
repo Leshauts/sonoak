@@ -238,7 +238,6 @@ export const useSpotifyStore = defineStore('spotify', {
     async fetchPlaybackFromAPI() {
       try {
         const response = await fetch('/api/spotify/playback')
-        // Vérifiez d'abord le type de contenu
         const contentType = response.headers.get('content-type')
         if (!contentType?.includes('application/json')) {
           throw new Error(`Réponse invalide (${contentType}), JSON attendu`)
@@ -252,7 +251,6 @@ export const useSpotifyStore = defineStore('spotify', {
         this.updatePlaybackStatus(data)
       } catch (err) {
         console.error("Erreur API Spotify (playback):", err)
-        // Optionnel : mettre à jour l'état pour refléter l'erreur
         this.connected = false
         localStorage.setItem("spotify_connected", "false")
       }

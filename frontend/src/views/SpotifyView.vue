@@ -37,7 +37,6 @@
           @next="spotifyStore.nextTrack" @previous="spotifyStore.previousTrack" />
       </div>
     </div>
-    <ApiDebugger v-if="isDev" />
 
   </div>
 </template>
@@ -50,16 +49,13 @@ import IconButton from '@/components/IconButton.vue'
 import PlaylistIcon from '@/components/icons/PlaylistIcon.vue'
 import SpotifyController from '@/components/SpotifyController.vue'
 
-import ApiDebugger from '@/components/debug/ApiDebugger.vue' 
-
 export default {
   name: 'SpotifyView',
   components: {
     SpotifyStatus,
     IconButton,
     PlaylistIcon,
-    SpotifyController,
-    ApiDebugger
+    SpotifyController
   },
   setup() {
     const spotifyStore = useSpotifyStore()
@@ -202,7 +198,7 @@ export default {
 }
 
 @media (max-aspect-ratio: 3/2) {
-  .spotify-view {
+  .spotify-player {
     flex-direction: column;
   }
 
