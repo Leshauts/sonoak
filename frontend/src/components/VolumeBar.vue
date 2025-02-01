@@ -67,8 +67,6 @@ window.testVolume = () => {
 
 <style scoped>
 .volume-bar-wrapper {
-  width: 100%;
-  max-width: 280px;
   padding: 24px 0 var(--spacing-07)  0 ;
   position: absolute;
   left: 50%;
@@ -76,10 +74,10 @@ window.testVolume = () => {
 }
 
 .volume-bar {
-  width: 100%;
+  width: 280px;
   padding: 16px;
   border-radius:12px;
-  background: rgba(191, 191, 191, 0.32);
+  background: rgba(220, 220, 220, 0.24);
   backdrop-filter: blur(12px);
 }
 
@@ -104,8 +102,12 @@ window.testVolume = () => {
 @media (max-aspect-ratio: 3/2) {
   .volume-bar-wrapper {
     max-width: none;
-    padding: 36px;
+    padding: var(--spacing-08);
   }
+  .volume-bar {
+    width: 256px;
+  }
+
 
   
 }
