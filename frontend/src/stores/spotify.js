@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 export const useSpotifyStore = defineStore('spotify', {
   state: () => ({
     websocket: null,
+    librespotWs: null,  // Nouveau WebSocket pour go-librespot
     connected: localStorage.getItem("spotify_connected") === "true" || false,
     playbackStatus: JSON.parse(localStorage.getItem("spotify_playbackStatus")) || {
       trackName: null,
@@ -26,6 +27,21 @@ export const useSpotifyStore = defineStore('spotify', {
     initWebSocket() {
       if (this.websocket) return
 
+      // Initialiser la connexion WebSocket avec go-librespot
+      const librespotProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      const librespotUrl = `${librespotProtocol}//${window.location.hostname}:3678/events`
+      
+      this.librespotWs = new WebSocket(librespotUrl)
+      this.librespotWs.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          this.handleLibrespotEvent(data)
+        } catch (error) {
+          console.error('Erreur WebSocket Librespot:', error)
+        }
+      }
+
+      // WebSocket backend standard
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
       const wsUrl = `${protocol}//${window.location.hostname}:8000/ws/spotify`
       
@@ -33,12 +49,8 @@ export const useSpotifyStore = defineStore('spotify', {
       
       this.websocket.onopen = () => {
         console.log('WebSocket Spotify connecté')
-
-        // 🔹 Récupérer immédiatement les données pour éviter le délai d'affichage
         this.fetchStatusFromAPI()
         this.fetchPlaybackFromAPI()
-
-        // 🔹 Demander les données au serveur WebSocket
         this.requestStatus()
       }
 
@@ -49,7 +61,6 @@ export const useSpotifyStore = defineStore('spotify', {
         if (data.type === 'spotify_status') {
           this.updateConnectionStatus(data.status)
           if (this.connected) {
-            // 🔹 Lancer immédiatement une mise à jour du playback
             this.requestPlaybackStatus()
           }
         } else if (data.type === 'playback_status' && data.status) {
@@ -63,7 +74,27 @@ export const useSpotifyStore = defineStore('spotify', {
         localStorage.setItem("spotify_connected", "false")
         this.websocket = null
         this.clearTimers()
-        setTimeout(() => this.initWebSocket(), 2000) // 🔄 Reconnexion automatique
+        setTimeout(() => this.initWebSocket(), 2000)
+      }
+    },
+
+    handleLibrespotEvent(event) {
+      console.log('Événement Librespot reçu:', event)
+      // Gérer les événements de go-librespot
+      switch (event.type) {
+        case 'metadata':
+          this.progressTime = event.data?.position || 0
+          this.startTime = Date.now() - this.progressTime
+          break
+        case 'seek':
+          if (event.data) {
+            this.progressTime = event.data.position
+            this.startTime = Date.now() - event.data.position
+            if (this.playbackStatus.isPlaying) {
+              this.startProgressTimer()
+            }
+          }
+          break
       }
     },
 
@@ -100,7 +131,12 @@ export const useSpotifyStore = defineStore('spotify', {
         volume: status.volume
       }
 
-      // 🔹 Stocker en local pour un affichage immédiat après un refresh
+      // Mettre à jour la position si elle est fournie
+      if (status.position !== undefined) {
+        this.progressTime = status.position
+        this.startTime = Date.now() - status.position
+      }
+
       localStorage.setItem("spotify_playbackStatus", JSON.stringify(this.playbackStatus))
 
       if (status.is_playing) {
@@ -131,6 +167,30 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
+    async seekTo(position) {
+      try {
+        const response = await fetch('http://localhost:3678/player/seek', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            position: position
+          })
+        })
+
+        if (response.ok) {
+          this.progressTime = position
+          this.startTime = Date.now() - position
+          if (this.playbackStatus.isPlaying) {
+            this.startProgressTimer()
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du seek:', error)
+      }
+    },
+
     playPause() {
       if (this.websocket?.readyState === WebSocket.OPEN) {
         this.websocket.send(JSON.stringify({ type: 'play_pause' }))
@@ -155,11 +215,14 @@ export const useSpotifyStore = defineStore('spotify', {
         this.websocket.close()
         this.websocket = null
       }
+      if (this.librespotWs) {
+        this.librespotWs.close()
+        this.librespotWs = null
+      }
       this.connected = false
       localStorage.setItem("spotify_connected", "false")
     },
 
-    // 🔹 **Nouvelle fonction** : Récupérer immédiatement les données depuis l'API HTTP
     async fetchStatusFromAPI() {
       try {
         const response = await fetch('/api/spotify/status')

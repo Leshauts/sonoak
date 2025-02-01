@@ -5,11 +5,8 @@
     <div v-if="spotifyStore.isConnected" class="spotify-player">
       <!-- Bloc gauche - Image -->
       <div class="cover-image" v-if="spotifyStore.playbackStatus">
-        <img 
-          :src="spotifyStore.playbackStatus.albumCoverUrl" 
-          :alt="spotifyStore.playbackStatus.albumName"
-          v-if="spotifyStore.playbackStatus.albumCoverUrl" 
-        />
+        <img :src="spotifyStore.playbackStatus.albumCoverUrl" :alt="spotifyStore.playbackStatus.albumName"
+          v-if="spotifyStore.playbackStatus.albumCoverUrl" />
         <div class="placeholder-image" v-else></div>
       </div>
 
@@ -29,19 +26,15 @@
         <!-- Barre de lecture -->
         <div class="playback-bar" v-if="spotifyStore.playbackStatus">
           <span class="time">{{ formatTime(spotifyStore.progressTime) }}</span>
-          <div class="progress-bar">
+          <div class="progress-bar" @click="handleSeek" ref="progressBar">
             <div class="progress" :style="{ width: progressWidth }"></div>
           </div>
           <span class="time">{{ formatTime(spotifyStore.playbackStatus.duration) }}</span>
         </div>
 
         <!-- Contrôleur Spotify -->
-        <SpotifyController 
-          :is-playing="spotifyStore.playbackStatus?.isPlaying"
-          @play-pause="spotifyStore.playPause"
-          @next="spotifyStore.nextTrack"
-          @previous="spotifyStore.previousTrack"
-        />
+        <SpotifyController :is-playing="spotifyStore.playbackStatus?.isPlaying" @play-pause="spotifyStore.playPause"
+          @next="spotifyStore.nextTrack" @previous="spotifyStore.previousTrack" />
       </div>
     </div>
   </div>
@@ -79,6 +72,15 @@ export default {
   methods: {
     formatArtists(artists) {
       return artists?.join(', ') || 'Artiste inconnu'
+    },
+    handleSeek(event) {
+      const progressBar = this.$refs.progressBar
+      const rect = progressBar.getBoundingClientRect()
+      const clickPosition = event.clientX - rect.left
+      const percentage = clickPosition / rect.width
+      
+      const newPosition = Math.floor(percentage * this.spotifyStore.playbackStatus.duration)
+      this.spotifyStore.seekTo(newPosition)
     },
     formatTime(ms) {
       if (!ms) return '0:00'
