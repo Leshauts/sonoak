@@ -177,8 +177,8 @@
   @media (max-aspect-ratio: 3/2) {
     .spotify-player {
       flex-direction: column;
+      gap: 0;
     }
-  
     .cover-image {
       height: auto;
     }

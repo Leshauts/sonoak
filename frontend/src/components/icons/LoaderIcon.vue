@@ -28,39 +28,37 @@ import IconBase from "./IconBase.vue";
 export default {
   name: "AnimatedIcon",
   components: { IconBase },
-  props: { color: String, variant: String },
+  props: { 
+    color: String, 
+    variant: String 
+  },
 };
 </script>
 
 <style scoped>
+.animated-icon .shape1,
+.animated-icon .shape2,
+.animated-icon .shape3 {
+  transform-origin: center;
+  will-change: opacity;
+}
+
 .animated-icon .shape1 {
-  animation: cycle-opacity-1 3s infinite linear;
+  animation: fade 3s ease-in-out infinite;
 }
 
 .animated-icon .shape2 {
-  animation: cycle-opacity-2 3s infinite linear;
+  animation: fade 3s ease-in-out infinite;
+  animation-delay: -1s;
 }
 
 .animated-icon .shape3 {
-  animation: cycle-opacity-3 3s infinite linear;
+  animation: fade 3s ease-in-out infinite;
+  animation-delay: -2s;
 }
 
-@keyframes cycle-opacity-1 {
-  0% { opacity: 1; }
-  33% { opacity: 0.48; }
-  66% { opacity: 0.24; }
-  100% { opacity: 1; }
-}
-@keyframes cycle-opacity-2 {
-  0% { opacity: 0.48; }
-  33% { opacity: 0.24; }
-  66% { opacity: 0; }
-  100% { opacity: 0.48; }
-}
-@keyframes cycle-opacity-3 {
-  0% { opacity: 0.24; }
-  33% { opacity: 0; }
-  66% { opacity: 0.48; }
-  100% { opacity: 0.48; }
+@keyframes fade {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
 }
 </style>

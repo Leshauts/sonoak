@@ -1,13 +1,30 @@
 <script setup>
-import { ref } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
+import { ref, computed } from 'vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import Dock from './components/Dock.vue'
 import VolumeBar from './components/VolumeBar.vue'
+import Logo from './components/logo/Sonoak.vue'
 
 const volumeBar = ref(null)
+const route = useRoute()
+
+const logoState = computed(() => {
+  switch (route.path) {
+    case '/':
+      return 'intro'
+    case '/bluetooth':
+    case '/macos':
+      return 'minified'
+    case '/spotify':
+      return 'hidden'
+    default:
+      return 'hidden'
+  }
+})
 </script>
 
 <template>
+  <Logo :state="logoState" />
   <router-view v-slot="{ Component }">
     <transition name="fade" mode="out-in">
       <component :is="Component" class="view" />
@@ -16,9 +33,7 @@ const volumeBar = ref(null)
   <VolumeBar ref="volumeBar" />
   <Dock />
 </template>
-
 <style scoped>
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -30,25 +45,25 @@ const volumeBar = ref(null)
 }
 
 #app {
-    height: 100%;
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
+  height: 100%;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
 }
+
 .view {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100svh;
-    padding: var(--spacing-06);
-    box-sizing: border-box;
-    overflow-x: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100svh;
+  padding: var(--spacing-06);
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .logo {
   display: block;
   margin: 0 auto 2rem;
 }
-
 </style>
