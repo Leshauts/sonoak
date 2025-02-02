@@ -16,7 +16,9 @@ export const useSpotifyStore = defineStore('spotify', {
     },
     progressTime: 0,
     startTime: 0,
-    progressInterval: null
+    progressInterval: null,
+    progressTime: localStorage.getItem("spotify_progressTime") ? parseInt(localStorage.getItem("spotify_progressTime")) : 0,
+    startTime: localStorage.getItem("spotify_startTime") ? parseInt(localStorage.getItem("spotify_startTime")) : 0,
   }),
 
   getters: {
@@ -121,6 +123,10 @@ export const useSpotifyStore = defineStore('spotify', {
 
     updatePlaybackStatus(status) {
       console.log('Mise à jour du statut de lecture:', status)
+      
+      // Vérifier si la position est définie et différente de 0
+      const position = status.position || 0
+      
       this.playbackStatus = {
         trackName: status.track_name,
         artistNames: status.artist_names || [],
@@ -128,15 +134,17 @@ export const useSpotifyStore = defineStore('spotify', {
         albumCoverUrl: status.album_cover_url,
         duration: status.duration,
         isPlaying: status.is_playing,
-        volume: status.volume
+        volume: status.volume,
+        position: position
       }
 
-      // Mettre à jour la position si elle est fournie
-      if (status.position !== undefined) {
-        this.progressTime = status.position
-        this.startTime = Date.now() - status.position
-      }
+      // Mettre à jour le temps de progression
+      this.progressTime = position
+      this.startTime = Date.now() - position
 
+      // Sauvegarder dans localStorage
+      localStorage.setItem("spotify_progressTime", this.progressTime.toString())
+      localStorage.setItem("spotify_startTime", this.startTime.toString())
       localStorage.setItem("spotify_playbackStatus", JSON.stringify(this.playbackStatus))
 
       if (status.is_playing) {
@@ -149,9 +157,9 @@ export const useSpotifyStore = defineStore('spotify', {
     startProgressTimer() {
       this.clearTimers()
       if (this.playbackStatus.isPlaying) {
-        this.startTime = Date.now() - this.progressTime
         this.progressInterval = setInterval(() => {
-          this.progressTime = Date.now() - this.startTime
+          const currentTime = Date.now()
+          this.progressTime = currentTime - this.startTime
           if (this.progressTime >= this.playbackStatus.duration) {
             this.clearTimers()
             this.requestPlaybackStatus()

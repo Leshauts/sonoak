@@ -2,42 +2,43 @@
   <div class="spotify-view">
     <SpotifyStatus />
 
-    <div v-if="spotifyStore.isConnected" class="spotify-player">
-      <!-- Bloc gauche - Image -->
-      <div class="cover-image" v-if="spotifyStore.playbackStatus">
-        <img :src="spotifyStore.playbackStatus.albumCoverUrl" :alt="spotifyStore.playbackStatus.albumName"
-          v-if="spotifyStore.playbackStatus.albumCoverUrl" />
-        <div class="placeholder-image" v-else></div>
-      </div>
-
-      <!-- Bloc droite -->
-      <div class="content">
-        <!-- Bouton playlist -->
-        <IconButton class="playlist-button" @click="navigateToPlaylists">
-          <PlaylistIcon color="var(--text-light)" variant="md" />
-        </IconButton>
-
-        <!-- Textes -->
-        <div class="track-info" v-if="spotifyStore.playbackStatus">
-          <h1>{{ spotifyStore.playbackStatus.trackName || 'Aucun titre' }}</h1>
-          <h2>{{ formatArtists(spotifyStore.playbackStatus.artistNames) }}</h2>
+    <Transition name="fade">
+      <div v-if="isReady && spotifyStore.isConnected && spotifyStore.playbackStatus" class="spotify-player">
+        <!-- Bloc gauche - Image -->
+        <div class="cover-image" v-if="spotifyStore.playbackStatus">
+          <img :src="spotifyStore.playbackStatus.albumCoverUrl" :alt="spotifyStore.playbackStatus.albumName"
+            v-if="spotifyStore.playbackStatus.albumCoverUrl" />
+          <div class="placeholder-image" v-else></div>
         </div>
 
-        <!-- Barre de lecture -->
-        <div class="playback-bar" v-if="spotifyStore.playbackStatus">
-          <span class="time">{{ formatTime(spotifyStore.progressTime) }}</span>
-          <div class="progress-bar">
-            <div class="progress" :style="{ width: progressWidth }"></div>
+        <!-- Bloc droite -->
+        <div class="content">
+          <!-- Bouton playlist -->
+          <IconButton class="playlist-button" @click="navigateToPlaylists">
+            <PlaylistIcon color="var(--text-light)" variant="md" />
+          </IconButton>
+
+          <!-- Textes -->
+          <div class="track-info" v-if="spotifyStore.playbackStatus">
+            <h1>{{ spotifyStore.playbackStatus.trackName || 'Aucun titre' }}</h1>
+            <h2>{{ formatArtists(spotifyStore.playbackStatus.artistNames) }}</h2>
           </div>
-          <span class="time">{{ formatTime(spotifyStore.playbackStatus.duration) }}</span>
+
+          <!-- Barre de lecture -->
+          <div class="playback-bar" v-if="spotifyStore.playbackStatus">
+            <span class="time">{{ formatTime(spotifyStore.progressTime) }}</span>
+            <div class="progress-bar">
+              <div class="progress" :style="{ width: progressWidth }"></div>
+            </div>
+            <span class="time">{{ formatTime(spotifyStore.playbackStatus.duration) }}</span>
+          </div>
+
+          <!-- Contrôleur Spotify -->
+          <SpotifyController :is-playing="spotifyStore.playbackStatus?.isPlaying" @play-pause="spotifyStore.playPause"
+            @next="spotifyStore.nextTrack" @previous="spotifyStore.previousTrack" />
         </div>
-
-        <!-- Contrôleur Spotify -->
-        <SpotifyController :is-playing="spotifyStore.playbackStatus?.isPlaying" @play-pause="spotifyStore.playPause"
-          @next="spotifyStore.nextTrack" @previous="spotifyStore.previousTrack" />
       </div>
-    </div>
-
+    </Transition>
   </div>
 </template>
 
@@ -65,9 +66,24 @@ export default {
       isDev
     }
   },
+  data() {
+    return {
+      isReady: false
+    }
+  },
+  watch: {
+    'spotifyStore.playbackStatus': {
+      handler(newStatus) {
+        if (newStatus && this.spotifyStore.websocket?.readyState === WebSocket.OPEN) {
+          this.isReady = true
+        }
+      },
+      immediate: true
+    }
+  },
   computed: {
     progressWidth() {
-      if (!this.spotifyStore.playbackStatus.duration) return '0%'
+      if (!this.spotifyStore.playbackStatus?.duration) return '0%'
       const progress = Math.min(
         this.spotifyStore.progressTime / this.spotifyStore.playbackStatus.duration,
         1
@@ -85,22 +101,16 @@ export default {
       const clickPosition = event.clientX - rect.left
       const percentage = clickPosition / rect.width
 
-      // Calculer la position en millisecondes
       const newPosition = Math.floor(percentage * this.spotifyStore.playbackStatus.duration)
 
-      // Envoyer la commande seek au store
       this.spotifyStore.seekTo(newPosition)
-
-      // Mettre à jour immédiatement l'interface utilisateur
       this.spotifyStore.progressTime = newPosition
       this.spotifyStore.startTime = Date.now() - newPosition
 
-      // Redémarrer le timer si la musique est en cours de lecture
       if (this.spotifyStore.playbackStatus?.isPlaying) {
         this.spotifyStore.startProgressTimer()
       }
 
-      // Ajouter un log pour le débogage
       console.log('Seek to position:', newPosition, 'ms')
     },
     formatTime(ms) {
@@ -114,17 +124,26 @@ export default {
       this.$router.push('/playlists')
     }
   },
+  async mounted() {
+    // On s'assure d'avoir les données avant d'afficher quoi que ce soit
+    if (this.spotifyStore.isConnected) {
+      await this.spotifyStore.fetchPlaybackFromAPI()
+      this.spotifyStore.requestPlaybackStatus()
+    }
+  },
   activated() {
-    // Lors de l'activation de la vue, on demande une mise à jour du statut
-    this.spotifyStore.requestPlaybackStatus()
+    if (this.spotifyStore.isConnected) {
+      this.spotifyStore.requestPlaybackStatus()
+    }
   },
   deactivated() {
-    // Nettoyage des timers lors de la désactivation de la vue
     this.spotifyStore.clearTimers()
+  },
+  beforeUnmount() {
+    this.isReady = false
   }
 }
 </script>
-
 
 <style scoped>
 .spotify-view {
@@ -172,7 +191,6 @@ export default {
   display: none;
 }
 
-
 .track-info {
   flex: 1;
   display: flex;
@@ -186,12 +204,11 @@ export default {
   color: var(--text-light);
 }
 
-
 .playback-bar {
   display: flex;
   align-items: center;
   gap: var(--spacing-04);
-  margin: var(--spacing-05)0;
+  margin: var(--spacing-05) 0;
 }
 
 .progress-bar {
@@ -210,6 +227,16 @@ export default {
 .time {
   width: 48px;
   text-align: center;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 @media (max-aspect-ratio: 3/2) {
