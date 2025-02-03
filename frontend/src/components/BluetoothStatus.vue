@@ -50,7 +50,7 @@ export default {
 
     disconnectDevice(address) {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.isDisconnecting = true; // Active l'état de déconnexion en cours
+        this.isDisconnecting = true;
         console.log('Envoi de la commande de déconnexion pour:', address);
 
         this.ws.send(JSON.stringify({
@@ -58,23 +58,26 @@ export default {
           data: { address }
         }));
 
-        // Attendre la confirmation avant de remettre l'état à false
         setTimeout(() => {
           this.isDisconnecting = false;
-        }, 3000); // Ajuste selon le délai réel de réponse WebSocket
+        }, 3000);
       }
     },
 
     initWebSocket() {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        console.log('WebSocket déjà connecté');
         return
       }
 
+      const wsUrl = `ws://${window.location.hostname}:8000/ws/bluetooth`;
+      console.log('Tentative de connexion WebSocket à:', wsUrl);
+
       try {
-        this.ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/bluetooth`)
+        this.ws = new WebSocket(wsUrl)
 
         this.ws.onopen = () => {
-          console.log('WebSocket connecté')
+          console.log('WebSocket connecté avec succès')
           this.wsConnected = true
           this.connectionError = null
           this.checkStatus()
@@ -83,16 +86,18 @@ export default {
         this.ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data)
-            console.log('Message reçu:', data)
+            console.log('Message WebSocket reçu:', data)
 
             if (data.type === 'devices_status') {
+              console.log('Mise à jour du statut des appareils:', data.devices)
               this.connectedDevice = data.devices[0] || null
               if (!this.isReady) {
-                this.isReady = true // Activer l'affichage une fois les données reçues
+                console.log('Composant maintenant prêt à être affiché')
+                this.isReady = true
               }
             }
           } catch (error) {
-            console.error('Erreur parsing message:', error)
+            console.error('Erreur parsing message WebSocket:', error)
           }
         }
 
@@ -114,6 +119,7 @@ export default {
 
     checkStatus() {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        console.log('Envoi demande de statut')
         this.ws.send(JSON.stringify({
           type: 'get_status',
           data: {}
@@ -122,6 +128,7 @@ export default {
     },
 
     startPeriodicCheck() {
+      console.log('Démarrage des vérifications périodiques')
       this.periodicCheck = setInterval(() => {
         this.checkStatus()
       }, 2000)
@@ -129,6 +136,7 @@ export default {
 
     handleDisconnect() {
       clearInterval(this.periodicCheck)
+      console.log('Tentative de reconnexion dans 2 secondes...')
       setTimeout(() => {
         if (!this.wsConnected) {
           this.initWebSocket()
@@ -143,20 +151,23 @@ export default {
         this.ws = null
       }
       this.wsConnected = false
-      this.isReady = false // Réinitialiser l'état lors du nettoyage
+      this.isReady = false
     }
   },
 
   mounted() {
+    console.log('Composant monté, initialisation du WebSocket')
     this.initWebSocket()
   },
 
   beforeUnmount() {
+    console.log('Nettoyage du composant')
     this.cleanupWebSocket()
   },
 
   watch: {
     wsConnected(newVal) {
+      console.log('État de la connexion WebSocket changé:', newVal)
       if (newVal) {
         this.startPeriodicCheck()
       }
@@ -216,12 +227,10 @@ button.toDisconect {
 
 @media (max-aspect-ratio: 3/2) {
   .pop-in {
-    /* width: calc(100% - var(--spacing-08)); */
     width: 256px;
   }
 }
 
-/* Ajout des styles de transition */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;

@@ -7,9 +7,9 @@
             </div>
             <div v-else class="pop-in-content">
                 <MacOSIcon variant="md" />
-                <div v-for="client in clients" :key="client.id">
-                    <p class="text-secondary">Connecté au </p>
-                    <p>Mac mini de Léo</p>
+                <div>
+                    <p class="text-secondary">Connecté à</p>
+                    <p class="text">{{ getServerDisplayName }}</p>
                 </div>
             </div>
         </div>
@@ -26,10 +26,6 @@ export default {
         MacOSIcon,
         LoaderIcon
     },
-    props: {
-        serverAvailable: Boolean,
-        clients: Array,
-    },
     data() {
         return {
             ws: null,
@@ -37,7 +33,18 @@ export default {
             wsConnected: false,
             serverAvailable: false,
             connectionError: null,
-            isReady: false // Nouvel état pour contrôler l'affichage initial
+            isReady: false,
+            serverInfo: null
+        }
+    },
+    computed: {
+        getServerDisplayName() {
+            if (!this.serverInfo) return 'Serveur inconnu';
+            // Nettoyer le nom du serveur (enlever .local, etc.)
+            let name = this.serverInfo.name || 'Unknown';
+            name = name.replace('.local', '').replace('.home', '');
+            // Mettre la première lettre en majuscule
+            return name.charAt(0).toUpperCase() + name.slice(1);
         }
     },
     methods: {
@@ -47,45 +54,47 @@ export default {
             }
 
             try {
-                this.ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/snapcast`)
+                this.ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/snapcast`);
+                console.log('Tentative de connexion WebSocket Snapcast');
 
                 this.ws.onopen = () => {
-                    console.log('WebSocket Snapcast connecté')
-                    this.wsConnected = true
-                    this.connectionError = null
-                    this.checkStatus()
+                    console.log('WebSocket Snapcast connecté');
+                    this.wsConnected = true;
+                    this.connectionError = null;
+                    this.checkStatus();
                 }
 
                 this.ws.onmessage = (event) => {
                     try {
-                        const data = JSON.parse(event.data)
-                        console.log('Message Snapcast reçu:', data)
+                        const data = JSON.parse(event.data);
+                        console.log('Message Snapcast reçu:', data);
 
                         if (data.type === 'clients_status') {
-                            this.clients = data.clients
-                            this.serverAvailable = data.server_available
+                            this.clients = data.clients;
+                            this.serverAvailable = data.server_available;
+                            this.serverInfo = data.server_info;
                             if (!this.isReady) {
-                                this.isReady = true // Activer l'affichage une fois les données reçues
+                                this.isReady = true;
                             }
                         }
                     } catch (error) {
-                        console.error('Erreur parsing message:', error)
+                        console.error('Erreur parsing message:', error);
                     }
                 }
 
                 this.ws.onclose = (event) => {
-                    console.log('WebSocket Snapcast déconnecté', event.code, event.reason)
-                    this.wsConnected = false
-                    this.handleDisconnect()
+                    console.log('WebSocket Snapcast déconnecté', event.code, event.reason);
+                    this.wsConnected = false;
+                    this.handleDisconnect();
                 }
 
                 this.ws.onerror = (error) => {
-                    console.error('Erreur WebSocket Snapcast:', error)
-                    this.connectionError = error
+                    console.error('Erreur WebSocket Snapcast:', error);
+                    this.connectionError = error;
                 }
             } catch (error) {
-                console.error('Erreur initialisation WebSocket Snapcast:', error)
-                this.connectionError = error
+                console.error('Erreur initialisation WebSocket Snapcast:', error);
+                this.connectionError = error;
             }
         },
 
@@ -94,48 +103,49 @@ export default {
                 this.ws.send(JSON.stringify({
                     type: 'get_status',
                     data: {}
-                }))
+                }));
             }
         },
 
         startPeriodicCheck() {
             this.periodicCheck = setInterval(() => {
-                this.checkStatus()
-            }, 2000)
+                this.checkStatus();
+            }, 2000);
         },
 
         handleDisconnect() {
-            clearInterval(this.periodicCheck)
+            clearInterval(this.periodicCheck);
             setTimeout(() => {
                 if (!this.wsConnected) {
-                    this.initWebSocket()
+                    this.initWebSocket();
                 }
-            }, 2000)
+            }, 2000);
         },
 
         cleanupWebSocket() {
-            clearInterval(this.periodicCheck)
+            clearInterval(this.periodicCheck);
             if (this.ws) {
-                this.ws.close()
-                this.ws = null
+                this.ws.close();
+                this.ws = null;
             }
-            this.wsConnected = false
-            this.isReady = false // Réinitialiser l'état lors du nettoyage
+            this.wsConnected = false;
+            this.isReady = false;
         }
     },
 
     mounted() {
-        this.initWebSocket()
+        console.log('Composant Snapcast monté');
+        this.initWebSocket();
     },
 
     beforeUnmount() {
-        this.cleanupWebSocket()
+        this.cleanupWebSocket();
     },
 
     watch: {
         wsConnected(newVal) {
             if (newVal) {
-                this.startPeriodicCheck()
+                this.startPeriodicCheck();
             }
         }
     }
@@ -170,13 +180,17 @@ export default {
     color: var(--text-secondary);
 }
 
+.text {
+    color: var(--text);
+    font-weight: 500;
+}
+
 @media (max-aspect-ratio: 3/2) {
     .pop-in {
         width: 256px;
     }
 }
 
-/* Ajout des styles de transition */
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.3s ease;

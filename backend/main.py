@@ -17,9 +17,9 @@ from services.spotify.routes import router as spotify_router, init_routes as ini
 from services.navigation.manager import NavigationManager
 from websocket.manager import WebSocketManager
 
-# Configuration du logging
+# Configuration du logging plus détaillée
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # Changé en DEBUG pour plus de détails
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -44,7 +44,11 @@ async def lifespan(app: FastAPI):
     try:
         # Initialisation des gestionnaires
         websocket_manager = WebSocketManager()
+        logger.debug("WebSocket Manager initialized")
+        
         bluetooth_manager = BluetoothManager(websocket_manager)
+        logger.debug("Bluetooth Manager initialized")
+        
         snapcast_manager = SnapcastManager(websocket_manager)
         spotify_manager = SpotifyManager(websocket_manager)
         spotify_player = SpotifyPlayerManager(websocket_manager, spotify_manager)
@@ -53,11 +57,13 @@ async def lifespan(app: FastAPI):
         # Initialisation des gestionnaires d'événements
         bluetooth_events = BluetoothEventHandler(bluetooth_manager)
         bluetooth_events.setup_signal_handlers()
+        logger.debug("Bluetooth event handlers setup completed")
 
         # Initialisation des routes
         init_routes(bluetooth_manager)
         init_snapcast_routes(snapcast_manager)
         init_spotify_routes(spotify_manager)
+        logger.debug("Routes initialized")
 
         # Démarrage des services
         logger.info("Starting services...")
@@ -71,9 +77,7 @@ async def lifespan(app: FastAPI):
         raise
     finally:
         logger.info("Shutting down services...")
-        # Ajoutez ici le code de nettoyage si nécessaire
 
-# Création de l'application FastAPI
 app = FastAPI(lifespan=lifespan)
 
 # Configuration CORS
@@ -93,12 +97,18 @@ app.include_router(spotify_router, prefix="/api/spotify", tags=["spotify"])
 @app.websocket("/ws/{service}")
 async def websocket_endpoint(websocket: WebSocket, service: str):
     """Endpoint WebSocket pour tous les services"""
+    logger.debug(f"New WebSocket connection request for service: {service}")
     await websocket_manager.connect(websocket, service)
+    logger.info(f"WebSocket connected for service: {service}")
+    
     try:
         while True:
             data = await websocket.receive_json()
+            logger.debug(f"Received WebSocket message for {service}: {data}")
+            
             try:
                 if service == "bluetooth":
+                    logger.debug("Handling bluetooth message")
                     await bluetooth_manager.handle_message(data)
                 elif service == "snapcast":
                     await snapcast_manager.handle_message(data)
@@ -119,6 +129,7 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
     finally:
+        logger.info(f"Disconnecting WebSocket for service: {service}")
         websocket_manager.disconnect(websocket, service)
 
 @app.get("/health")
@@ -139,5 +150,6 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
-        log_level="info"
+        log_level="debug"  # Changé en debug pour plus de détails
     )
+    
