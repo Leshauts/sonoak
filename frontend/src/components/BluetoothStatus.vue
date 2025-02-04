@@ -1,3 +1,4 @@
+<!-- frontend/src/components/BluetoothStatus.vue -->
 <template>
   <Transition name="fade">
     <div v-if="isReady" class="pop-in">

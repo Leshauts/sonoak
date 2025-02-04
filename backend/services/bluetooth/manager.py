@@ -1,3 +1,4 @@
+# backend/services/bluetooth/manager.py
 import dbus
 import dbus.mainloop.glib
 import asyncio
@@ -23,12 +24,56 @@ class BluetoothManager:
             print("Adaptateur Bluetooth initialisé")
             self.initialized = True
             
+            # Ajout des gestionnaires d'événements
+            self._setup_signal_handlers()
+            
             # Vérification initiale des connexions
             self._check_existing_connections()
         except Exception as e:
             print(f"Erreur d'initialisation: {e}")
-            # Même en cas d'erreur, on initialise une liste vide
             self.connected_devices = []
+
+    def _setup_signal_handlers(self):
+        """Configure les gestionnaires de signaux DBus"""
+        self.bus.add_signal_receiver(
+            self._interface_added,
+            dbus_interface="org.freedesktop.DBus.ObjectManager",
+            signal_name="InterfacesAdded"
+        )
+        
+        self.bus.add_signal_receiver(
+            self._interface_removed,
+            dbus_interface="org.freedesktop.DBus.ObjectManager",
+            signal_name="InterfacesRemoved"
+        )
+        
+        self.bus.add_signal_receiver(
+            self._properties_changed,
+            dbus_interface="org.freedesktop.DBus.Properties",
+            signal_name="PropertiesChanged",
+            arg0="org.bluez.Device1",
+            path_keyword="path"
+        )
+
+    def _interface_added(self, path, interfaces):
+        """Gère l'ajout d'une interface"""
+        if "org.bluez.Device1" in interfaces:
+            props = interfaces["org.bluez.Device1"]
+            if props.get("Connected", False):
+                self.add_device(path)
+
+    def _interface_removed(self, path, interfaces):
+        """Gère la suppression d'une interface"""
+        if "org.bluez.Device1" in interfaces:
+            self.remove_device(path)
+
+    def _properties_changed(self, interface, changed, invalidated, path):
+        """Gère les changements de propriétés"""
+        if "Connected" in changed:
+            if changed["Connected"]:
+                self.add_device(path)
+            else:
+                self.remove_device(path)
 
     def _check_existing_connections(self):
         """Vérifie les appareils déjà connectés au démarrage"""
@@ -115,34 +160,27 @@ class BluetoothManager:
             return
             
         try:
-            # Vérifier si l'appareil est réellement connecté
-            if not self.is_device_really_connected(device_path):
-                print(f"L'appareil {device_path} n'est pas réellement connecté")
-                return
-
             device = self.bus.get_object('org.bluez', device_path)
             props_iface = dbus.Interface(device, 'org.freedesktop.DBus.Properties')
             props = props_iface.GetAll('org.bluez.Device1')
             
+            if not props.get("Connected", False):
+                return
+                
             device_info = {
                 "address": str(props.get("Address", "")),
                 "name": str(props.get("Name", "Unknown"))
             }
             print(f"Ajout de l'appareil: {device_info['name']}")
             
-            # Déconnecter l'appareil précédent si nécessaire
-            if len(self.connected_devices) > 0:
-                old_address = self.connected_devices[0]['address']
-                old_path = f"/org/bluez/hci0/dev_{'_'.join(old_address.split(':'))}"
-                print(f"Déconnexion de l'ancien appareil: {self.connected_devices[0]['name']}")
-                self.disconnect_device(old_path)
-            
+            # Mise à jour directe de la liste
             self.connected_devices = [device_info]
+            
+            # Notification immédiate
             asyncio.create_task(self.notify_devices_status())
                 
         except Exception as e:
             print(f"Erreur lors de l'ajout de l'appareil: {e}")
-            asyncio.create_task(self.notify_devices_status())
 
     def remove_device(self, device_path: str):
         """Retire un appareil déconnecté"""
