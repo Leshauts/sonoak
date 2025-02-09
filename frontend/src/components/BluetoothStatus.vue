@@ -14,45 +14,17 @@
         <div v-else class="pop-in-content connected">
           <div class="main-content">
             <BluetoothIcon variant="md" />
-            <div v-if="!isChangingDevice">
-              <p class="text">
-                <span class="text-secondary">Connecté à </span>
-                <span class="unbreakable-line">{{ getDeviceDisplayName(activeDevice) }}</span>
-              </p>
-            </div>
-            <div v-else>
-              <p class="text-secondary">Changement en cours...</p>
-            </div>
+            <p class="text">
+              <span class="text-secondary">Connecté à </span>
+              <span class="unbreakable-line">{{ getDeviceDisplayName(activeDevice) }}</span>
+            </p>
           </div>
-          <button v-if="!pendingDevice && !isChangingDevice" @click="disconnectDevice(activeDevice.address)"
+          <button @click="disconnectDevice(activeDevice.address)"
             class="button-secondary" :disabled="isDisconnecting">
             <p class="text-small text-light">
               {{ isDisconnecting ? "Déconnexion en cours..." : "Déconnecter" }}
             </p>
           </button>
-        </div>
-      </div>
-
-      <div v-if="pendingDevice" class="pop-in change-device">
-        <div class="pop-in-content">
-          <div class="main-content">
-            <p class="text">
-              <span class="unbreakable-line">{{ getDeviceDisplayName(pendingDevice) }}</span>
-              <span class="text-secondary"> souhaite récupérer la connexion</span>
-            </p>
-          </div>
-          <div class="horizontal-buttons">
-            <button @click="handleAcceptNewDevice(pendingDevice)" class="button-secondary" :disabled="isChangingDevice">
-              <p class="text-small text-light">
-                Accepter
-              </p>
-            </button>
-            <button @click="handleRefuseNewDevice(pendingDevice)" class="button-secondary" :disabled="isChangingDevice">
-              <p class="text-small text-light">
-                Refuser
-              </p>
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -73,12 +45,10 @@ export default {
     return {
       ws: null,
       activeDevice: null,
-      pendingDevice: null,
       wsConnected: false,
       connectionError: null,
       isDisconnecting: false,
-      isChangingDevice: false,
-      isLoading: true,  // Nouvel état
+      isLoading: true,
       reconnectAttempts: 0,
       maxReconnectAttempts: 5,
       reconnectTimer: null,
@@ -89,41 +59,6 @@ export default {
   methods: {
     getDeviceDisplayName(device) {
       return device.name === 'Nom inconnu' ? 'Connexion en cours...' : `${device.name}`
-    },
-
-    async handleAcceptNewDevice(newDevice) {
-      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.isChangingDevice = true;
-        this.pendingDevice = null;
-
-        try {
-          this.ws.send(JSON.stringify({
-            type: 'switch_device',
-            data: {
-              oldDeviceAddress: this.activeDevice.address,
-              newDeviceAddress: newDevice.address
-            }
-          }));
-        } catch (error) {
-          console.error('Erreur lors du changement de device:', error);
-          this.handleDisconnect();
-        }
-      }
-    },
-
-    async handleRefuseNewDevice(newDevice) {
-      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        try {
-          this.ws.send(JSON.stringify({
-            type: 'disconnect_device',
-            data: { address: newDevice.address }
-          }));
-        } catch (error) {
-          console.error('Erreur lors du refus du device:', error);
-          this.handleDisconnect();
-        }
-      }
-      this.pendingDevice = null;
     },
 
     requestInitialStatus() {
@@ -173,7 +108,7 @@ export default {
           this.connectionError = null;
           this.reconnectAttempts = 0;
           this.requestInitialStatus();
-          this.startPeriodicCheck();  // Ajout de cette ligne
+          this.startPeriodicCheck();
         };
 
         this.ws.onmessage = (event) => {
@@ -183,14 +118,9 @@ export default {
             console.log('Message WebSocket reçu:', data);
 
             if (data.type === 'devices_status') {
-              const { activeDevice, pendingDevice } = data;
+              const { activeDevice } = data;
               this.activeDevice = activeDevice || null;
-              this.pendingDevice = pendingDevice || null;
-              this.isLoading = false;  // Désactiver le chargement une fois les données reçues
-
-              if (this.isChangingDevice && !pendingDevice) {
-                this.isChangingDevice = false;
-              }
+              this.isLoading = false;
             }
           } catch (error) {
             console.error('Erreur parsing message WebSocket:', error);
@@ -221,25 +151,20 @@ export default {
       }
     },
 
-
-
     resetState() {
       this.activeDevice = null;
-      this.pendingDevice = null;
-      this.isChangingDevice = false;
       this.isDisconnecting = false;
     },
 
-  async cleanupWebSocket() {
-    this.stopPeriodicCheck();
-    
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
+    async cleanupWebSocket() {
+      this.stopPeriodicCheck();
+      
+      if (this.reconnectTimer) {
+        clearTimeout(this.reconnectTimer);
+        this.reconnectTimer = null;
+      }
 
       if (this.ws) {
-        // Désactiver tous les handlers avant de fermer
         this.ws.onclose = null;
         this.ws.onerror = null;
         this.ws.onmessage = null;
@@ -258,8 +183,6 @@ export default {
       this.wsConnected = false;
       if (!this.isUnmounting) {
         this.activeDevice = null;
-        this.pendingDevice = null;
-        this.isChangingDevice = false;
         this.isDisconnecting = false;
       }
     },
@@ -371,7 +294,6 @@ export default {
   background: var(--background, #F7F7F7);
 }
 
-
 .pop-in-content {
   display: flex;
   flex-direction: column;
@@ -392,13 +314,6 @@ export default {
   width: 100%;
   padding: 0 var(--spacing-02) var(--spacing-02) var(--spacing-02);
   gap: var(--spacing-04);
-
-}
-
-.horizontal-buttons {
-  display: flex;
-  gap: var(--spacing-02);
-  width: 100%;
 }
 
 .button-secondary {
