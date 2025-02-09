@@ -1,10 +1,26 @@
-# backend/services/bluetooth/manager.py
 import dbus
 import dbus.mainloop.glib
 import asyncio
 import subprocess
+import time
 from typing import Dict, List, Optional
 from datetime import datetime
+
+def set_a2dp_sink(device_address: str):
+    """Configure l'audio A2DP pour le périphérique Bluetooth."""
+    try:
+        subprocess.run(["bluetoothctl", "trust", device_address], capture_output=True)
+        subprocess.run(["bluetoothctl", "connect", device_address], capture_output=True)
+        
+        # Attendre la stabilisation
+        time.sleep(1)
+        
+        # Configuration ALSA
+        subprocess.run(["amixer", "cset", "numid=3", "1"], capture_output=True)
+        print(f"[A2DP] Audio configuré pour {device_address}")
+            
+    except subprocess.CalledProcessError as e:
+        print(f"[A2DP] Erreur lors de la configuration: {e}")
 
 class BluetoothManager:
     def __init__(self, websocket_manager):
@@ -13,9 +29,7 @@ class BluetoothManager:
         self.bus = dbus.SystemBus()
         self.websocket_manager = websocket_manager
         self.active_device: Optional[dict] = None
-        self.pending_device: Optional[dict] = None
         self.initialized = False
-        self.last_active_address = None
         self.initialization_retries = 0
         self.max_retries = 5
         self.obj_manager = None
@@ -25,7 +39,7 @@ class BluetoothManager:
         self.initialize()
 
     def initialize(self):
-        """Initialise ou réinitialise le manager Bluetooth"""
+        """Initialise le manager Bluetooth"""
         try:
             print("Tentative d'initialisation du BluetoothManager...")
             self.obj_manager = dbus.Interface(
@@ -35,24 +49,29 @@ class BluetoothManager:
             
             self.adapter_obj = self.bus.get_object('org.bluez', '/org/bluez/hci0')
             self.adapter = dbus.Interface(self.adapter_obj, 'org.bluez.Adapter1')
+            
+            # Configuration de l'adaptateur
+            adapter_props = dbus.Interface(self.adapter_obj, 'org.freedesktop.DBus.Properties')
+            adapter_props.Set('org.bluez.Adapter1', 'Powered', dbus.Boolean(True))
+            adapter_props.Set('org.bluez.Adapter1', 'Discoverable', dbus.Boolean(True))
+            adapter_props.Set('org.bluez.Adapter1', 'Pairable', dbus.Boolean(True))
+            
             print("Adaptateur Bluetooth initialisé")
             self.initialized = True
             self.initialization_retries = 0
             
             self._setup_signal_handlers()
             self._check_existing_connections()
+            
         except Exception as e:
             print(f"Erreur d'initialisation: {e}")
             self.initialized = False
             self.active_device = None
-            self.pending_device = None
             
             self.initialization_retries += 1
             if self.initialization_retries < self.max_retries:
-                print(f"Nouvelle tentative d'initialisation dans 2 secondes ({self.initialization_retries}/{self.max_retries})")
+                print(f"Nouvelle tentative dans 2 secondes ({self.initialization_retries}/{self.max_retries})")
                 asyncio.get_event_loop().call_later(2, self.initialize)
-            else:
-                print("Nombre maximum de tentatives d'initialisation atteint")
 
     def _setup_signal_handlers(self):
         """Configure les gestionnaires de signaux DBus"""
@@ -63,9 +82,8 @@ class BluetoothManager:
                 signal_name="PropertiesChanged",
                 path_keyword="path"
             )
-            print("Gestionnaires de signaux configurés")
         except Exception as e:
-            print(f"Erreur lors de la configuration des signaux: {e}")
+            print(f"Erreur configuration signaux: {e}")
 
     def _properties_changed(self, interface, changed, invalidated, path=None):
         """Gère les changements de propriétés des appareils"""
@@ -78,9 +96,9 @@ class BluetoothManager:
                 if is_connected:
                     self.handle_new_connection(path)
                 else:
-                    self.handle_disconnection(path)
+                    asyncio.create_task(self.handle_disconnection(path))
         except Exception as e:
-            print(f"Erreur lors du traitement du changement de propriétés: {e}")
+            print(f"Erreur changement propriétés: {e}")
 
     def _get_device_info(self, path: str) -> Optional[dict]:
         """Récupère les informations d'un appareil"""
@@ -102,7 +120,7 @@ class BluetoothManager:
                 "timestamp": datetime.now().timestamp()
             }
         except Exception as e:
-            print(f"Erreur lors de la récupération des infos de l'appareil: {e}")
+            print(f"Erreur récupération infos appareil: {e}")
             return None
 
     def handle_new_connection(self, device_path: str):
@@ -112,83 +130,71 @@ class BluetoothManager:
         if not device_info:
             return
 
-        print(f"Infos appareil: {device_info}")
-        print(f"État actuel - Actif: {self.active_device}, En attente: {self.pending_device}")
-
-        if not self.active_device:
-            print(f"Premier appareil - devient actif: {device_info['name']}")
-            self.active_device = device_info
-        else:
+        if self.active_device:
+            # Un appareil est déjà connecté
             if device_info['address'] != self.active_device['address']:
-                print(f"Nouvel appareil détecté - devient pending: {device_info['name']}")
-                self.pending_device = device_info
+                print(f"Refus connexion (appareil déjà connecté): {device_info['name']}")
+                # Déconnecter immédiatement le nouvel appareil
+                self.disconnect_device(device_path)
+                # Restaurer l'audio du premier appareil
+                set_a2dp_sink(self.active_device['address'])
+        else:
+            # Premier appareil - on accepte
+            print(f"Premier appareil connecté: {device_info['name']}")
+            self.active_device = device_info
+            set_a2dp_sink(device_info['address'])
 
-        print(f"Nouvel état - Actif: {self.active_device}, En attente: {self.pending_device}")
         asyncio.create_task(self.notify_devices_status())
 
-    def handle_disconnection(self, device_path: str):
-        """Gère une déconnexion"""
+    async def handle_disconnection(self, device_path: str):
+        """Gère la déconnexion d'un appareil"""
         print(f"Déconnexion détectée: {device_path}")
-        need_update = False
-        
-        try:
-            device = self.bus.get_object('org.bluez', device_path)
-            props_iface = dbus.Interface(device, 'org.freedesktop.DBus.Properties')
-            props = props_iface.GetAll('org.bluez.Device1')
-            disconnected_address = str(props.get("Address", ""))
-        except:
-            disconnected_address = None
 
-        if self.active_device and (self.active_device["path"] == device_path or 
-                                 (disconnected_address and self.active_device["address"] == disconnected_address)):
+        if self.active_device and self.active_device["path"] == device_path:
             print(f"Appareil actif déconnecté: {self.active_device['name']}")
-            self.last_active_address = self.active_device["address"]
             self.active_device = None
-            need_update = True
-            
-        if self.pending_device and (self.pending_device["path"] == device_path or 
-                                  (disconnected_address and self.pending_device["address"] == disconnected_address)):
-            print(f"Appareil en attente déconnecté: {self.pending_device['name']}")
-            self.pending_device = None
-            need_update = True
-
-        if need_update:
-            self._check_existing_connections()
-        else:
-            asyncio.create_task(self.notify_devices_status())
+            await self.notify_devices_status()
 
     def _check_existing_connections(self):
         """Vérifie les appareils déjà connectés"""
-        print("Recherche des appareils connectés...")
-        
         try:
             if not self.initialized:
-                print("BluetoothManager non initialisé, tentative de réinitialisation...")
-                self.initialize()
                 return
 
-            # Vérification via bluetoothctl
             connected_devices = self._check_bluetoothctl_connections()
             if not connected_devices:
-                # Fallback sur la méthode DBus
-                connected_devices = self._check_dbus_connections()
-
-            print(f"Appareils connectés trouvés: {connected_devices}")
-            
-            if not connected_devices:
                 self.active_device = None
-                self.pending_device = None
-                asyncio.create_task(self.notify_devices_status())
-                return
+            else:
+                # Si un appareil actif existe déjà
+                if self.active_device:
+                    # Vérifier si l'appareil actif est toujours dans la liste
+                    active_still_connected = any(
+                        device['address'] == self.active_device['address']
+                        for device in connected_devices
+                    )
+                    
+                    if active_still_connected:
+                        # Déconnecter tous les autres appareils
+                        for device in connected_devices:
+                            if device['address'] != self.active_device['address']:
+                                print(f"Déconnexion appareil non autorisé: {device['name']}")
+                                self.disconnect_device(device['path'])
+                        # Restaurer l'audio de l'appareil actif
+                        set_a2dp_sink(self.active_device['address'])
+                    else:
+                        # L'appareil actif n'est plus connecté
+                        self.active_device = None
+                else:
+                    # Pas d'appareil actif, prendre le premier
+                    self.active_device = connected_devices[0]
+                    # Déconnecter les autres
+                    for device in connected_devices[1:]:
+                        self.disconnect_device(device['path'])
 
-            self._update_device_states(connected_devices)
-            
-        except Exception as e:
-            print(f"Erreur lors de la vérification des connexions: {e}")
-            if not self.initialized:
-                self.initialize()
-        finally:
             asyncio.create_task(self.notify_devices_status())
+                
+        except Exception as e:
+            print(f"Erreur vérification connexions: {e}")
 
     def _check_bluetoothctl_connections(self) -> List[dict]:
         """Vérifie les connexions via bluetoothctl"""
@@ -217,166 +223,54 @@ class BluetoothManager:
             
             return connected_devices
         except Exception as e:
-            print(f"Erreur lors de la vérification bluetoothctl: {e}")
+            print(f"Erreur vérification bluetoothctl: {e}")
             return []
-
-    def _check_dbus_connections(self) -> List[dict]:
-        """Vérifie les connexions via DBus"""
-        try:
-            objects = self.obj_manager.GetManagedObjects()
-            connected_devices = []
-            
-            for path, interfaces in objects.items():
-                if "org.bluez.Device1" not in interfaces:
-                    continue
-                    
-                device_info = self._get_device_info(path)
-                if device_info:
-                    connected_devices.append(device_info)
-            
-            return connected_devices
-        except Exception as e:
-            print(f"Erreur lors de la vérification DBus: {e}")
-            return []
-
-    def _update_device_states(self, connected_devices: List[dict]):
-        """Met à jour les états des appareils"""
-        if self.active_device:
-            active_still_exists = any(
-                device['address'] == self.active_device['address']
-                for device in connected_devices
-            )
-            if not active_still_exists:
-                self.active_device = None
-
-        # Restaurer le dernier appareil actif s'il est toujours connecté
-        if not self.active_device and self.last_active_address:
-            for device in connected_devices:
-                if device['address'] == self.last_active_address:
-                    self.active_device = device
-                    break
-
-        # Si toujours pas d'appareil actif, prendre le premier connecté
-        if not self.active_device and connected_devices:
-            self.active_device = connected_devices[0]
-
-        # Mise à jour du pending device
-        self.pending_device = None
-        if len(connected_devices) > 1:
-            for device in reversed(connected_devices):
-                if not self.active_device or device['address'] != self.active_device['address']:
-                    self.pending_device = device
-                    break
-
-    async def switch_devices(self, old_address: str, new_address: str):
-        """Gère le changement d'appareil actif"""
-        print(f"Changement d'appareil: {old_address} -> {new_address}")
-        
-        if (self.active_device and self.active_device['address'] == old_address and 
-            self.pending_device and self.pending_device['address'] == new_address):
-            
-            old_path = f"/org/bluez/hci0/dev_{'_'.join(old_address.split(':'))}"
-            self.disconnect_device(old_path)
-            
-            self.active_device = self.pending_device
-            self.pending_device = None
-            
-            await self.notify_devices_status()
-        else:
-            print("État des appareils incorrect pour le changement")
-            self._check_existing_connections()
 
     async def notify_devices_status(self):
-        """Envoie la liste des appareils au frontend"""
+        """Envoie l'état au frontend"""
         try:
-            active_still_connected = (
-                self.active_device and 
-                self.is_device_really_connected(self.active_device['path'])
-            )
-            
-            pending_still_connected = (
-                self.pending_device and 
-                self.is_device_really_connected(self.pending_device['path'])
-            )
-            
             message = {
                 "type": "devices_status",
-                "activeDevice": self.active_device if active_still_connected else None,
-                "pendingDevice": self.pending_device if pending_still_connected else None
+                "activeDevice": self.active_device if self.active_device else None,
+                "pendingDevice": None  # Plus de pending device
             }
-            
-            print(f"[DEBUG] Envoi du statut Bluetooth:")
-            print(f"  - Actif: {self.active_device['name'] if self.active_device else 'None'}")
-            print(f"  - En attente: {self.pending_device['name'] if self.pending_device else 'None'}")
             
             await self.websocket_manager.broadcast_to_service(message, "bluetooth")
             
         except Exception as e:
-            print(f"Erreur lors de l'envoi du statut: {e}")
-            self._check_existing_connections()
-
-    def is_device_really_connected(self, device_path: str) -> bool:
-        """Vérifie si un appareil est réellement connecté"""
-        if not self.initialized:
-            return False
-            
-        try:
-            device = self.bus.get_object('org.bluez', device_path)
-            props_iface = dbus.Interface(device, 'org.freedesktop.DBus.Properties')
-            props = props_iface.GetAll('org.bluez.Device1')
-            return bool(props.get("Connected", False))
-        except Exception as e:
-            return False
+            print(f"Erreur envoi statut: {e}")
 
     def disconnect_device(self, device_path: str):
         """Déconnecte un appareil"""
         if not self.initialized:
             return
-            
+                
         try:
+            # Déconnecter rapidement via bluetoothctl
             device = self.bus.get_object('org.bluez', device_path)
+            device_props = dbus.Interface(device, 'org.freedesktop.DBus.Properties')
+            address = str(device_props.Get('org.bluez.Device1', 'Address'))
+            
+            # Déconnexion brutale via bluetoothctl
+            subprocess.run(["bluetoothctl", "disconnect", address], check=True)
+            
+            # Puis déconnexion via DBus
             device_iface = dbus.Interface(device, 'org.bluez.Device1')
             device_iface.Disconnect()
+            
             print(f"Appareil déconnecté: {device_path}")
         except Exception as e:
-            print(f"Erreur lors de la déconnexion: {e}")
+            print(f"Erreur déconnexion: {e}")
 
     async def handle_message(self, message: dict):
         """Gère les messages du frontend"""
-        try:
-            print(f"[DEBUG] Message WebSocket reçu: {message}")
-            if not isinstance(message, dict):
-                print("[ERROR] Le message reçu n'est pas un dictionnaire")
-                return
+        message_type = message.get("type")
+        data = message.get("data", {})
 
-            message_type = message.get("type")
-            data = message.get("data", {})
-
-            if message_type == "get_status":
-                print("[DEBUG] Traitement de la demande get_status")
-                if not self.initialized:
-                    self.initialize()
-                else:
-                    self._check_existing_connections()
-            elif message_type == "disconnect_device":
-                address = data.get("address")
-                if address:
-                    device_path = f"/org/bluez/hci0/dev_{'_'.join(address.split(':'))}"
-                    self.disconnect_device(device_path)
-            elif message_type == "switch_device":
-                old_address = data.get("oldDeviceAddress")
-                new_address = data.get("newDeviceAddress")
-                if old_address and new_address:
-                    await self.switch_devices(old_address, new_address)
-            else:
-                print(f"[WARNING] Type de message non reconnu: {message_type}")
-        except Exception as e:
-            print(f"[ERROR] Erreur dans handle_message: {str(e)}")
-            import traceback
-            traceback.print_exc()
-
-    def _setup_signal_handlers(self):
-        """Configure les gestionnaires de signaux pour le BluetoothManager"""
-        from .events import BluetoothEventHandler
-        self.event_handler = BluetoothEventHandler(self)
-        self.event_handler.setup_signal_handlers()
+        if message_type == "get_status":
+            self._check_existing_connections()
+        elif message_type == "disconnect_device":
+            address = data.get("address")
+            if address:
+                device_path = f"/org/bluez/hci0/dev_{'_'.join(address.split(':'))}"
+                self.disconnect_device(device_path)
