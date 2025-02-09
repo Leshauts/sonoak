@@ -28,8 +28,8 @@ class BluetoothEventHandler:
             print(f"État de connexion changé pour {path}: {is_connected}")
             
             if is_connected:
-                print("Appareil connecté - ajout à la liste")
-                self.manager.add_device(path)
+                print("Appareil connecté - notification au manager")
+                self.manager.handle_new_connection(path)
             else:
-                print("Appareil déconnecté - retrait de la liste")
-                self.manager.remove_device(path)
+                print("Appareil déconnecté - notification au manager")
+                self.manager.handle_disconnection(path)

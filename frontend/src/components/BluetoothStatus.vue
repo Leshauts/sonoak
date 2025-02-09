@@ -3,7 +3,11 @@
   <div class="bluetooth-container">
     <div class="bluetooth-wrapper">
       <div class="pop-in status">
-        <div v-if="!activeDevice" class="pop-in-content disconnected">
+        <div v-if="isLoading" class="pop-in-content disconnected">
+          <LoaderIcon variant="md" />
+          <p>Chargement de l'état Bluetooth...</p>
+        </div>
+        <div v-else-if="!activeDevice" class="pop-in-content disconnected">
           <LoaderIcon variant="md" />
           <p>Sonoak est visible dans vos accessoires Bluetooth</p>
         </div>
@@ -32,10 +36,10 @@
       <div v-if="pendingDevice" class="pop-in change-device">
         <div class="pop-in-content">
           <div class="main-content">
-          <p class="text">
-            <span class="unbreakable-line">{{ getDeviceDisplayName(pendingDevice) }}</span>
-            <span class="text-secondary"> souhaite récupérer la connexion</span>
-          </p>
+            <p class="text">
+              <span class="unbreakable-line">{{ getDeviceDisplayName(pendingDevice) }}</span>
+              <span class="text-secondary"> souhaite récupérer la connexion</span>
+            </p>
           </div>
           <div class="horizontal-buttons">
             <button @click="handleAcceptNewDevice(pendingDevice)" class="button-secondary" :disabled="isChangingDevice">
@@ -73,7 +77,13 @@ export default {
       wsConnected: false,
       connectionError: null,
       isDisconnecting: false,
-      isChangingDevice: false
+      isChangingDevice: false,
+      isLoading: true,  // Nouvel état
+      reconnectAttempts: 0,
+      maxReconnectAttempts: 5,
+      reconnectTimer: null,
+      periodicCheck: null,
+      isUnmounting: false
     }
   },
   methods: {
@@ -86,66 +96,98 @@ export default {
         this.isChangingDevice = true;
         this.pendingDevice = null;
 
-        this.ws.send(JSON.stringify({
-          type: 'switch_device',
-          data: {
-            oldDeviceAddress: this.activeDevice.address,
-            newDeviceAddress: newDevice.address
-          }
-        }));
+        try {
+          this.ws.send(JSON.stringify({
+            type: 'switch_device',
+            data: {
+              oldDeviceAddress: this.activeDevice.address,
+              newDeviceAddress: newDevice.address
+            }
+          }));
+        } catch (error) {
+          console.error('Erreur lors du changement de device:', error);
+          this.handleDisconnect();
+        }
       }
     },
 
     async handleRefuseNewDevice(newDevice) {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({
-          type: 'disconnect_device',
-          data: { address: newDevice.address }
-        }));
+        try {
+          this.ws.send(JSON.stringify({
+            type: 'disconnect_device',
+            data: { address: newDevice.address }
+          }));
+        } catch (error) {
+          console.error('Erreur lors du refus du device:', error);
+          this.handleDisconnect();
+        }
       }
       this.pendingDevice = null;
+    },
+
+    requestInitialStatus() {
+      this.isLoading = true;
+      this.checkStatus();
     },
 
     disconnectDevice(address) {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.isDisconnecting = true;
-        this.ws.send(JSON.stringify({
-          type: 'disconnect_device',
-          data: { address }
-        }));
+        try {
+          this.ws.send(JSON.stringify({
+            type: 'disconnect_device',
+            data: { address }
+          }));
 
-        setTimeout(() => {
-          this.isDisconnecting = false;
-        }, 3000);
+          setTimeout(() => {
+            this.isDisconnecting = false;
+          }, 3000);
+        } catch (error) {
+          console.error('Erreur lors de la déconnexion:', error);
+          this.handleDisconnect();
+        }
       }
     },
 
-    initWebSocket() {
+    async initWebSocket() {
+      if (this.isUnmounting) return;
+
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        return;
+        await this.cleanupWebSocket();
       }
 
       const wsUrl = `ws://${window.location.hostname}:8000/ws/bluetooth`;
+      console.log('Tentative de connexion WebSocket:', wsUrl);
 
       try {
         this.ws = new WebSocket(wsUrl);
 
         this.ws.onopen = () => {
+          if (this.isUnmounting) {
+            this.cleanupWebSocket();
+            return;
+          }
+          console.log('WebSocket connecté');
           this.wsConnected = true;
           this.connectionError = null;
-          this.checkStatus();
+          this.reconnectAttempts = 0;
+          this.requestInitialStatus();
+          this.startPeriodicCheck();  // Ajout de cette ligne
         };
 
         this.ws.onmessage = (event) => {
+          if (this.isUnmounting) return;
           try {
             const data = JSON.parse(event.data);
+            console.log('Message WebSocket reçu:', data);
 
             if (data.type === 'devices_status') {
               const { activeDevice, pendingDevice } = data;
               this.activeDevice = activeDevice || null;
               this.pendingDevice = pendingDevice || null;
+              this.isLoading = false;  // Désactiver le chargement une fois les données reçues
 
-              // Réinitialiser l'état de changement si nécessaire
               if (this.isChangingDevice && !pendingDevice) {
                 this.isChangingDevice = false;
               }
@@ -156,72 +198,145 @@ export default {
         };
 
         this.ws.onclose = (event) => {
+          console.log('WebSocket fermé:', event);
           this.wsConnected = false;
-          this.handleDisconnect();
+          if (!this.isUnmounting) {
+            this.handleDisconnect();
+          }
         };
 
         this.ws.onerror = (error) => {
+          console.error('Erreur WebSocket:', error);
           this.connectionError = error;
+          if (!this.isUnmounting) {
+            this.handleDisconnect();
+          }
         };
       } catch (error) {
+        console.error('Erreur initialisation WebSocket:', error);
         this.connectionError = error;
+        if (!this.isUnmounting) {
+          this.handleDisconnect();
+        }
+      }
+    },
+
+
+
+    resetState() {
+      this.activeDevice = null;
+      this.pendingDevice = null;
+      this.isChangingDevice = false;
+      this.isDisconnecting = false;
+    },
+
+  async cleanupWebSocket() {
+    this.stopPeriodicCheck();
+    
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+
+      if (this.ws) {
+        // Désactiver tous les handlers avant de fermer
+        this.ws.onclose = null;
+        this.ws.onerror = null;
+        this.ws.onmessage = null;
+        this.ws.onopen = null;
+
+        try {
+          if (this.ws.readyState === WebSocket.OPEN) {
+            this.ws.close();
+          }
+        } catch (error) {
+          console.error('Erreur fermeture WebSocket:', error);
+        }
+        this.ws = null;
+      }
+
+      this.wsConnected = false;
+      if (!this.isUnmounting) {
+        this.activeDevice = null;
+        this.pendingDevice = null;
+        this.isChangingDevice = false;
+        this.isDisconnecting = false;
+      }
+    },
+
+    handleDisconnect() {
+      if (this.isUnmounting) return;
+
+      this.cleanupWebSocket();
+
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        console.log(`Tentative de reconnexion ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts} dans 2 secondes...`);
+        this.reconnectAttempts++;
+
+        this.reconnectTimer = setTimeout(() => {
+          if (!this.wsConnected && !this.isUnmounting) {
+            this.initWebSocket();
+          }
+        }, 2000);
+      } else {
+        console.error('Nombre maximum de tentatives de reconnexion atteint');
+        this.connectionError = new Error('Impossible de se reconnecter au serveur');
       }
     },
 
     checkStatus() {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         console.log('Envoi demande de statut');
-        this.ws.send(JSON.stringify({
-          type: 'get_status',
-          data: {}
-        }));
+        try {
+          this.ws.send(JSON.stringify({
+            type: 'get_status',
+            data: {}
+          }));
+        } catch (error) {
+          console.error('Erreur lors de l\'envoi du statut:', error);
+          this.handleDisconnect();
+        }
       }
     },
 
     startPeriodicCheck() {
       console.log('Démarrage des vérifications périodiques');
-      this.periodicCheck = setInterval(() => {
-        this.checkStatus();
-      }, 2000);
-    },
+      this.stopPeriodicCheck();
 
-    handleDisconnect() {
-      clearInterval(this.periodicCheck);
-      console.log('Tentative de reconnexion dans 2 secondes...');
-      setTimeout(() => {
-        if (!this.wsConnected) {
-          this.initWebSocket();
+      this.periodicCheck = setInterval(() => {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN && !this.isUnmounting) {
+          this.checkStatus();
+        } else {
+          this.handleDisconnect();
         }
       }, 2000);
     },
 
-    cleanupWebSocket() {
-      clearInterval(this.periodicCheck);
-      if (this.ws) {
-        this.ws.close();
-        this.ws = null;
+    stopPeriodicCheck() {
+      if (this.periodicCheck) {
+        clearInterval(this.periodicCheck);
+        this.periodicCheck = null;
       }
-      this.wsConnected = false;
     }
   },
 
   mounted() {
     console.log('Composant monté, initialisation du WebSocket');
+    this.isUnmounting = false;
     this.initWebSocket();
   },
 
   beforeUnmount() {
     console.log('Nettoyage du composant');
+    this.isUnmounting = true;
     this.cleanupWebSocket();
   },
 
-  watch: {
-    wsConnected(newVal) {
-      console.log('État de la connexion WebSocket changé:', newVal);
-      if (newVal) {
-        this.startPeriodicCheck();
-      }
-    }
+  beforeRouteLeave(to, from, next) {
+    console.log('Navigation sortante détectée');
+    this.isUnmounting = true;
+    this.cleanupWebSocket();
+    next();
   }
 }
 </script>
@@ -267,7 +382,7 @@ export default {
 }
 
 .pop-in-content.disconnected {
-  padding-bottom:var(--spacing-02);
+  padding-bottom: var(--spacing-02);
 }
 
 .main-content {
@@ -294,8 +409,9 @@ export default {
   border-radius: 8px;
   cursor: pointer;
 }
+
 .unbreakable-line {
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 @media (max-aspect-ratio: 3/2) {
