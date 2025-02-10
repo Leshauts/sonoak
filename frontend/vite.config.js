@@ -16,8 +16,8 @@ export default defineConfig({
     },
   },
   server: {
-    host: '0.0.0.0',  // Écoute sur toutes les interfaces
-    port: 5173,       // Retour au port original
+    host: true,
+    port: 5173,
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
@@ -29,5 +29,9 @@ export default defineConfig({
         ws: true
       }
     }
+  },
+  preview: {
+    host: true,
+    port: 5173
   }
 })
