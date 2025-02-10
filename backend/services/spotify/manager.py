@@ -5,9 +5,10 @@ from typing import List, Dict
 import traceback
 
 class SpotifyManager:
-    def __init__(self, websocket_manager):
+    def __init__(self, websocket_manager, audio_manager=None):
         print("Initialisation du SpotifyManager...")
         self.websocket_manager = websocket_manager
+        self.audio_manager = audio_manager
         self.librespot_host = "localhost"
         self.librespot_port = 3678
         self.current_status = {
@@ -45,15 +46,13 @@ class SpotifyManager:
     async def get_status(self):
         """Récupère le statut via l'API REST"""
         try:
-            print("Récupération du statut Spotify...")
             url = f'http://{self.librespot_host}:{self.librespot_port}/status'
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     if response.status == 200:
                         status = await response.json()
-                        print(f"Statut Spotify reçu: {status}")
+                        old_connected = self.current_status["connected"]
                         
-                        # Déterminer si connecté basé sur l'état stopped et la présence d'un username
                         is_connected = not status.get("stopped", True) and status.get("username") is not None
                         
                         new_status = {
@@ -63,19 +62,16 @@ class SpotifyManager:
                         }
 
                         if new_status != self.current_status:
-                            print(f"Mise à jour du statut Spotify: {new_status}")
                             self.current_status = new_status
-                            await self.notify_status()
-                        else:
-                            print("Pas de changement de statut")
-                    else:
-                        print(f"Erreur lors de la récupération du statut: {response.status}")
-                        if self.current_status["connected"]:
-                            self.current_status = {
-                                "connected": False,
-                                "username": None,
-                                "device_name": None
-                            }
+                            
+                            # Si le statut de connexion a changé
+                            if old_connected != is_connected:
+                                if self.audio_manager:
+                                    if is_connected:
+                                        await self.audio_manager.switch_source(AudioSource.SPOTIFY)
+                                    else:
+                                        await self.audio_manager.switch_source(AudioSource.NONE)
+                            
                             await self.notify_status()
         except aiohttp.ClientError as e:
             print(f"Erreur de connexion à go-librespot: {e}")
@@ -109,6 +105,9 @@ class SpotifyManager:
             await self.get_status()
             # Force l'envoi du statut même s'il n'a pas changé
             await self.notify_status()
+            # Si connecté, notifier l'AudioManager
+            if self.current_status["connected"] and self.audio_manager:
+                await self.audio_manager.switch_source(AudioSource.SPOTIFY)
 
     async def cleanup(self):
         """Nettoie les ressources"""

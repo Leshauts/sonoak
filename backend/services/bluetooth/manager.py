@@ -23,11 +23,12 @@ def set_a2dp_sink(device_address: str):
         print(f"[A2DP] Erreur lors de la configuration: {e}")
 
 class BluetoothManager:
-    def __init__(self, websocket_manager):
+    def __init__(self, websocket_manager, audio_manager=None):
         print("Initialisation du BluetoothManager...")
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.bus = dbus.SystemBus()
         self.websocket_manager = websocket_manager
+        self.audio_manager = audio_manager
         self.active_device: Optional[dict] = None
         self.initialized = False
         self.initialization_retries = 0
@@ -123,36 +124,35 @@ class BluetoothManager:
             print(f"Erreur récupération infos appareil: {e}")
             return None
 
-    def handle_new_connection(self, device_path: str):
+    async def handle_new_connection(self, device_path: str):
         """Gère une nouvelle connexion"""
-        print(f"Nouvelle connexion détectée: {device_path}")
         device_info = self._get_device_info(device_path)
         if not device_info:
             return
 
         if self.active_device:
-            # Un appareil est déjà connecté
             if device_info['address'] != self.active_device['address']:
                 print(f"Refus connexion (appareil déjà connecté): {device_info['name']}")
-                # Déconnecter immédiatement le nouvel appareil
                 self.disconnect_device(device_path)
-                # Restaurer l'audio du premier appareil
                 set_a2dp_sink(self.active_device['address'])
         else:
-            # Premier appareil - on accepte
             print(f"Premier appareil connecté: {device_info['name']}")
             self.active_device = device_info
             set_a2dp_sink(device_info['address'])
+            # Notifier AudioManager
+            if self.audio_manager:
+                await self.audio_manager.switch_source(AudioSource.BLUETOOTH)
 
-        asyncio.create_task(self.notify_devices_status())
+        await self.notify_devices_status()
 
     async def handle_disconnection(self, device_path: str):
         """Gère la déconnexion d'un appareil"""
-        print(f"Déconnexion détectée: {device_path}")
-
         if self.active_device and self.active_device["path"] == device_path:
             print(f"Appareil actif déconnecté: {self.active_device['name']}")
             self.active_device = None
+            # Notifier AudioManager
+            if self.audio_manager:
+                await self.audio_manager.switch_source(AudioSource.NONE)
             await self.notify_devices_status()
 
     def _check_existing_connections(self):
@@ -269,6 +269,7 @@ class BluetoothManager:
 
         if message_type == "get_status":
             self._check_existing_connections()
+            await self.notify_devices_status()  # Ajout de cette ligne
         elif message_type == "disconnect_device":
             address = data.get("address")
             if address:

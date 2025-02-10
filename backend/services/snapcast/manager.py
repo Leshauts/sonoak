@@ -5,9 +5,10 @@ from typing import List, Dict
 import traceback
 
 class SnapcastManager:
-    def __init__(self, websocket_manager):
+    def __init__(self, websocket_manager, audio_manager=None):
         print("Initialisation du SnapcastManager...")
         self.websocket_manager = websocket_manager
+        self.audio_manager = audio_manager
         self.clients = []
         self.server_info = None
         self.snapserver_host = "192.168.1.173"
@@ -84,42 +85,52 @@ class SnapcastManager:
             return False
 
     async def get_clients_status(self):
-        """Récupère le statut des clients et du serveur Snapcast"""
-        # D'abord obtenir les infos serveur
-        await self.get_server_info()
-        
-        command = {
-            "id": 3,
-            "jsonrpc": "2.0",
-            "method": "Server.GetStatus"
-        }
-        
-        response = await self.send_command(command)
-        if response and "result" in response:
-            try:
-                server_status = response["result"]["server"]
-                
-                # Mise à jour des clients
-                self.clients = []
-                if "groups" in server_status:
-                    for group in server_status["groups"]:
-                        for client in group["clients"]:
-                            if client["connected"]:
-                                client_info = {
-                                    "id": client["id"],
-                                    "host": client["host"]["name"],
-                                    "connected": client["connected"]
-                                }
-                                self.clients.append(client_info)
-                
-                await self.notify_clients_status()
-                return True
-            except Exception as e:
-                print(f"Erreur lors du traitement de la réponse: {e}")
-                traceback.print_exc()
-        
-        await self.notify_clients_status()
-        return False
+            """Récupère le statut des clients et du serveur Snapcast"""
+            # D'abord obtenir les infos serveur
+            await self.get_server_info()
+            
+            command = {
+                "id": 3,
+                "jsonrpc": "2.0",
+                "method": "Server.GetStatus"
+            }
+            
+            response = await self.send_command(command)
+            if response and "result" in response:
+                try:
+                    server_status = response["result"]["server"]
+                    old_clients_count = len(self.clients)
+                    
+                    # Mise à jour des clients
+                    self.clients = []
+                    if "groups" in server_status:
+                        for group in server_status["groups"]:
+                            for client in group["clients"]:
+                                if client["connected"]:
+                                    client_info = {
+                                        "id": client["id"],
+                                        "host": client["host"]["name"],
+                                        "connected": client["connected"]
+                                    }
+                                    self.clients.append(client_info)
+                    
+                    # Si on passe de 0 à des clients connectés
+                    if old_clients_count == 0 and len(self.clients) > 0:
+                        if self.audio_manager:
+                            await self.audio_manager.switch_source(AudioSource.MACOS)
+                    # Si on passe de clients connectés à 0
+                    elif old_clients_count > 0 and len(self.clients) == 0:
+                        if self.audio_manager:
+                            await self.audio_manager.switch_source(AudioSource.NONE)
+                    
+                    await self.notify_clients_status()
+                    return True
+                except Exception as e:
+                    print(f"Erreur lors du traitement de la réponse: {e}")
+                    traceback.print_exc()
+            
+            await self.notify_clients_status()
+            return False
 
     async def notify_clients_status(self):
         """Envoie la liste des clients et les infos serveur au frontend"""
@@ -139,6 +150,8 @@ class SnapcastManager:
         
         if message_type == "get_status":
             await self.get_clients_status()
+            if self.clients and self.audio_manager:  # Ajout de cette condition
+                await self.audio_manager.switch_source(AudioSource.MACOS)
 
     async def set_client_volume(self, client_id: str, volume: int) -> bool:
         """Modifie le volume d'un client"""

@@ -1,7 +1,9 @@
+# backend/main.py
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from typing import Dict, Any
+from services.audio.manager import AudioManager
 import uvicorn
 import logging
 
@@ -35,37 +37,46 @@ bluetooth_events = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Gestionnaire de cycle de vie de l'application"""
     global websocket_manager, bluetooth_manager, snapcast_manager, spotify_manager
-    global spotify_player, navigation_manager, bluetooth_events
+    global spotify_player, audio_manager, bluetooth_events
 
     logger.info("Initializing services...")
     
     try:
-        # Initialisation des gestionnaires
+        # Websocket Manager
         websocket_manager = WebSocketManager()
         logger.debug("WebSocket Manager initialized")
         
-        bluetooth_manager = BluetoothManager(websocket_manager)
+        # Audio Manager
+        audio_manager = AudioManager(websocket_manager)
+        await audio_manager.initialize()
+        logger.debug("Audio Manager initialized")
+        
+        # Service Managers
+        bluetooth_manager = BluetoothManager(websocket_manager, audio_manager)
         logger.debug("Bluetooth Manager initialized")
         
-        snapcast_manager = SnapcastManager(websocket_manager)
-        spotify_manager = SpotifyManager(websocket_manager)
+        snapcast_manager = SnapcastManager(websocket_manager, audio_manager)
+        logger.debug("Snapcast Manager initialized")
+        
+        spotify_manager = SpotifyManager(websocket_manager, audio_manager)
+        logger.debug("Spotify Manager initialized")
+        
         spotify_player = SpotifyPlayerManager(websocket_manager, spotify_manager)
-        navigation_manager = NavigationManager(websocket_manager)
+        logger.debug("Spotify Player Manager initialized")
 
-        # Initialisation des gestionnaires d'événements
+        # Event handlers
         bluetooth_events = BluetoothEventHandler(bluetooth_manager)
         bluetooth_events.setup_signal_handlers()
-        logger.debug("Bluetooth event handlers setup completed")
+        logger.debug("Event handlers initialized")
 
-        # Initialisation des routes
+        # Initialize routes
         init_routes(bluetooth_manager)
         init_snapcast_routes(snapcast_manager)
         init_spotify_routes(spotify_manager)
         logger.debug("Routes initialized")
 
-        # Démarrage des services
+        # Start services
         logger.info("Starting services...")
         await snapcast_manager.get_clients_status()
         await spotify_manager.connect_to_events()
@@ -73,11 +84,11 @@ async def lifespan(app: FastAPI):
 
         yield
     except Exception as e:
-        logger.error(f"Error during startup: {e}")
+        logger.error(f"Error during startup: {e}", exc_info=True)
         raise
     finally:
         logger.info("Shutting down services...")
-
+        
 app = FastAPI(lifespan=lifespan)
 
 # Configuration CORS
@@ -97,39 +108,53 @@ app.include_router(spotify_router, prefix="/api/spotify", tags=["spotify"])
 @app.websocket("/ws/{service}")
 async def websocket_endpoint(websocket: WebSocket, service: str):
     """Endpoint WebSocket pour tous les services"""
-    logger.debug(f"New WebSocket connection request for service: {service}")
+    client_id = id(websocket)  # Identifiant unique pour chaque connexion
+    logger.debug(f"New WebSocket connection request for service: {service} (client_id: {client_id})")
+    
     await websocket_manager.connect(websocket, service)
-    logger.info(f"WebSocket connected for service: {service}")
+    logger.info(f"WebSocket connected for service: {service} (client_id: {client_id})")
     
     try:
         while True:
             data = await websocket.receive_json()
-            logger.debug(f"Received WebSocket message for {service}: {data}")
+            logger.debug(f"Received WebSocket message for {service} (client_id: {client_id}): {data}")
             
             try:
-                if service == "bluetooth":
-                    logger.debug("Handling bluetooth message")
+                if service == "audio":
+                    logger.debug(f"Handling audio message (client_id: {client_id})")
+                    await audio_manager.handle_message(data)
+                    
+                elif service == "bluetooth":
+                    logger.debug(f"Handling bluetooth message (client_id: {client_id})")
                     await bluetooth_manager.handle_message(data)
+                    
                 elif service == "snapcast":
+                    logger.debug(f"Handling snapcast message (client_id: {client_id})")
                     await snapcast_manager.handle_message(data)
+                    
                 elif service == "spotify":
                     message_type = data.get("type")
+                    logger.debug(f"Handling spotify message type '{message_type}' (client_id: {client_id})")
                     if message_type in ["play_pause", "next_track", "previous_track", "get_status"]:
                         await spotify_player.handle_message(data)
                     else:
                         await spotify_manager.handle_message(data)
-                elif service == "navigation":
-                    await navigation_manager.handle_message(data)
+                        
                 else:
-                    logger.warning(f"Unknown service: {service}")
+                    logger.warning(f"Unknown service: {service} (client_id: {client_id})")
+                    
             except Exception as e:
-                logger.error(f"Error handling {service} message: {e}")
-                await websocket.send_json({"error": str(e)})
+                logger.error(f"Error handling {service} message (client_id: {client_id}): {e}", exc_info=True)
+                await websocket.send_json({
+                    "type": "error",
+                    "error": str(e),
+                    "service": service
+                })
                 
     except Exception as e:
-        logger.error(f"WebSocket error: {e}")
+        logger.error(f"WebSocket error for {service} (client_id: {client_id}): {e}", exc_info=True)
     finally:
-        logger.info(f"Disconnecting WebSocket for service: {service}")
+        logger.info(f"Disconnecting WebSocket for service: {service} (client_id: {client_id})")
         websocket_manager.disconnect(websocket, service)
 
 @app.get("/health")

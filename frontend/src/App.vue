@@ -24,15 +24,9 @@ const logoState = computed(() => {
 </script>
 
 <template>
-  <Logo :state="logoState" />
-  <router-view v-slot="{ Component }">
-    <transition name="fade" mode="out-in">
-      <component :is="Component" class="view" />
-    </transition>
-  </router-view>
-  <VolumeBar ref="volumeBar" />
-  <Dock />
+  <router-view />
 </template>
+
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {

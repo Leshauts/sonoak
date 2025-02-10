@@ -1,3 +1,4 @@
+# backend/websocket/manager.py
 from typing import Dict, Set
 from fastapi import WebSocket
 
@@ -7,7 +8,8 @@ class WebSocketManager:
             "bluetooth": set(),
             "snapcast": set(),
             "spotify": set(),
-            "navigation": set()
+            "navigation": set(),
+            "audio": set()
         }
 
     async def connect(self, websocket: WebSocket, service: str):

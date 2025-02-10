@@ -2,28 +2,23 @@
   <div class="root"
     :style="{ position: 'fixed', width: '100%', height: '100%', pointerEvents: 'none', top: '0', left: '0' }">
     <div :style="{ position: 'absolute', bottom: 0, width: '100%', pointerEvents: 'auto' }">
-      <div class="dock-wrapper" 
-        @touchstart="handleTouchStart" 
-        @touchmove="handleTouchMove" 
-        @touchend="handleTouchEnd"
-        @mousedown="handleMouseDown"
-        :style="{ transform: `translateX(-50%) translateY(${dockPosition}px)` }">
+      <div class="dock-wrapper" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd"
+        @mousedown="handleMouseDown" :style="{ transform: `translateX(-50%) translateY(${dockPosition}px)` }">
         <nav class="dock">
           <div v-if="isCompactDevice" class="dock-volume-controls">
             <IconButton class="volume-button" @click="LessVolume">
               <LessIcon color="var(--text-light)" variant="md" />
             </IconButton>
-
             <IconButton class="volume-button" @click="MoreVolume">
               <PlusIcon color="var(--text-light)" variant="md" />
             </IconButton>
           </div>
           <div v-if="showIndicator" class="dock-indicator" :style="indicatorStyle" />
           <div class="dock-items-container">
-            <router-link v-for="(item, index) in menuItems" :key="item.path" :to="item.path" class="dock-item"
-              :class="{ 'active': currentPath === item.path }">
+            <button v-for="(item, index) in menuItems" :key="item.source" @click="switchSource(item.source)"
+              class="dock-item" :class="{ 'active': audioStore.currentSource === item.source }" type="button">
               <img :src="'/src/components/services/' + item.iconName + '.svg'" :alt="item.name" class="dock-icon">
-            </router-link>
+            </button>
           </div>
         </nav>
         <div class="dock-grabber" :style="{ opacity: grabberOpacity }"></div>
@@ -37,6 +32,8 @@ import IconButton from './IconButton.vue';
 import LessIcon from './icons/LessIcon.vue';
 import PlusIcon from './icons/PlusIcon.vue';
 import { SpringSolver } from './spring.js';
+import { useAudioStore } from '../stores/audio'
+
 
 export default {
   name: 'Dock',
@@ -45,21 +42,25 @@ export default {
     LessIcon,
     PlusIcon
   },
+  setup() {
+    const audioStore = useAudioStore()
+    return { audioStore }
+  },
   data() {
     return {
-      ws: null,
-      ignoreNextRouteChange: false,
       showIndicator: true,
-      currentPath: '/spotify',
       isVisible: true,
       touchStartY: 0,
       dockPosition: 0,
       lastTouchPosition: null,
       lastTouchTime: null,
+      isDragging: false,
+      touchStartTime: 0,
+      touchMoveCount: 0,
       menuItems: [
-        { name: 'Spotify', path: '/spotify', iconName: 'spotify' },
-        { name: 'Bluetooth', path: '/bluetooth', iconName: 'bluetooth' },
-        { name: 'MacOS', path: '/macos', iconName: 'macos' }
+        { name: 'Spotify', source: 'spotify', iconName: 'spotify' },
+        { name: 'Bluetooth', source: 'bluetooth', iconName: 'bluetooth' },
+        { name: 'MacOS', source: 'macos', iconName: 'macos' }
       ],
       config: {
         default: {
@@ -146,7 +147,7 @@ export default {
       return this.config[this.isCompactDevice ? 'compact' : 'default'];
     },
     indicatorStyle() {
-      const currentIndex = { '/spotify': 0, '/bluetooth': 1, '/macos': 2 }[this.currentPath] || 0;
+      const currentIndex = { 'spotify': 0, 'bluetooth': 1, 'macos': 2 }[this.audioStore.currentSource] || 0;
       const { offset, step } = this.activeConfig.indicator;
       return {
         transform: `translateX(${currentIndex * step + offset}px)`
@@ -159,57 +160,29 @@ export default {
       this.notifyRouteChange(to.path)
     }
   },
-  mounted() {
-    this.initWebSocket()
-  },
-  beforeUnmount() {
-    if (this.ws) {
-      this.ws.close()
-      this.ws = null
-    }
-  },
   methods: {
-    initWebSocket() {
-      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        return
-      }
+    async handleItemClick(item) {
+      if (!this.isDragging) {
+        // Au lieu de naviguer, on change la source audio
+        const sourceMap = {
+          '/spotify': 'spotify',
+          '/bluetooth': 'bluetooth',
+          '/macos': 'macos'
+        }
 
-      this.ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/navigation`)
-
-      this.ws.onopen = () => {
-        console.log('WebSocket Navigation connecté')
-        this.ws.send(JSON.stringify({
-          type: 'get_current_route'
-        }))
-      }
-
-      this.ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data)
-          if (data.type === 'navigation_update' && data.route !== this.currentPath) {
-            this.ignoreNextRouteChange = true
-            this.$router.push(data.route)
-          }
-        } catch (error) {
-          console.error('Erreur parsing message navigation:', error)
+        if (sourceMap[item.path]) {
+          await this.audioStore.switchSource(sourceMap[item.path])
         }
       }
+    },
 
-      this.ws.onclose = () => {
-        console.log('WebSocket Navigation déconnecté')
-        setTimeout(() => this.initWebSocket(), 2000)
+
+    async switchSource(source) {
+      if (!this.isDragging) {
+        await this.audioStore.switchSource(source)
       }
     },
 
-    notifyRouteChange(route) {
-      if (!this.ignoreNextRouteChange && this.ws?.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({
-          type: 'route_change',
-          data: { route }
-        }))
-      }
-      this.ignoreNextRouteChange = false
-    },
 
     // Mouse event handlers
     handleMouseDown(event) {
@@ -232,19 +205,33 @@ export default {
       this.handleDragEnd(event);
     },
 
-    // Touch event handlers
     handleTouchStart(event) {
-      event.preventDefault();
+      this.touchStartTime = Date.now();
+      this.touchMoveCount = 0;
+      this.isDragging = false;
       this.initializeTouch(event.touches[0].clientY);
     },
 
     handleTouchMove(event) {
-      event.preventDefault();
+      this.touchMoveCount++;
+
+      // On ne prévient le comportement par défaut que si on est en train de drag
+      if (this.touchMoveCount > 3) {
+        this.isDragging = true;
+        event.preventDefault();
+      }
+
       this.updateTouchPosition(event.touches[0].clientY);
       this.handleDrag(event.touches[0].clientY);
     },
 
     handleTouchEnd(event) {
+      console.log('touchEnd triggered', { isDragging: this.isDragging });
+      const touchDuration = Date.now() - this.touchStartTime;
+      if (!this.isDragging && touchDuration < 200) {
+        console.log('Was a tap, not a drag');
+        this.touchMoveCount = 0;
+      }
       this.handleDragEnd(event);
     },
 
@@ -314,8 +301,8 @@ export default {
 
       if (!this.lastTouchPosition || timeDelta === 0) return 0;
 
-      const clientY = event?.changedTouches ? 
-        event.changedTouches[0].clientY : 
+      const clientY = event?.changedTouches ?
+        event.changedTouches[0].clientY :
         event?.clientY || this.lastTouchPosition;
 
       return (clientY - this.lastTouchPosition) / timeDelta;
@@ -437,7 +424,12 @@ export default {
   justify-content: center;
   position: relative;
   z-index: 3;
-  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .dock-icon {
@@ -445,6 +437,9 @@ export default {
   height: 72px;
   transition: transform 0.2s ease;
   border-radius: 16px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .dock-indicator {
@@ -468,12 +463,14 @@ export default {
   position: fixed;
   transform: translateX(-50%);
   left: 50%;
-  top: 29px;
+  top: 60px;
   margin: 0 auto;
   background: #84848445;
 }
 
-.dock-item, .dock-icon, .volume-button {
+.dock-item,
+.dock-icon,
+.volume-button {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;

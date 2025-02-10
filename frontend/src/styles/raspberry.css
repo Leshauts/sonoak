@@ -1,0 +1,6 @@
+
+@media screen and (width: 1024px) and (height: 600px) {
+    * {
+      cursor: none !important;
+    }
+  }

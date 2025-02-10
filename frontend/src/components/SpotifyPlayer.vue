@@ -1,44 +1,40 @@
+<!-- SpotifyPlayer.vue -->
 <template>
-    <div class="spotify-player">
-      <!-- Bloc gauche - Image -->
-      <div class="cover-image" v-if="playbackStatus">
-        <img :src="playbackStatus.albumCoverUrl" :alt="playbackStatus.albumName"
-          v-if="playbackStatus.albumCoverUrl" />
-        <div class="placeholder-image" v-else></div>
-      </div>
-  
-      <!-- Bloc droite -->
-      <div class="content">
-        <!-- Bouton playlist -->
-        <IconButton class="playlist-button" @click="navigateToPlaylists">
-          <PlaylistIcon color="var(--text-light)" variant="md" />
-        </IconButton>
-  
-        <!-- Textes -->
-        <div class="track-info" v-if="playbackStatus">
-          <h1>{{ playbackStatus.trackName }}</h1>
-          <h2>{{ formatArtists(playbackStatus.artistNames) }}</h2>
-        </div>
-  
-        <!-- Barre de lecture -->
-        <div class="playback-bar" v-if="playbackStatus">
-          <span class="time">{{ formatTime(progressTime) }}</span>
-          <div class="progress-bar">
-            <div class="progress" :style="{ width: progressWidth }"></div>
-          </div>
-          <span class="time">{{ formatTime(playbackStatus.duration) }}</span>
-        </div>
-  
-        <!-- Contrôleur Spotify -->
-        <SpotifyController 
-          :is-playing="playbackStatus?.isPlaying" 
-          @play-pause="store.playPause"
-          @next="store.nextTrack" 
-          @previous="store.previousTrack" 
-        />
-      </div>
+  <div class="spotify-player">
+    <!-- Bloc gauche - Image -->
+    <div class="cover-image" v-if="playbackStatus">
+      <img :src="playbackStatus.albumCoverUrl" :alt="playbackStatus.albumName"
+        v-if="playbackStatus.albumCoverUrl" />
+      <div class="placeholder-image" v-else></div>
     </div>
-  </template>
+
+    <!-- Bloc droite -->
+    <div class="content">
+      <!-- Textes -->
+      <div class="track-info" v-if="playbackStatus">
+        <h1>{{ playbackStatus.trackName }}</h1>
+        <h2>{{ formatArtists(playbackStatus.artistNames) }}</h2>
+      </div>
+
+      <!-- Barre de lecture -->
+      <div class="playback-bar" v-if="playbackStatus">
+        <span class="time">{{ formatTime(progressTime) }}</span>
+        <div class="progress-bar">
+          <div class="progress" :style="{ width: progressWidth }"></div>
+        </div>
+        <span class="time">{{ formatTime(playbackStatus.duration) }}</span>
+      </div>
+
+      <!-- Contrôleur Spotify -->
+      <SpotifyController 
+        :is-playing="playbackStatus?.isPlaying" 
+        @play-pause="store.playPause"
+        @next="store.nextTrack" 
+        @previous="store.previousTrack" 
+      />
+    </div>
+  </div>
+</template>
   
   <script>
   import { useSpotifyStore } from '@/stores/spotify'
@@ -96,54 +92,56 @@
   </script>
   
   <style scoped>
-  .spotify-player {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    gap: var(--spacing-06);
-  }
-  
-  .cover-image {
-    height: 100%;
-    aspect-ratio: 1/1;
-  }
-  
-  .cover-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: var(--spacing-06);
-  }
-  
-  .placeholder-image {
-    width: 100%;
-    height: 100%;
-    background-color: var(--background-strong);
-    border-radius: var(--spacing-06);
-  }
-  
-  .content {
-    flex: 1;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .playlist-button {
-    position: fixed;
-    top: var(--spacing-06);
-    right: var(--spacing-06);
-    display: none;
-  }
-  
-  .track-info {
-    flex: 1;
-    display: flex;
-    gap: var(--spacing-02);
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-  }
+.spotify-player {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  gap: var(--spacing-06);
+  padding: var(--spacing-06);
+  /* Ajout de ces propriétés pour assurer que le composant prend toute la hauteur disponible */
+  position: absolute;
+  inset: 0;
+}
+
+.cover-image {
+  height: 100%;
+  aspect-ratio: 1/1;
+  /* Ajout d'une hauteur maximale pour éviter les débordements */
+  max-height: 100vh;
+}
+
+.cover-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--spacing-06);
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-strong);
+  border-radius: var(--spacing-06);
+}
+
+.content {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Ajout de cette propriété pour gérer le dépassement */
+  min-height: 0;
+}
+
+.track-info {
+  flex: 1;
+  display: flex;
+  gap: var(--spacing-02);
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
   
   .track-info h2 {
     color: var(--text-light);
