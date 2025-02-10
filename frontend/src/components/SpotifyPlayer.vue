@@ -98,7 +98,6 @@
   display: flex;
   gap: var(--spacing-06);
   padding: var(--spacing-06);
-  /* Ajout de ces propriétés pour assurer que le composant prend toute la hauteur disponible */
   position: absolute;
   inset: 0;
 }
@@ -106,7 +105,6 @@
 .cover-image {
   height: 100%;
   aspect-ratio: 1/1;
-  /* Ajout d'une hauteur maximale pour éviter les débordements */
   max-height: 100vh;
 }
 
@@ -115,6 +113,8 @@
   height: 100%;
   object-fit: cover;
   border-radius: var(--spacing-06);
+  /* box-shadow: 0px 0px 0px 24px rgba(255, 0, 0, 0.63) ; */
+
 }
 
 .placeholder-image {
@@ -129,8 +129,6 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  /* Ajout de cette propriété pour gérer le dépassement */
-  min-height: 0;
 }
 
 .track-info {

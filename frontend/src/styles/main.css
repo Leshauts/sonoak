@@ -2,6 +2,7 @@
 @import 'variables.css';
 @import 'typography.css';
 @import 'spacing.css';
+@import 'raspberry.css';
 
 * {
   margin: 0;
@@ -9,8 +10,7 @@
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Ajout des propriétés tactiles globales */
-
+  user-select: none; /* Empêche la sélection */
 }
 
 html,
@@ -24,7 +24,6 @@ body {
   touch-action: none;
 }
 
-
 button {
   transition: filter 0.2s ease-in-out;
   touch-action: manipulation;
@@ -32,4 +31,9 @@ button {
 
 button:active {
   filter: brightness(90%);
+}
+
+img {
+  user-select: none; 
+  pointer-events: none;
 }

@@ -1,6 +1,10 @@
-
 @media screen and (width: 1024px) and (height: 600px) {
     * {
-      cursor: none !important;
+        cursor: none !important;
     }
-  }
+
+    .main-view {
+        /* fix screen position in the case */
+        transform: translateX(-5px); 
+    }
+}
