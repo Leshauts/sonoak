@@ -1,3 +1,4 @@
+<!-- frontend/src/App.vue -->
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
@@ -14,9 +15,8 @@ const logoState = computed(() => {
       return 'intro'
     case '/bluetooth':
     case '/macos':
-      return 'minified'
     case '/spotify':
-      return 'hidden'
+      return 'minified'
     default:
       return 'hidden'
   }

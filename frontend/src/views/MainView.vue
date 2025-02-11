@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAudioStore } from '../stores/audio'
 import { useSpotifyStore } from '../stores/spotify'
 import Logo from '../components/logo/Sonoak.vue'
@@ -57,6 +57,7 @@ export default {
   setup() {
     const audioStore = useAudioStore()
     const spotifyStore = useSpotifyStore()
+    const volumeBar = ref(null)
 
     const logoState = computed(() => {
       switch (audioStore.currentSource) {
@@ -73,12 +74,23 @@ export default {
       console.log('MainView mounted - Requesting initial states')
       audioStore.requestCurrentStatus()
       spotifyStore.requestPlaybackStatus()
+
+      // Définir la fonction de test sur window
+      window.testVolume = () => {
+        if (volumeBar.value) {
+          console.log('Testing volume bar')
+          volumeBar.value.setVolume(50)
+        } else {
+          console.warn('Volume bar reference not found')
+        }
+      }
     })
 
     return {
       audioStore,
       spotifyStore,
-      logoState
+      logoState,
+      volumeBar
     }
   }
 }

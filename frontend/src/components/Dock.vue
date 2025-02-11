@@ -1,3 +1,4 @@
+<!-- frontend/src/components/Dock.vue -->
 <template>
   <div class="root"
     :style="{ position: 'fixed', width: '100%', height: '100%', pointerEvents: 'none', top: '0', left: '0' }">

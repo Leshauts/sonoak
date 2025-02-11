@@ -6,7 +6,7 @@
       <div class="volume-bar-wrapper" :style="{ transform: `translateX(-50%) translateY(${barPosition}px)` }">
         <div class="volume-bar">
           <div class="volume-slider">
-            <div class="current-bar" :style="{ width: '33' + '%' }"></div>
+            <div class="current-bar" :style="{ width: currentVolume + '%' }"></div>
           </div>
         </div>
       </div>
@@ -21,6 +21,8 @@ import { SpringSolver } from './spring.js'
 const isVisible = ref(false)
 const barPosition = ref(-128)
 const blurPosition = ref(100)
+const currentVolume = ref(33)
+let hideTimer = null
 
 const springConfigs = {
   volumeBar: {
@@ -38,36 +40,59 @@ function animate(value, target, config) {
   const startValue = value.value
   const startTime = performance.now()
 
-  requestAnimationFrame(function update(timestamp) {
+  const update = (timestamp) => {
     const elapsed = timestamp - startTime
     const progress = Math.min(elapsed / config.duration, 1)
     value.value = startValue + (target - startValue) * spring.solve(progress)
 
-    if (progress < 1) requestAnimationFrame(update)
-  })
+    if (progress < 1) {
+      requestAnimationFrame(update)
+    }
+  }
+
+  requestAnimationFrame(update)
 }
 
 function showVolume() {
+  // Annuler le timer de masquage précédent s'il existe
+  if (hideTimer) {
+    clearTimeout(hideTimer)
+  }
+  
   isVisible.value = true
+  // Animation vers la position visible (0)
   animate(barPosition, 0, springConfigs.volumeBar.show)
   animate(blurPosition, 12, springConfigs.gradientBlur.show)
 }
 
 function hideVolume() {
-  isVisible.value = false
   animate(barPosition, -128, springConfigs.volumeBar.hide)
   animate(blurPosition, 100, springConfigs.gradientBlur.hide)
+  isVisible.value = false
 }
 
-window.testVolume = () => {
+function setVolume(volume) {
+  currentVolume.value = Math.min(100, Math.max(0, volume))
   showVolume()
-  // setTimeout(() => hideVolume(), 2000)
+  
+  // Configurer le timer pour masquer la barre après 5 secondes
+  hideTimer = setTimeout(() => {
+    hideVolume()
+  }, 5000)
 }
+
+// Exposer les méthodes pour le composant parent
+defineExpose({
+  showVolume,
+  hideVolume,
+  setVolume,
+  isVisible
+})
 </script>
 
 <style scoped>
 .volume-bar-wrapper {
-  padding: 24px 0 var(--spacing-07)  0 ;
+  padding: 24px 0 var(--spacing-07) 0;
   position: absolute;
   left: 50%;
   z-index: 10;
@@ -76,7 +101,7 @@ window.testVolume = () => {
 .volume-bar {
   width: 280px;
   padding: 16px;
-  border-radius:12px;
+  border-radius: 12px;
   background: rgba(220, 220, 220, 0.24);
   backdrop-filter: blur(12px);
 }
@@ -98,7 +123,6 @@ window.testVolume = () => {
   top: 0;
 }
 
-
 @media (max-aspect-ratio: 3/2) {
   .volume-bar-wrapper {
     max-width: none;
@@ -107,8 +131,5 @@ window.testVolume = () => {
   .volume-bar {
     width: 256px;
   }
-
-
-  
 }
 </style>
