@@ -1,9 +1,9 @@
-# backend/main.py
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from typing import Dict, Any
 from services.audio.manager import AudioManager
+from services.volume.manager import VolumeManager
 import uvicorn
 import logging
 
@@ -21,7 +21,7 @@ from websocket.manager import WebSocketManager
 
 # Configuration du logging plus détaillée
 logging.basicConfig(
-    level=logging.DEBUG,  # Changé en DEBUG pour plus de détails
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -34,11 +34,13 @@ spotify_manager = None
 spotify_player = None
 navigation_manager = None
 bluetooth_events = None
+volume_manager = None
+audio_manager = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global websocket_manager, bluetooth_manager, snapcast_manager, spotify_manager
-    global spotify_player, audio_manager, bluetooth_events
+    global spotify_player, audio_manager, bluetooth_events, volume_manager
 
     logger.info("Initializing services...")
     
@@ -46,6 +48,11 @@ async def lifespan(app: FastAPI):
         # Websocket Manager
         websocket_manager = WebSocketManager()
         logger.debug("WebSocket Manager initialized")
+        
+        # Volume Manager
+        volume_manager = VolumeManager(websocket_manager)
+        await volume_manager.initialize()
+        logger.debug("Volume Manager initialized")
         
         # Audio Manager
         audio_manager = AudioManager(websocket_manager)
@@ -124,6 +131,10 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
                     logger.debug(f"Handling audio message (client_id: {client_id})")
                     await audio_manager.handle_message(data)
                     
+                elif service == "volume":
+                    logger.debug(f"Handling volume message (client_id: {client_id})")
+                    await volume_manager.handle_message(data)
+                    
                 elif service == "bluetooth":
                     logger.debug(f"Handling bluetooth message (client_id: {client_id})")
                     await bluetooth_manager.handle_message(data)
@@ -165,7 +176,8 @@ async def health_check() -> Dict[str, Any]:
         "services": {
             "bluetooth": bluetooth_manager is not None,
             "snapcast": snapcast_manager is not None,
-            "spotify": spotify_manager is not None
+            "spotify": spotify_manager is not None,
+            "volume": volume_manager is not None
         }
     }
 
@@ -175,6 +187,5 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
-        log_level="debug"  # Changé en debug pour plus de détails
+        log_level="debug"
     )
-    

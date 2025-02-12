@@ -9,9 +9,8 @@ cd ../frontend && npm run dev &
 # Attendre que le serveur soit prêt (5 secondes)
 sleep 5
 
-# Lancer Chromium en mode kiosk
+# Lancer Chromium en mode kiosk (rajouter "--kiosk \")
 chromium-browser \
-  --kiosk \
   --touch-events \
   --enable-touch-events \
   --enable-touch-ui \

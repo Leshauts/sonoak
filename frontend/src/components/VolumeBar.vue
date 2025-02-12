@@ -1,12 +1,10 @@
-<!-- frontend/src/components/VolumeBar.vue -->
 <template>
-  <div class="root"
-    :style="{ position: 'fixed', width: '100%', height: '100%', pointerEvents: 'none', top: '0', left: '0' }">
+  <div class="root" :style="{ position: 'fixed', width: '100%', height: '100%', pointerEvents: 'none', top: '0', left: '0' }">
     <div :style="{ position: 'absolute', top: 0, width: '100%', pointerEvents: 'auto' }">
       <div class="volume-bar-wrapper" :style="{ transform: `translateX(-50%) translateY(${barPosition}px)` }">
         <div class="volume-bar">
           <div class="volume-slider">
-            <div class="current-bar" :style="{ width: currentVolume + '%' }"></div>
+            <div class="current-bar" :style="{ width: `${currentVolume}%` }"></div>
           </div>
         </div>
       </div>
@@ -16,12 +14,16 @@
 
 <script setup>
 import { ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useVolumeStore } from '@/stores/volume'
 import { SpringSolver } from './spring.js'
+
+const volumeStore = useVolumeStore()
+const { currentVolume } = storeToRefs(volumeStore)
 
 const isVisible = ref(false)
 const barPosition = ref(-128)
 const blurPosition = ref(100)
-const currentVolume = ref(33)
 let hideTimer = null
 
 const springConfigs = {
@@ -54,15 +56,17 @@ function animate(value, target, config) {
 }
 
 function showVolume() {
-  // Annuler le timer de masquage précédent s'il existe
   if (hideTimer) {
     clearTimeout(hideTimer)
   }
   
   isVisible.value = true
-  // Animation vers la position visible (0)
   animate(barPosition, 0, springConfigs.volumeBar.show)
   animate(blurPosition, 12, springConfigs.gradientBlur.show)
+  
+  hideTimer = setTimeout(() => {
+    hideVolume()
+  }, 5000)
 }
 
 function hideVolume() {
@@ -71,22 +75,9 @@ function hideVolume() {
   isVisible.value = false
 }
 
-function setVolume(volume) {
-  currentVolume.value = Math.min(100, Math.max(0, volume))
-  showVolume()
-  
-  // Configurer le timer pour masquer la barre après 5 secondes
-  hideTimer = setTimeout(() => {
-    hideVolume()
-  }, 5000)
-}
-
-// Exposer les méthodes pour le composant parent
 defineExpose({
   showVolume,
-  hideVolume,
-  setVolume,
-  isVisible
+  hideVolume
 })
 </script>
 
@@ -121,6 +112,7 @@ defineExpose({
   border-radius: 6px;
   left: 0;
   top: 0;
+  transition: width 0.15s linear;
 }
 
 @media (max-aspect-ratio: 3/2) {

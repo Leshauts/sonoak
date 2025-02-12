@@ -9,7 +9,8 @@ class WebSocketManager:
             "snapcast": set(),
             "spotify": set(),
             "navigation": set(),
-            "audio": set()
+            "audio": set(),
+            "volume": set()
         }
 
     async def connect(self, websocket: WebSocket, service: str):

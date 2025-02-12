@@ -1,4 +1,4 @@
-<!-- frontend/src/components/Dock.vue -->
+// frontend/src/components/Dock.vue
 <template>
   <div class="root"
     :style="{ position: 'fixed', width: '100%', height: '100%', pointerEvents: 'none', top: '0', left: '0' }">
@@ -7,10 +7,10 @@
         @mousedown="handleMouseDown" :style="{ transform: `translateX(-50%) translateY(${dockPosition}px)` }">
         <nav class="dock">
           <div v-if="isCompactDevice" class="dock-volume-controls">
-            <IconButton class="volume-button" @click="LessVolume">
+            <IconButton class="volume-button" @click="decreaseVolume">
               <LessIcon color="var(--text-light)" variant="md" />
             </IconButton>
-            <IconButton class="volume-button" @click="MoreVolume">
+            <IconButton class="volume-button" @click="increaseVolume">
               <PlusIcon color="var(--text-light)" variant="md" />
             </IconButton>
           </div>
@@ -29,12 +29,13 @@
 </template>
 
 <script>
-import IconButton from './IconButton.vue';
-import LessIcon from './icons/LessIcon.vue';
-import PlusIcon from './icons/PlusIcon.vue';
-import { SpringSolver } from './spring.js';
+import { ref, onMounted } from 'vue'
+import IconButton from './IconButton.vue'
+import LessIcon from './icons/LessIcon.vue'
+import PlusIcon from './icons/PlusIcon.vue'
+import { SpringSolver } from './spring.js'
 import { useAudioStore } from '../stores/audio'
-
+import { useVolumeStore } from '../stores/volume'
 
 export default {
   name: 'Dock',
@@ -45,7 +46,14 @@ export default {
   },
   setup() {
     const audioStore = useAudioStore()
-    return { audioStore }
+    const volumeStore = useVolumeStore()
+    
+    onMounted(() => {
+      console.log('Dock mounted - Initializing volume websocket')
+      volumeStore.initializeWebSocket()
+    })
+    
+    return { audioStore, volumeStore }
   },
   data() {
     return {
@@ -162,6 +170,25 @@ export default {
     }
   },
   methods: {
+
+    async decreaseVolume() {
+      // Afficher la barre avant de commencer l'ajustement
+      if (this.$parent.$refs.volumeBar) {
+        this.$parent.$refs.volumeBar.showVolume()
+      }
+      // Ajuster le volume
+      await this.volumeStore.decreaseVolume()
+    },
+
+    async increaseVolume() {
+      // Afficher la barre avant de commencer l'ajustement
+      if (this.$parent.$refs.volumeBar) {
+        this.$parent.$refs.volumeBar.showVolume()
+      }
+      // Ajuster le volume
+      await this.volumeStore.increaseVolume()
+    },
+
     async handleItemClick(item) {
       if (!this.isDragging) {
         // Au lieu de naviguer, on change la source audio
@@ -349,14 +376,6 @@ export default {
       };
 
       requestAnimationFrame(animate);
-    },
-
-    LessVolume() {
-      // Logique pour diminuer le volume
-    },
-
-    MoreVolume() {
-      // Logique pour augmenter le volume
     }
   }
 }
