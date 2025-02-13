@@ -26,17 +26,16 @@ export const useVolumeStore = defineStore('volume', {
         const data = JSON.parse(event.data)
         
         if (data.type === 'volume_status') {
-            if (!this.isAdjusting) {
-                this.currentVolume = data.volume
-                console.log(`Volume: ${data.volume}% (ALSA: ${data.alsa_volume})`)
-            }
-            
-            // Vérifier si on doit afficher la VolumeBar
-            if (data.show_volume_bar === true && this.showVolumeBarCallback) {
-                this.showVolumeBarCallback()
-            }
+          // Mettre à jour le volume sans condition
+          this.currentVolume = data.volume
+          console.log(`Volume: ${data.volume}% (ALSA: ${data.alsa_volume})`)
+          
+          // Afficher la VolumeBar à chaque changement de volume
+          if (this.showVolumeBarCallback) {
+            this.showVolumeBarCallback()
+          }
         }
-    }
+      }
 
       this.websocket.onopen = () => {
         this.isConnected = true
@@ -77,10 +76,10 @@ export const useVolumeStore = defineStore('volume', {
       } catch (error) {
         console.error('Error during volume adjustment:', error)
       } finally {
-        // Attendre que l'ajustement soit terminé avant de permettre un nouveau changement
+        // Réduire le délai de verrouillage
         setTimeout(() => {
           this.isAdjusting = false
-        }, 200) // Légèrement plus long que la durée totale de l'ajustement (3 steps * 0.05s + marge)
+        }, 100) // Réduit de 200ms à 100ms
       }
     },
 
