@@ -1,11 +1,12 @@
+// frontend/src/stores/volume.js
 import { defineStore } from 'pinia'
 
 export const useVolumeStore = defineStore('volume', {
   state: () => ({
     currentVolume: 0,
-    targetVolume: 0,
     websocket: null,
     isConnected: false,
+    adjustmentQueue: Promise.resolve(),
     isAdjusting: false
   }),
 
@@ -21,9 +22,10 @@ export const useVolumeStore = defineStore('volume', {
         const data = JSON.parse(event.data)
         
         if (data.type === 'volume_status') {
+          // Ne mettre à jour le volume que si nous ne sommes pas en train d'ajuster
           if (!this.isAdjusting) {
             this.currentVolume = data.volume
-            this.targetVolume = data.volume
+            console.log('Volume updated from server:', data.volume, 'ALSA volume:', data.alsa_volume)
           }
         }
       }
@@ -47,48 +49,53 @@ export const useVolumeStore = defineStore('volume', {
       }
     },
 
-    async adjustVolumeGradually(delta, steps = 2, interval = 150) {
-      if (this.websocket?.readyState !== WebSocket.OPEN) return;
-
-      this.isAdjusting = true;
-      const stepValue = Math.sign(delta);
-      
-      // Calculate and set target volume immediately
-      const startVolume = this.currentVolume;
-      this.targetVolume = Math.min(100, Math.max(0, startVolume + (stepValue * steps)));
-      
-      console.log(`Starting volume adjustment:
-        Initial volume: ${startVolume}
-        Target volume: ${this.targetVolume}
-        Steps: ${steps}
-        Interval: ${interval}ms`);
-      
-      for (let i = 0; i < steps; i++) {
-        this.currentVolume = Math.min(100, Math.max(0, this.currentVolume + stepValue));
-        
-        console.log(`Step ${i + 1}/${steps}: Volume now ${this.currentVolume}`);
-        
+    async sendVolumeAdjustment(delta) {
+      if (this.websocket?.readyState === WebSocket.OPEN) {
         this.websocket.send(JSON.stringify({
           type: 'adjust_volume',
-          delta: stepValue
-        }));
+          delta: delta
+        }))
+        
+        // Attendre un court instant pour laisser le temps au serveur de traiter
+        await new Promise(resolve => setTimeout(resolve, 50))
+      }
+    },
 
-        await new Promise(resolve => setTimeout(resolve, interval));
+    async adjustVolume(delta) {
+      // Si déjà en cours d'ajustement, ignorer la demande
+      if (this.isAdjusting) {
+        console.log('Volume adjustment already in progress, skipping')
+        return
       }
 
-      setTimeout(() => {
-        this.requestVolumeStatus();
-        console.log(`Volume adjustment complete: ${this.currentVolume}`);
-        this.isAdjusting = false;
-      }, interval);
+      this.isAdjusting = true
+      try {
+        console.log(`Starting volume adjustment from ${this.currentVolume} with delta ${delta}`)
+        
+        // Mettre à jour le volume localement
+        const newVolume = Math.max(0, Math.min(100, this.currentVolume + delta))
+        this.currentVolume = newVolume
+        
+        // Envoyer l'ajustement au serveur
+        await this.sendVolumeAdjustment(delta)
+        
+        // Demander le statut actuel au serveur
+        await this.requestVolumeStatus()
+        
+        console.log(`Volume adjustment complete: ${this.currentVolume}`)
+      } catch (error) {
+        console.error('Error during volume adjustment:', error)
+      } finally {
+        this.isAdjusting = false
+      }
     },
 
     async increaseVolume() {
-      await this.adjustVolumeGradually(1);
+      await this.adjustVolume(2)
     },
 
     async decreaseVolume() {
-      await this.adjustVolumeGradually(-1);
+      await this.adjustVolume(-2)
     }
   }
 })
