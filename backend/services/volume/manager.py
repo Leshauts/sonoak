@@ -49,6 +49,18 @@ class VolumeManager:
             logger.error(f"Failed to initialize ALSA mixer: {e}")
             raise
 
+    async def broadcast_volume_status(self):
+        """Broadcast current volume status to all clients"""
+        current_volume = self.get_alsa_volume()
+        display_volume = self._interpolate_to_display(current_volume)
+        
+        await self.websocket_manager.broadcast_to_service({
+            "type": "volume_status",
+            "volume": display_volume,
+            "alsa_volume": current_volume,
+            "show_volume_bar": True  # Ajout de ce paramètre
+        }, "volume")
+
     def get_alsa_volume(self) -> int:
         """Get the current ALSA volume"""
         volumes = self.mixer.getvolume()
@@ -59,17 +71,6 @@ class VolumeManager:
         volume = max(self.MIN_VOLUME, min(self.MAX_VOLUME, volume))
         self.mixer.setvolume(volume)
         logger.debug(f"ALSA volume set to {volume}")
-
-    async def broadcast_volume_status(self):
-        """Broadcast current volume status to all clients"""
-        current_volume = self.get_alsa_volume()
-        display_volume = self._interpolate_to_display(current_volume)
-        
-        await self.websocket_manager.broadcast_to_service({
-            "type": "volume_status",
-            "volume": display_volume,
-            "alsa_volume": current_volume
-        }, "volume")
 
     async def set_volume(self, display_volume: int) -> None:
         """Set the system volume from display value (0-100)"""

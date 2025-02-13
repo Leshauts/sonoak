@@ -1,4 +1,3 @@
-<!-- frontend/src/views/MainView.vue -->
 <template>
   <div class="main-view">
     <Logo :state="logoState" />
@@ -34,6 +33,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAudioStore } from '../stores/audio'
 import { useSpotifyStore } from '../stores/spotify'
+import { useVolumeStore } from '../stores/volume'
 import Logo from '../components/logo/Sonoak.vue'
 import VolumeBar from '../components/VolumeBar.vue'
 import Dock from '../components/Dock.vue'
@@ -57,6 +57,7 @@ export default {
   setup() {
     const audioStore = useAudioStore()
     const spotifyStore = useSpotifyStore()
+    const volumeStore = useVolumeStore()
     const volumeBar = ref(null)
 
     const logoState = computed(() => {
@@ -71,9 +72,16 @@ export default {
     })
 
     onMounted(() => {
-      console.log('MainView mounted - Requesting initial states')
+      console.log('MainView mounted - Initializing')
       audioStore.requestCurrentStatus()
       spotifyStore.requestPlaybackStatus()
+
+      // Configurer le callback pour afficher la VolumeBar
+      volumeStore.setShowVolumeBarCallback(() => {
+        if (volumeBar.value) {
+          volumeBar.value.showVolume()
+        }
+      })
 
       // Définir la fonction de test sur window
       window.testVolume = () => {

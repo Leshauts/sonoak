@@ -6,10 +6,15 @@ export const useVolumeStore = defineStore('volume', {
     currentVolume: 0,
     websocket: null,
     isConnected: false,
-    isAdjusting: false
+    isAdjusting: false,
+    showVolumeBarCallback: null
   }),
 
   actions: {
+    setShowVolumeBarCallback(callback) {
+      this.showVolumeBarCallback = callback
+    },
+
     async initializeWebSocket() {
       if (this.websocket) {
         this.websocket.close()
@@ -21,10 +26,17 @@ export const useVolumeStore = defineStore('volume', {
         const data = JSON.parse(event.data)
         
         if (data.type === 'volume_status') {
-          this.currentVolume = data.volume
-          console.log(`Volume: ${data.volume}% (ALSA: ${data.alsa_volume})`)
+            if (!this.isAdjusting) {
+                this.currentVolume = data.volume
+                console.log(`Volume: ${data.volume}% (ALSA: ${data.alsa_volume})`)
+            }
+            
+            // Vérifier si on doit afficher la VolumeBar
+            if (data.show_volume_bar === true && this.showVolumeBarCallback) {
+                this.showVolumeBarCallback()
+            }
         }
-      }
+    }
 
       this.websocket.onopen = () => {
         this.isConnected = true
@@ -73,11 +85,11 @@ export const useVolumeStore = defineStore('volume', {
     },
 
     async increaseVolume() {
-      await this.adjustVolume(1)  // Le backend multipliera par VOLUME_STEP
+      await this.adjustVolume(1)
     },
 
     async decreaseVolume() {
-      await this.adjustVolume(-1) // Le backend multipliera par VOLUME_STEP
+      await this.adjustVolume(-1)
     }
   }
 })

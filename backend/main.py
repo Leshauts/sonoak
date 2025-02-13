@@ -17,6 +17,7 @@ from services.spotify.manager import SpotifyManager
 from services.spotify.player_manager import SpotifyPlayerManager
 from services.spotify.routes import router as spotify_router, init_routes as init_spotify_routes
 from services.navigation.manager import NavigationManager
+from services.volume.rotary_controller import RotaryVolumeController
 from websocket.manager import WebSocketManager
 
 # Configuration du logging plus détaillée
@@ -40,7 +41,7 @@ audio_manager = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global websocket_manager, bluetooth_manager, snapcast_manager, spotify_manager
-    global spotify_player, audio_manager, bluetooth_events, volume_manager
+    global spotify_player, audio_manager, bluetooth_events, volume_manager, rotary_controller
 
     logger.info("Initializing services...")
     
@@ -53,6 +54,11 @@ async def lifespan(app: FastAPI):
         volume_manager = VolumeManager(websocket_manager)
         await volume_manager.initialize()
         logger.debug("Volume Manager initialized")
+        
+        # Rotary Controller
+        rotary_controller = RotaryVolumeController(volume_manager)
+        await rotary_controller.initialize()
+        logger.debug("Rotary Controller initialized")
         
         # Audio Manager
         audio_manager = AudioManager(websocket_manager)
@@ -95,6 +101,9 @@ async def lifespan(app: FastAPI):
         raise
     finally:
         logger.info("Shutting down services...")
+        # Nettoyage du rotary controller
+        if 'rotary_controller' in globals():
+            rotary_controller.cleanup()
         
 app = FastAPI(lifespan=lifespan)
 
