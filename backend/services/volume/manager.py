@@ -7,14 +7,16 @@ logger = logging.getLogger(__name__)
 
 class VolumeManager:
     # Limites réelles du volume ALSA
-    MIN_VOLUME = 22
+    MIN_VOLUME = 20
     MAX_VOLUME = 80
+    VOLUME_STEP = 5  # Change de 5% le volume affiché à chaque clic
 
     def __init__(self, websocket_manager):
         self.websocket_manager = websocket_manager
         self.mixer = None
         self._volume = 0
         self._lock = asyncio.Lock()
+        self._is_adjusting = False
         
     def _interpolate_to_display(self, actual_volume: int) -> int:
         """Convertit le volume réel (20-80) en volume d'affichage (0-100)"""
@@ -34,11 +36,9 @@ class VolumeManager:
             logger.info(f"Volume limits: min={self.MIN_VOLUME}%, max={self.MAX_VOLUME}%")
             self.mixer = alsaaudio.Mixer('Digital')
             
-            # Get initial volume and ensure it's within limits
             initial_volume = self.get_alsa_volume()
             self._volume = max(self.MIN_VOLUME, min(self.MAX_VOLUME, initial_volume))
             
-            # Si le volume initial est hors limites, le régler
             if initial_volume != self._volume:
                 self.set_alsa_volume(self._volume)
             
@@ -67,14 +67,14 @@ class VolumeManager:
         
         await self.websocket_manager.broadcast_to_service({
             "type": "volume_status",
-            "volume": display_volume  # Envoie le volume interpolé (0-100)
+            "volume": display_volume,
+            "alsa_volume": current_volume
         }, "volume")
 
     async def set_volume(self, display_volume: int) -> None:
         """Set the system volume from display value (0-100)"""
         async with self._lock:
             try:
-                # Convertir le volume d'affichage en volume réel
                 actual_volume = self._interpolate_from_display(display_volume)
                 logger.debug(f"Setting volume: display={display_volume}% → actual={actual_volume}%")
                 
@@ -96,27 +96,56 @@ class VolumeManager:
             logger.error(f"Error getting volume: {e}")
             raise
 
-    async def adjust_volume(self, display_delta: int) -> None:
-        """Adjust the volume by a relative display amount"""
-        async with self._lock:
-            try:
-                current_actual = self.get_alsa_volume()
-                current_display = self._interpolate_to_display(current_actual)
-                new_display = max(0, min(100, current_display + display_delta))
-                new_actual = self._interpolate_from_display(new_display)
+    async def adjust_volume_gradually(self, display_delta: int, steps: int = 3, interval: float = 0.05) -> None:
+        """Adjust the volume gradually over multiple steps"""
+        try:
+            if self._is_adjusting:
+                logger.debug("Volume adjustment already in progress, skipping")
+                return
+
+            self._is_adjusting = True
+            
+            # Récupérer les volumes actuels
+            current_actual = self.get_alsa_volume()
+            current_display = self._interpolate_to_display(current_actual)
+            
+            # Calculer les volumes cibles
+            target_display = max(0, min(100, current_display + (display_delta * self.VOLUME_STEP)))
+            target_actual = self._interpolate_from_display(target_display)
+            
+            # Calculer les incréments
+            actual_delta = target_actual - current_actual
+            step_delta = actual_delta / steps
+            
+            logger.debug(f"""Starting gradual volume adjustment:
+                Current: display={current_display}% (actual={current_actual})
+                Target: display={target_display}% (actual={target_actual})
+                Steps: {steps}, Interval: {interval}s
+                Step delta: {step_delta}""")
+            
+            # Appliquer les changements graduellement
+            for i in range(steps):
+                next_actual = round(current_actual + (step_delta * (i + 1)))
+                next_actual = max(self.MIN_VOLUME, min(self.MAX_VOLUME, next_actual))
                 
-                logger.debug(f"Adjusting volume: display={current_display}%→{new_display}% (actual={current_actual}%→{new_actual}%)")
+                self.set_alsa_volume(next_actual)
+                self._volume = next_actual
                 
-                if new_actual != current_actual:
-                    self.set_alsa_volume(new_actual)
-                    self._volume = new_actual
-                    await self.broadcast_volume_status()
-                else:
-                    logger.debug("Volume adjustment skipped: no change in actual volume")
+                next_display = self._interpolate_to_display(next_actual)
+                logger.debug(f"Step {i + 1}/{steps}: display={next_display}% (actual={next_actual})")
                 
-            except Exception as e:
-                logger.error(f"Error adjusting volume: {e}")
-                raise
+                await self.broadcast_volume_status()
+                
+                if i < steps - 1:  # Ne pas attendre après la dernière étape
+                    await asyncio.sleep(interval)
+            
+            logger.debug("Gradual volume adjustment complete")
+            
+        except Exception as e:
+            logger.error(f"Error during gradual volume adjustment: {e}")
+            raise
+        finally:
+            self._is_adjusting = False
 
     async def handle_message(self, message: dict) -> None:
         """Handle incoming WebSocket messages"""
@@ -135,7 +164,8 @@ class VolumeManager:
             elif message_type == "adjust_volume":
                 delta = message.get("delta")
                 if delta is not None:
-                    await self.adjust_volume(delta)
+                    # Les paramètres steps et interval sont maintenant fixés
+                    await self.adjust_volume_gradually(delta, steps=3, interval=0.05)
                     
         except Exception as e:
             logger.error(f"Error handling volume message: {e}")
