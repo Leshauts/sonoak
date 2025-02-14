@@ -26,12 +26,12 @@ export const useVolumeStore = defineStore('volume', {
         const data = JSON.parse(event.data)
         
         if (data.type === 'volume_status') {
-          // Mettre à jour le volume sans condition
+          // Mise à jour du volume
           this.currentVolume = data.volume
           console.log(`Volume: ${data.volume}% (ALSA: ${data.alsa_volume})`)
           
-          // Afficher la VolumeBar à chaque changement de volume
-          if (this.showVolumeBarCallback) {
+          // Afficher la VolumeBar seulement si ce n'est pas un status initial
+          if (this.showVolumeBarCallback && data.show_volume_bar && !data.is_initial_status) {
             this.showVolumeBarCallback()
           }
         }
@@ -76,10 +76,9 @@ export const useVolumeStore = defineStore('volume', {
       } catch (error) {
         console.error('Error during volume adjustment:', error)
       } finally {
-        // Réduire le délai de verrouillage
         setTimeout(() => {
           this.isAdjusting = false
-        }, 100) // Réduit de 200ms à 100ms
+        }, 100)
       }
     },
 

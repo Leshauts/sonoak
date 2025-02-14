@@ -58,7 +58,21 @@ class VolumeManager:
             "type": "volume_status",
             "volume": display_volume,
             "alsa_volume": current_volume,
-            "show_volume_bar": True  # Ajout de ce paramètre
+            "show_volume_bar": True,
+            "is_initial_status": False  # Par défaut, ce n'est pas un status initial
+        }, "volume")
+
+    async def broadcast_initial_status(self):
+        """Broadcast initial volume status without triggering volume bar"""
+        current_volume = self.get_alsa_volume()
+        display_volume = self._interpolate_to_display(current_volume)
+        
+        await self.websocket_manager.broadcast_to_service({
+            "type": "volume_status",
+            "volume": display_volume,
+            "alsa_volume": current_volume,
+            "show_volume_bar": False,
+            "is_initial_status": True
         }, "volume")
 
     def get_alsa_volume(self) -> int:
@@ -155,7 +169,7 @@ class VolumeManager:
             logger.debug(f"Handling volume message: {message}")
             
             if message_type == "get_volume":
-                await self.broadcast_volume_status()
+                await self.broadcast_initial_status()  # Utiliser la nouvelle méthode
                 
             elif message_type == "set_volume":
                 volume = message.get("volume")
@@ -165,7 +179,6 @@ class VolumeManager:
             elif message_type == "adjust_volume":
                 delta = message.get("delta")
                 if delta is not None:
-                    # Les paramètres steps et interval sont maintenant fixés
                     await self.adjust_volume_gradually(delta, steps=3, interval=0.05)
                     
         except Exception as e:

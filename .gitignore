@@ -1,3 +1,5 @@
 go-librespot/
 RPi-USB-Brightness/
-
+__pycache__/
+*.pyc
+*.pyo

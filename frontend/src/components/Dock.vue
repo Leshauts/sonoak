@@ -47,18 +47,18 @@ export default {
   setup() {
     const audioStore = useAudioStore()
     const volumeStore = useVolumeStore()
-    
+
     onMounted(() => {
       console.log('Dock mounted - Initializing volume websocket')
       volumeStore.initializeWebSocket()
     })
-    
+
     return { audioStore, volumeStore }
   },
   data() {
     return {
       showIndicator: true,
-      isVisible: true,
+      isVisible: false,
       touchStartY: 0,
       dockPosition: 0,
       lastTouchPosition: null,
@@ -164,9 +164,11 @@ export default {
     }
   },
   watch: {
-    $route(to) {
-      this.currentPath = to.path
-      this.notifyRouteChange(to.path)
+    isVisible: {
+      immediate: true,
+      handler(newValue) {
+        this.dockPosition = newValue ? 0 : this.activeConfig.dock.hidePosition;
+      }
     }
   },
   methods: {
