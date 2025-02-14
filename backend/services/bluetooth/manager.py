@@ -15,9 +15,6 @@ def set_a2dp_sink(device_address: str):
         
         # Attendre la stabilisation
         time.sleep(1)
-        
-        # Configuration ALSA
-        subprocess.run(["amixer", "cset", "numid=3", "1"], capture_output=True)
         print(f"[A2DP] Audio configuré pour {device_address}")
             
     except subprocess.CalledProcessError as e:

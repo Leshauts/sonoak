@@ -209,30 +209,29 @@ export default {
 
     checkStatus() {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        console.log('Envoi demande de statut');
-        try {
-          this.ws.send(JSON.stringify({
-            type: 'get_status',
-            data: {}
-          }));
-        } catch (error) {
-          console.error('Erreur lors de l\'envoi du statut:', error);
-          this.handleDisconnect();
+        // Ne vérifier que si on n'a pas d'appareil actif ou si on est en cours de déconnexion
+        if (!this.activeDevice || this.isDisconnecting) {
+          try {
+            this.ws.send(JSON.stringify({
+              type: 'get_status',
+              data: {}
+            }));
+          } catch (error) {
+            console.error('Erreur lors de l\'envoi du statut:', error);
+            this.handleDisconnect();
+          }
         }
       }
     },
 
     startPeriodicCheck() {
-      console.log('Démarrage des vérifications périodiques');
-      this.stopPeriodicCheck();
-
       this.periodicCheck = setInterval(() => {
         if (this.ws && this.ws.readyState === WebSocket.OPEN && !this.isUnmounting) {
           this.checkStatus();
         } else {
           this.handleDisconnect();
         }
-      }, 2000);
+      }, 5000);  // Passé de 2000 à 5000
     },
 
     stopPeriodicCheck() {

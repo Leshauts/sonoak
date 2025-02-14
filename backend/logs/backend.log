@@ -1,0 +1,1150 @@
+2025-02-14 19:34:26,394 - main - INFO - Initializing services...
+2025-02-14 19:34:26,439 - main - INFO - Starting services...
+2025-02-14 19:35:00,923 - main - INFO - WebSocket connected for service: audio (client_id: 140734495805264)
+2025-02-14 19:35:01,005 - main - INFO - WebSocket connected for service: volume (client_id: 140734468569872)
+2025-02-14 19:35:01,089 - main - ERROR - Error handling audio message: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 188, in websocket_endpoint
+    async with asyncio.timeout(5.0):  # 5 second timeout for message handling
+               ^^^^^^^
+NameError: name 'asyncio' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 205, in websocket_endpoint
+    except asyncio.TimeoutError:
+           ^^^^^^^
+NameError: name 'asyncio' is not defined
+2025-02-14 19:35:01,095 - main - ERROR - Error handling volume message: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 188, in websocket_endpoint
+    async with asyncio.timeout(5.0):  # 5 second timeout for message handling
+               ^^^^^^^
+NameError: name 'asyncio' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 205, in websocket_endpoint
+    except asyncio.TimeoutError:
+           ^^^^^^^
+NameError: name 'asyncio' is not defined
+2025-02-14 19:35:20,719 - main - INFO - WebSocket connected for service: audio (client_id: 140734468635024)
+2025-02-14 19:35:20,726 - main - ERROR - Error handling audio message: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 188, in websocket_endpoint
+    async with asyncio.timeout(5.0):  # 5 second timeout for message handling
+               ^^^^^^^
+NameError: name 'asyncio' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 205, in websocket_endpoint
+    except asyncio.TimeoutError:
+           ^^^^^^^
+NameError: name 'asyncio' is not defined
+2025-02-14 19:35:21,719 - main - INFO - WebSocket connected for service: spotify (client_id: 140734468698640)
+2025-02-14 19:35:25,716 - main - INFO - WebSocket connected for service: volume (client_id: 140734468808976)
+2025-02-14 19:35:25,724 - main - ERROR - Error handling volume message: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 188, in websocket_endpoint
+    async with asyncio.timeout(5.0):  # 5 second timeout for message handling
+               ^^^^^^^
+NameError: name 'asyncio' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 205, in websocket_endpoint
+    except asyncio.TimeoutError:
+           ^^^^^^^
+NameError: name 'asyncio' is not defined
+2025-02-14 19:37:02,907 - main - ERROR - Error handling volume message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:37:02,909 - main - ERROR - WebSocket error for volume: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:37:02,914 - main - INFO - Disconnecting WebSocket for service: volume (client_id: 140734468569872)
+2025-02-14 19:37:02,915 - main - ERROR - Error handling volume message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:37:02,916 - main - ERROR - WebSocket error for volume: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:37:02,917 - main - INFO - Disconnecting WebSocket for service: volume (client_id: 140734468808976)
+2025-02-14 19:37:02,918 - main - ERROR - Error handling audio message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:37:02,918 - main - ERROR - WebSocket error for audio: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:37:02,919 - main - INFO - Disconnecting WebSocket for service: audio (client_id: 140734468635024)
+2025-02-14 19:37:02,920 - main - ERROR - Error handling spotify message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:37:02,920 - main - ERROR - WebSocket error for spotify: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:37:02,921 - main - INFO - Disconnecting WebSocket for service: spotify (client_id: 140734468698640)
+2025-02-14 19:37:02,921 - main - ERROR - Error handling audio message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:37:02,922 - main - ERROR - WebSocket error for audio: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:37:02,923 - main - INFO - Disconnecting WebSocket for service: audio (client_id: 140734495805264)
+2025-02-14 19:37:03,007 - main - INFO - Shutting down services...
+2025-02-14 19:37:13,222 - main - INFO - Initializing services...
+2025-02-14 19:37:13,236 - main - INFO - Starting services...
+2025-02-14 19:37:13,710 - main - INFO - WebSocket connected for service: audio (client_id: 140734538843344)
+2025-02-14 19:37:13,717 - main - ERROR - Error handling audio message: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 188, in websocket_endpoint
+    async with asyncio.timeout(5.0):  # 5 second timeout for message handling
+               ^^^^^^^
+NameError: name 'asyncio' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 205, in websocket_endpoint
+    except asyncio.TimeoutError:
+           ^^^^^^^
+NameError: name 'asyncio' is not defined
+2025-02-14 19:37:14,710 - main - INFO - WebSocket connected for service: spotify (client_id: 140734538978960)
+2025-02-14 19:37:14,926 - main - INFO - WebSocket connected for service: audio (client_id: 140734538983888)
+2025-02-14 19:37:14,929 - main - ERROR - Error handling audio message: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 188, in websocket_endpoint
+    async with asyncio.timeout(5.0):  # 5 second timeout for message handling
+               ^^^^^^^
+NameError: name 'asyncio' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 205, in websocket_endpoint
+    except asyncio.TimeoutError:
+           ^^^^^^^
+NameError: name 'asyncio' is not defined
+2025-02-14 19:37:15,708 - main - INFO - WebSocket connected for service: volume (client_id: 140734539052112)
+2025-02-14 19:37:15,714 - main - ERROR - Error handling volume message: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 188, in websocket_endpoint
+    async with asyncio.timeout(5.0):  # 5 second timeout for message handling
+               ^^^^^^^
+NameError: name 'asyncio' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 205, in websocket_endpoint
+    except asyncio.TimeoutError:
+           ^^^^^^^
+NameError: name 'asyncio' is not defined
+2025-02-14 19:37:17,917 - main - INFO - WebSocket connected for service: volume (client_id: 140734539086608)
+2025-02-14 19:37:17,920 - main - ERROR - Error handling volume message: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 188, in websocket_endpoint
+    async with asyncio.timeout(5.0):  # 5 second timeout for message handling
+               ^^^^^^^
+NameError: name 'asyncio' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 205, in websocket_endpoint
+    except asyncio.TimeoutError:
+           ^^^^^^^
+NameError: name 'asyncio' is not defined
+2025-02-14 19:38:34,137 - main - ERROR - Error handling spotify message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:38:34,138 - main - ERROR - WebSocket error for spotify: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    except Exception as e:
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:38:34,140 - main - INFO - Disconnecting WebSocket for service: spotify (client_id: 140734538978960)
+2025-02-14 19:38:34,140 - main - ERROR - Error handling volume message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:38:34,141 - main - ERROR - WebSocket error for volume: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    except Exception as e:
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:38:34,142 - main - INFO - Disconnecting WebSocket for service: volume (client_id: 140734539086608)
+2025-02-14 19:38:34,142 - main - ERROR - Error handling volume message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:38:34,143 - main - ERROR - WebSocket error for volume: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    except Exception as e:
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:38:34,144 - main - INFO - Disconnecting WebSocket for service: volume (client_id: 140734539052112)
+2025-02-14 19:38:34,144 - main - ERROR - Error handling audio message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:38:34,145 - main - ERROR - WebSocket error for audio: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    except Exception as e:
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:38:34,146 - main - INFO - Disconnecting WebSocket for service: audio (client_id: 140734538983888)
+2025-02-14 19:38:34,146 - main - ERROR - Error handling audio message: (1012, None)
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+2025-02-14 19:38:34,146 - main - ERROR - WebSocket error for audio: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 179, in websocket_endpoint
+    continue
+       ^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (1012, None)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 215, in websocket_endpoint
+    except Exception as e:
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:38:34,147 - main - INFO - Disconnecting WebSocket for service: audio (client_id: 140734538843344)
+2025-02-14 19:38:34,236 - main - INFO - Shutting down services...
+2025-02-14 19:38:54,273 - main - INFO - Initializing services...
+2025-02-14 19:38:54,287 - main - INFO - Starting services...
+2025-02-14 19:38:56,167 - main - INFO - WebSocket connected for service: audio (client_id: 140735144417616)
+2025-02-14 19:38:56,705 - main - INFO - WebSocket connected for service: audio (client_id: 140735144511568)
+2025-02-14 19:38:57,705 - main - INFO - WebSocket connected for service: spotify (client_id: 140735144525008)
+2025-02-14 19:38:59,150 - main - INFO - WebSocket connected for service: volume (client_id: 140735144573648)
+2025-02-14 19:39:01,699 - main - INFO - WebSocket connected for service: volume (client_id: 140735144623120)
+2025-02-14 19:39:05,164 - main - INFO - WebSocket connected for service: spotify (client_id: 140735144662352)
+2025-02-14 19:39:08,540 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735144691280)
+2025-02-14 19:39:08,852 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735144703696)
+2025-02-14 19:39:13,182 - main - ERROR - Error handling bluetooth message: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+2025-02-14 19:39:13,184 - main - ERROR - WebSocket error for bluetooth: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 217, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:39:13,188 - main - INFO - Disconnecting WebSocket for service: bluetooth (client_id: 140735144691280)
+2025-02-14 19:39:13,192 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735144769936)
+2025-02-14 19:39:13,196 - main - ERROR - Error handling bluetooth message: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+2025-02-14 19:39:13,198 - main - ERROR - WebSocket error for bluetooth: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 217, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:39:13,200 - main - INFO - Disconnecting WebSocket for service: bluetooth (client_id: 140735144703696)
+2025-02-14 19:39:13,498 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735144412880)
+2025-02-14 19:39:13,530 - main - ERROR - Error handling snapcast message: name 'AudioSource' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 198, in websocket_endpoint
+    await snapcast_manager.handle_message(data)
+  File "/home/leo/sonoak/backend/services/snapcast/manager.py", line 154, in handle_message
+    await self.audio_manager.switch_source(AudioSource.MACOS)
+                                           ^^^^^^^^^^^
+NameError: name 'AudioSource' is not defined
+2025-02-14 19:39:14,948 - main - ERROR - Error handling snapcast message: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+2025-02-14 19:39:14,950 - main - ERROR - WebSocket error for snapcast: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 217, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:39:14,954 - main - INFO - Disconnecting WebSocket for service: snapcast (client_id: 140735144769936)
+2025-02-14 19:39:14,957 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735144922000)
+2025-02-14 19:39:14,986 - main - ERROR - Error handling snapcast message: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+2025-02-14 19:39:14,990 - main - ERROR - WebSocket error for snapcast: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.NO_STATUS_RCVD: 1005>, '')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 217, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:39:14,993 - main - INFO - Disconnecting WebSocket for service: snapcast (client_id: 140735144412880)
+2025-02-14 19:39:15,273 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735144987984)
+2025-02-14 19:39:16,957 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735145000656)
+2025-02-14 19:39:16,961 - main - ERROR - Error handling snapcast message: name 'AudioSource' is not defined
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 198, in websocket_endpoint
+    await snapcast_manager.handle_message(data)
+  File "/home/leo/sonoak/backend/services/snapcast/manager.py", line 154, in handle_message
+    await self.audio_manager.switch_source(AudioSource.MACOS)
+                                           ^^^^^^^^^^^
+NameError: name 'AudioSource' is not defined
+2025-02-14 19:39:17,700 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735145047824)
+2025-02-14 19:39:21,735 - main - INFO - WebSocket connected for service: audio (client_id: 140735145085264)
+2025-02-14 19:39:21,750 - main - INFO - WebSocket connected for service: volume (client_id: 140735145168912)
+2025-02-14 19:39:21,770 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735145179536)
+2025-02-14 19:39:40,088 - main - ERROR - Error handling bluetooth message: WebSocket is not connected. Need to call "accept" first.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 133, in receive_json
+    raise RuntimeError('WebSocket is not connected. Need to call "accept" first.')
+RuntimeError: WebSocket is not connected. Need to call "accept" first.
+2025-02-14 19:39:40,089 - main - ERROR - WebSocket error for bluetooth: Cannot call "send" once a close message has been sent.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 133, in receive_json
+    raise RuntimeError('WebSocket is not connected. Need to call "accept" first.')
+RuntimeError: WebSocket is not connected. Need to call "accept" first.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 217, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 97, in send
+    raise RuntimeError('Cannot call "send" once a close message has been sent.')
+RuntimeError: Cannot call "send" once a close message has been sent.
+2025-02-14 19:39:40,091 - main - INFO - Disconnecting WebSocket for service: bluetooth (client_id: 140735145179536)
+2025-02-14 19:39:41,140 - main - ERROR - Error handling volume message: (<CloseCode.ABNORMAL_CLOSURE: 1006>, '')
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.ABNORMAL_CLOSURE: 1006>, '')
+2025-02-14 19:39:41,142 - main - ERROR - WebSocket error for volume: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.ABNORMAL_CLOSURE: 1006>, '')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 217, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:39:41,143 - main - INFO - Disconnecting WebSocket for service: volume (client_id: 140735145168912)
+2025-02-14 19:39:41,143 - main - ERROR - Error handling audio message: (<CloseCode.ABNORMAL_CLOSURE: 1006>, '')
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.ABNORMAL_CLOSURE: 1006>, '')
+2025-02-14 19:39:41,144 - main - ERROR - WebSocket error for audio: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 181, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 135, in receive_json
+    self._raise_on_disconnect(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 113, in _raise_on_disconnect
+    raise WebSocketDisconnect(message["code"], message.get("reason"))
+starlette.websockets.WebSocketDisconnect: (<CloseCode.ABNORMAL_CLOSURE: 1006>, '')
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 217, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 85, in send
+    await self._send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 39, in sender
+    await send(message)
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/uvicorn/protocols/websockets/websockets_impl.py", line 359, in asgi_send
+    raise RuntimeError(msg % message_type)
+RuntimeError: Unexpected ASGI message 'websocket.send', after sending 'websocket.close' or response already completed.
+2025-02-14 19:39:41,146 - main - INFO - Disconnecting WebSocket for service: audio (client_id: 140735145085264)
+2025-02-14 19:45:44,436 - main - INFO - Initializing services...
+2025-02-14 19:45:44,475 - main - INFO - Starting services...
+2025-02-14 19:45:53,345 - main - INFO - WebSocket connected for service: volume (client_id: 140734343906704)
+2025-02-14 19:45:55,038 - main - INFO - WebSocket connected for service: audio (client_id: 140734343993680)
+2025-02-14 19:45:57,196 - main - INFO - WebSocket connected for service: spotify (client_id: 140734344037840)
+2025-02-14 19:45:57,251 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734344047312)
+2025-02-14 19:45:58,180 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734344095888)
+2025-02-14 19:46:32,084 - main - INFO - WebSocket connected for service: audio (client_id: 140734344216848)
+2025-02-14 19:46:32,179 - main - INFO - WebSocket connected for service: volume (client_id: 140734344090320)
+2025-02-14 19:46:49,901 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734344095888)
+2025-02-14 19:46:49,915 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734344090320)
+2025-02-14 19:46:49,917 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734343906704)
+2025-02-14 19:46:49,920 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140734344037840)
+2025-02-14 19:46:49,922 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734344047312)
+2025-02-14 19:46:49,924 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734343993680)
+2025-02-14 19:46:49,926 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734344216848)
+2025-02-14 19:46:50,001 - main - INFO - Shutting down services...
+2025-02-14 19:47:28,500 - main - INFO - Initializing services...
+2025-02-14 19:47:28,519 - main - INFO - Starting services...
+2025-02-14 19:47:28,824 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732202159056)
+2025-02-14 19:47:29,937 - main - INFO - WebSocket connected for service: volume (client_id: 140732202276048)
+2025-02-14 19:47:29,977 - main - INFO - WebSocket connected for service: audio (client_id: 140732202280784)
+2025-02-14 19:47:30,775 - main - INFO - WebSocket connected for service: spotify (client_id: 140732202332496)
+2025-02-14 19:47:31,725 - main - INFO - WebSocket connected for service: audio (client_id: 140732202377680)
+2025-02-14 19:47:32,710 - main - INFO - WebSocket connected for service: volume (client_id: 140732202286608)
+2025-02-14 19:48:30,428 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732202440464)
+2025-02-14 19:48:30,736 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732202549392)
+2025-02-14 19:48:30,770 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732202549392)
+2025-02-14 19:48:32,462 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732202440464)
+2025-02-14 19:48:33,696 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193038736)
+2025-02-14 19:48:33,725 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193038736)
+2025-02-14 19:48:34,469 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193087376)
+2025-02-14 19:48:34,497 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193087376)
+2025-02-14 19:48:36,505 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193096016)
+2025-02-14 19:48:36,532 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193096016)
+2025-02-14 19:48:36,701 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193109904)
+2025-02-14 19:48:36,720 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193109904)
+2025-02-14 19:48:38,539 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193115344)
+2025-02-14 19:48:38,559 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193115344)
+2025-02-14 19:48:39,697 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193198032)
+2025-02-14 19:48:39,731 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193198032)
+2025-02-14 19:48:40,567 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193201360)
+2025-02-14 19:48:40,594 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193201360)
+2025-02-14 19:48:42,604 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193237840)
+2025-02-14 19:48:42,632 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193237840)
+2025-02-14 19:48:42,696 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193240976)
+2025-02-14 19:48:42,716 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193240976)
+2025-02-14 19:48:43,367 - main - INFO - WebSocket connected for service: spotify (client_id: 140732193253904)
+2025-02-14 19:48:44,639 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193346064)
+2025-02-14 19:48:44,674 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193346064)
+2025-02-14 19:48:45,699 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193351312)
+2025-02-14 19:48:46,681 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732193362576)
+2025-02-14 19:49:25,939 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732193422288)
+2025-02-14 19:49:26,245 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732193087952)
+2025-02-14 19:51:12,041 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732193087952)
+2025-02-14 19:51:12,044 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732202159056)
+2025-02-14 19:51:12,047 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140732202332496)
+2025-02-14 19:51:12,049 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732202377680)
+2025-02-14 19:51:12,051 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732202286608)
+2025-02-14 19:51:12,053 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193351312)
+2025-02-14 19:51:13,107 - main - INFO - WebSocket connected for service: audio (client_id: 140732193351056)
+2025-02-14 19:51:13,131 - main - INFO - WebSocket connected for service: volume (client_id: 140732193232464)
+2025-02-14 19:51:13,435 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732193202000)
+2025-02-14 19:52:48,754 - main - INFO - WebSocket connected for service: audio (client_id: 140732193116304)
+2025-02-14 19:52:48,756 - main - INFO - WebSocket connected for service: volume (client_id: 140732193112656)
+2025-02-14 19:52:57,134 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732193116304)
+2025-02-14 19:52:57,138 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732193112656)
+2025-02-14 19:53:06,579 - main - INFO - WebSocket connected for service: audio (client_id: 140732193096592)
+2025-02-14 19:53:06,579 - main - INFO - WebSocket connected for service: volume (client_id: 140732193109264)
+2025-02-14 19:53:29,444 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732193202000)
+2025-02-14 19:53:30,085 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732193422288)
+2025-02-14 19:53:30,088 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732193109264)
+2025-02-14 19:53:30,091 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732193096592)
+2025-02-14 19:53:30,094 - main - ERROR - Timeout processing message for audio
+2025-02-14 19:53:30,095 - main - ERROR - Failed to send timeout error: 
+2025-02-14 19:53:30,095 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732202280784)
+2025-02-14 19:53:30,097 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732193351056)
+2025-02-14 19:53:30,101 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140732193253904)
+2025-02-14 19:53:30,103 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732193232464)
+2025-02-14 19:53:30,106 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732202276048)
+2025-02-14 19:53:30,108 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732193362576)
+2025-02-14 19:53:30,112 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732193109648)
+2025-02-14 19:53:30,113 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732193109648)
+2025-02-14 19:53:30,118 - main - INFO - Shutting down services...
+2025-02-14 19:53:50,352 - main - INFO - Initializing services...
+2025-02-14 19:53:50,393 - main - INFO - Starting services...
+2025-02-14 19:53:59,025 - main - INFO - WebSocket connected for service: volume (client_id: 140732657271056)
+2025-02-14 19:53:59,050 - main - INFO - WebSocket connected for service: audio (client_id: 140732657237456)
+2025-02-14 19:54:14,513 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732657237456)
+2025-02-14 19:54:14,540 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732657271056)
+2025-02-14 19:54:15,527 - main - INFO - WebSocket connected for service: audio (client_id: 140732657411088)
+2025-02-14 19:54:15,545 - main - INFO - WebSocket connected for service: volume (client_id: 140732657402832)
+2025-02-14 19:54:20,469 - main - INFO - WebSocket connected for service: audio (client_id: 140732554875216)
+2025-02-14 19:54:20,582 - main - INFO - WebSocket connected for service: volume (client_id: 140732554886032)
+2025-02-14 19:54:56,315 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732554886032)
+2025-02-14 19:54:56,318 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732554875216)
+2025-02-14 19:54:56,321 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732657411088)
+2025-02-14 19:54:56,323 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732657402832)
+2025-02-14 19:54:56,415 - main - INFO - Shutting down services...
+2025-02-14 19:55:07,496 - main - INFO - Initializing services...
+2025-02-14 19:55:07,510 - main - INFO - Starting services...
+2025-02-14 19:55:07,671 - main - INFO - WebSocket connected for service: volume (client_id: 140733072147664)
+2025-02-14 19:55:08,342 - main - INFO - WebSocket connected for service: audio (client_id: 140733072161040)
+2025-02-14 19:55:08,704 - main - INFO - WebSocket connected for service: audio (client_id: 140733072271440)
+2025-02-14 19:55:11,325 - main - INFO - WebSocket connected for service: volume (client_id: 140733072341648)
+2025-02-14 19:55:29,772 - main - INFO - WebSocket connected for service: spotify (client_id: 140733072409232)
+2025-02-14 19:55:30,083 - main - INFO - WebSocket connected for service: spotify (client_id: 140733072441872)
+2025-02-14 19:55:49,063 - main - INFO - WebSocket connected for service: audio (client_id: 140733072491984)
+2025-02-14 19:55:49,088 - main - INFO - WebSocket connected for service: volume (client_id: 140733072502800)
+2025-02-14 19:55:49,115 - main - INFO - WebSocket connected for service: spotify (client_id: 140733072328784)
+2025-02-14 19:56:43,817 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733072573008)
+2025-02-14 19:56:43,855 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733072680400)
+2025-02-14 19:56:44,123 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733072615696)
+2025-02-14 19:56:52,546 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733072328784)
+2025-02-14 19:56:52,553 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733072491984)
+2025-02-14 19:56:52,556 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733072680400)
+2025-02-14 19:56:52,558 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733072502800)
+2025-02-14 19:56:58,385 - main - INFO - WebSocket connected for service: audio (client_id: 140733063287184)
+2025-02-14 19:56:58,386 - main - INFO - WebSocket connected for service: volume (client_id: 140733063286288)
+2025-02-14 19:57:04,690 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733063337680)
+2025-02-14 19:57:15,172 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733063337680)
+2025-02-14 19:57:20,403 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733063286288)
+2025-02-14 19:57:20,406 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733063287184)
+2025-02-14 19:57:26,693 - main - INFO - WebSocket connected for service: audio (client_id: 140733063307472)
+2025-02-14 19:57:26,694 - main - INFO - WebSocket connected for service: volume (client_id: 140733063308880)
+2025-02-14 19:57:39,273 - main - ERROR - Timeout processing message for volume
+2025-02-14 19:57:45,563 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733063337680)
+2025-02-14 19:57:45,563 - main - ERROR - Timeout processing message for volume
+2025-02-14 19:57:51,863 - main - ERROR - Timeout processing message for volume
+2025-02-14 19:58:03,383 - main - ERROR - Timeout processing message for volume
+2025-02-14 19:58:13,868 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733063337680)
+2025-02-14 19:58:18,058 - main - ERROR - Timeout processing message for volume
+2025-02-14 19:58:18,059 - main - ERROR - Failed to send timeout error: 
+2025-02-14 19:58:18,059 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733063308880)
+2025-02-14 19:58:29,566 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733063307472)
+2025-02-14 20:13:18,470 - main - INFO - Initializing services...
+2025-02-14 20:13:18,511 - main - INFO - Starting services...
+2025-02-14 20:13:27,394 - main - INFO - WebSocket connected for service: volume (client_id: 140736216402960)
+2025-02-14 20:13:27,414 - main - INFO - WebSocket connected for service: spotify (client_id: 140736216358864)
+2025-02-14 20:13:27,433 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736216491408)
+2025-02-14 20:13:28,592 - main - INFO - WebSocket connected for service: audio (client_id: 140736216538832)
+2025-02-14 20:13:28,601 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736216491408)
+2025-02-14 20:13:38,540 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140736216538832)
+2025-02-14 20:13:38,543 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140736216358864)
+2025-02-14 20:13:38,545 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140736216402960)
+2025-02-14 20:13:39,566 - main - INFO - WebSocket connected for service: audio (client_id: 140736215581520)
+2025-02-14 20:13:39,585 - main - INFO - WebSocket connected for service: volume (client_id: 140736215599824)
+2025-02-14 20:13:45,667 - main - INFO - WebSocket connected for service: audio (client_id: 140736215605648)
+2025-02-14 20:13:45,735 - main - INFO - WebSocket connected for service: volume (client_id: 140736215544528)
+2025-02-14 20:14:06,464 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215662864)
+2025-02-14 20:14:06,776 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215699600)
+2025-02-14 20:14:06,808 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215699600)
+2025-02-14 20:14:08,498 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215662864)
+2025-02-14 20:14:09,128 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215640144)
+2025-02-14 20:14:09,154 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215640144)
+2025-02-14 20:14:10,505 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215751056)
+2025-02-14 20:14:10,532 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215751056)
+2025-02-14 20:14:10,766 - main - INFO - WebSocket connected for service: spotify (client_id: 140736215794576)
+2025-02-14 20:14:11,078 - main - INFO - WebSocket connected for service: spotify (client_id: 140736215795664)
+2025-02-14 20:14:11,474 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215804560)
+2025-02-14 20:14:11,479 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215804560)
+2025-02-14 20:14:12,541 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215881616)
+2025-02-14 20:14:13,798 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215894032)
+2025-02-14 20:14:14,692 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215907216)
+2025-02-14 20:14:15,001 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215984976)
+2025-02-14 20:14:16,702 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215907216)
+2025-02-14 20:14:17,007 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215984976)
+2025-02-14 20:14:18,710 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736257768016)
+2025-02-14 20:14:18,714 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736257768016)
+2025-02-14 20:14:19,326 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216011088)
+2025-02-14 20:14:19,331 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216011088)
+2025-02-14 20:14:20,723 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216027536)
+2025-02-14 20:14:20,727 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216027536)
+2025-02-14 20:14:21,648 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216034384)
+2025-02-14 20:14:21,653 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216034384)
+2025-02-14 20:14:22,736 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216098064)
+2025-02-14 20:14:22,743 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216098064)
+2025-02-14 20:14:23,980 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216140112)
+2025-02-14 20:14:23,987 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216140112)
+2025-02-14 20:14:24,757 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216154000)
+2025-02-14 20:14:24,761 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216154000)
+2025-02-14 20:14:26,304 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216179600)
+2025-02-14 20:14:26,311 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216179600)
+2025-02-14 20:14:26,770 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216155408)
+2025-02-14 20:14:26,797 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216155408)
+2025-02-14 20:14:28,639 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216163600)
+2025-02-14 20:14:28,647 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216163600)
+2025-02-14 20:14:28,806 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216255760)
+2025-02-14 20:14:28,810 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216255760)
+2025-02-14 20:14:30,818 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216261968)
+2025-02-14 20:14:30,822 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216261968)
+2025-02-14 20:14:30,967 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736216275088)
+2025-02-14 20:14:30,976 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736216275088)
+2025-02-14 20:14:32,828 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736214224656)
+2025-02-14 20:14:32,831 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736214224656)
+2025-02-14 20:14:33,296 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736214236112)
+2025-02-14 20:14:33,303 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736214236112)
+2025-02-14 20:14:34,839 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736214339664)
+2025-02-14 20:14:35,748 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736214303248)
+2025-02-14 20:14:36,471 - main - INFO - WebSocket connected for service: audio (client_id: 140736214315728)
+2025-02-14 20:14:36,496 - main - INFO - WebSocket connected for service: volume (client_id: 140736214392464)
+2025-02-14 20:14:36,508 - main - INFO - WebSocket connected for service: spotify (client_id: 140736214421264)
+2025-02-14 20:14:39,779 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140736214421264)
+2025-02-14 20:14:39,782 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140736214315728)
+2025-02-14 20:14:39,784 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140736214392464)
+2025-02-14 20:14:56,108 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736214458064)
+2025-02-14 20:14:56,422 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736216028368)
+2025-02-14 20:15:42,463 - main - INFO - WebSocket connected for service: audio (client_id: 140736214392080)
+2025-02-14 20:15:42,465 - main - INFO - WebSocket connected for service: volume (client_id: 140736214397008)
+2025-02-14 20:15:55,024 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736214314064)
+2025-02-14 20:16:05,472 - main - ERROR - Timeout processing message for volume
+2025-02-14 20:20:04,224 - main - INFO - Initializing services...
+2025-02-14 20:20:04,262 - main - INFO - Starting services...
+2025-02-14 20:20:13,212 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732621034128)
+2025-02-14 20:20:13,235 - main - INFO - WebSocket connected for service: audio (client_id: 140732590048784)
+2025-02-14 20:20:13,261 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732590058960)
+2025-02-14 20:20:13,280 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732590107152)
+2025-02-14 20:20:13,303 - main - INFO - WebSocket connected for service: spotify (client_id: 140732590152400)
+2025-02-14 20:20:16,434 - main - INFO - WebSocket connected for service: volume (client_id: 140732590247312)
+2025-02-14 20:21:02,229 - main - INFO - WebSocket connected for service: audio (client_id: 140732590282576)
+2025-02-14 20:21:02,298 - main - INFO - WebSocket connected for service: volume (client_id: 140732590190480)
+2025-02-14 20:21:32,863 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732621034128)
+2025-02-14 20:21:32,877 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140732590152400)
+2025-02-14 20:21:32,879 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732590048784)
+2025-02-14 20:21:32,883 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732590058960)
+2025-02-14 20:21:32,885 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732590107152)
+2025-02-14 20:21:32,888 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732590247312)
+2025-02-14 20:21:33,447 - main - INFO - WebSocket connected for service: audio (client_id: 140732504804496)
+2025-02-14 20:21:33,467 - main - INFO - WebSocket connected for service: volume (client_id: 140732504810320)
+2025-02-14 20:21:38,013 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732504851728)
+2025-02-14 20:21:38,319 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732504866576)
+2025-02-14 20:21:41,721 - main - INFO - WebSocket connected for service: audio (client_id: 140732504891984)
+2025-02-14 20:21:41,728 - main - INFO - WebSocket connected for service: volume (client_id: 140732504887888)
+2025-02-14 20:21:41,743 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732504953936)
+2025-02-14 20:21:46,215 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732504887888)
+2025-02-14 20:21:46,218 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732504891984)
+2025-02-14 20:21:46,220 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732504953936)
+2025-02-14 20:31:09,182 - main - INFO - Initializing services...
+2025-02-14 20:31:09,221 - main - INFO - Starting services...
+2025-02-14 20:31:18,160 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736234033808)
+2025-02-14 20:31:19,755 - main - INFO - WebSocket connected for service: volume (client_id: 140736234134480)
+2025-02-14 20:31:21,123 - main - INFO - WebSocket connected for service: audio (client_id: 140736234140880)
+2025-02-14 20:31:21,143 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736234033808)
+2025-02-14 20:31:45,510 - main - INFO - WebSocket connected for service: audio (client_id: 140736224714896)
+2025-02-14 20:31:45,595 - main - INFO - WebSocket connected for service: volume (client_id: 140736224640400)
+2025-02-14 20:31:49,143 - main - INFO - WebSocket connected for service: spotify (client_id: 140736224807440)
+2025-02-14 20:31:49,456 - main - INFO - WebSocket connected for service: spotify (client_id: 140736224782352)
+2025-02-14 20:32:07,107 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736224884752)
+2025-02-14 20:32:07,420 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736224885904)
+2025-02-14 20:32:07,445 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736224885904)
+2025-02-14 20:32:09,151 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736224884752)
+2025-02-14 20:32:10,720 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736224920976)
+2025-02-14 20:32:10,749 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736224920976)
+2025-02-14 20:32:11,156 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736224933648)
+2025-02-14 20:32:11,190 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736224933648)
+2025-02-14 20:32:13,197 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736224959696)
+2025-02-14 20:32:13,235 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736224959696)
+2025-02-14 20:32:13,737 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736224985360)
+2025-02-14 20:32:13,774 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736224985360)
+2025-02-14 20:32:15,245 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736224933904)
+2025-02-14 20:32:15,279 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736224933904)
+2025-02-14 20:32:16,763 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225072464)
+2025-02-14 20:32:16,805 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225072464)
+2025-02-14 20:32:17,289 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225119952)
+2025-02-14 20:32:17,318 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225119952)
+2025-02-14 20:32:19,335 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225130896)
+2025-02-14 20:32:19,378 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225130896)
+2025-02-14 20:32:19,752 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225158736)
+2025-02-14 20:32:19,789 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225158736)
+2025-02-14 20:32:21,386 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225171920)
+2025-02-14 20:32:21,390 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225171920)
+2025-02-14 20:32:22,756 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225199888)
+2025-02-14 20:32:23,397 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225166864)
+2025-02-14 20:32:39,485 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736225259472)
+2025-02-14 20:32:39,802 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736225312848)
+2025-02-14 20:33:35,401 - main - INFO - WebSocket connected for service: audio (client_id: 140736225072464)
+2025-02-14 20:33:35,428 - main - INFO - WebSocket connected for service: volume (client_id: 140736225320656)
+2025-02-14 20:33:35,432 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736225345808)
+2025-02-14 20:33:46,709 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736225259472)
+2025-02-14 20:33:46,715 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225431760)
+2025-02-14 20:33:46,720 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736225345808)
+2025-02-14 20:33:46,726 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736225312848)
+2025-02-14 20:33:46,737 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225471760)
+2025-02-14 20:33:47,032 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225320080)
+2025-02-14 20:33:47,040 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225320080)
+2025-02-14 20:33:48,720 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225431760)
+2025-02-14 20:33:48,752 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225471760)
+2025-02-14 20:33:49,693 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736214953936)
+2025-02-14 20:33:49,699 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736214953936)
+2025-02-14 20:33:50,725 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215020176)
+2025-02-14 20:33:50,729 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215020176)
+2025-02-14 20:33:50,846 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225469136)
+2025-02-14 20:33:50,853 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225469136)
+2025-02-14 20:33:52,700 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215050512)
+2025-02-14 20:33:52,706 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215050512)
+2025-02-14 20:33:52,737 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215076816)
+2025-02-14 20:33:52,740 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215076816)
+2025-02-14 20:33:52,972 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215081104)
+2025-02-14 20:33:52,981 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215081104)
+2025-02-14 20:33:54,747 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215115216)
+2025-02-14 20:33:54,751 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215115216)
+2025-02-14 20:33:55,111 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736225439504)
+2025-02-14 20:33:55,118 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225439504)
+2025-02-14 20:33:55,690 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215147344)
+2025-02-14 20:33:55,698 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215147344)
+2025-02-14 20:33:56,760 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215182288)
+2025-02-14 20:33:56,763 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215182288)
+2025-02-14 20:33:57,206 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215186064)
+2025-02-14 20:33:57,215 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215186064)
+2025-02-14 20:33:58,693 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215219472)
+2025-02-14 20:33:58,698 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215219472)
+2025-02-14 20:33:58,770 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215119824)
+2025-02-14 20:33:58,774 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215119824)
+2025-02-14 20:33:59,310 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215251600)
+2025-02-14 20:33:59,317 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215251600)
+2025-02-14 20:34:00,781 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215274320)
+2025-02-14 20:34:00,784 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215274320)
+2025-02-14 20:34:01,441 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215356880)
+2025-02-14 20:34:01,449 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215356880)
+2025-02-14 20:34:01,691 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215366608)
+2025-02-14 20:34:01,697 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215366608)
+2025-02-14 20:34:02,793 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215396240)
+2025-02-14 20:34:02,797 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215396240)
+2025-02-14 20:34:03,515 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215403472)
+2025-02-14 20:34:03,524 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215403472)
+2025-02-14 20:34:04,698 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215454608)
+2025-02-14 20:34:04,706 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215454608)
+2025-02-14 20:34:04,803 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215456656)
+2025-02-14 20:34:04,807 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215456656)
+2025-02-14 20:34:05,652 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215501968)
+2025-02-14 20:34:05,659 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215501968)
+2025-02-14 20:34:06,814 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215506128)
+2025-02-14 20:34:06,819 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215506128)
+2025-02-14 20:34:07,693 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215524944)
+2025-02-14 20:34:07,703 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215524944)
+2025-02-14 20:34:07,719 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215551248)
+2025-02-14 20:34:07,740 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215551248)
+2025-02-14 20:34:08,482 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736215561744)
+2025-02-14 20:34:08,606 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736215587984)
+2025-02-14 20:34:08,790 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736215648272)
+2025-02-14 20:34:08,828 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215660240)
+2025-02-14 20:34:08,832 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215660240)
+2025-02-14 20:34:09,837 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215708880)
+2025-02-14 20:34:09,843 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215708880)
+2025-02-14 20:34:10,698 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215722320)
+2025-02-14 20:34:10,837 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215618576)
+2025-02-14 20:34:11,455 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736215587984)
+2025-02-14 20:34:11,457 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140736225320656)
+2025-02-14 20:34:11,458 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140736225072464)
+2025-02-14 20:34:14,707 - main - INFO - WebSocket connected for service: snapcast (client_id: 140736215795216)
+2025-02-14 20:34:14,953 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215795216)
+2025-02-14 20:34:15,151 - main - INFO - WebSocket connected for service: audio (client_id: 140736215779472)
+2025-02-14 20:34:15,161 - main - INFO - WebSocket connected for service: volume (client_id: 140736215802640)
+2025-02-14 20:34:15,177 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736215829584)
+2025-02-14 20:34:20,234 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736215829584)
+2025-02-14 20:34:20,238 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140736215779472)
+2025-02-14 20:34:20,240 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140736215802640)
+2025-02-14 20:34:32,500 - main - INFO - WebSocket connected for service: volume (client_id: 140736225077648)
+2025-02-14 20:34:32,537 - main - INFO - WebSocket connected for service: audio (client_id: 140736215147152)
+2025-02-14 20:34:32,556 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736215884112)
+2025-02-14 20:35:08,180 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140736225077648)
+2025-02-14 20:35:08,184 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140736215147152)
+2025-02-14 20:35:08,186 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736215884112)
+2025-02-14 20:35:35,490 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140736234134480)
+2025-02-14 20:35:35,493 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140736224782352)
+2025-02-14 20:35:35,495 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140736234140880)
+2025-02-14 20:35:35,498 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736225199888)
+2025-02-14 20:35:35,501 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736215648272)
+2025-02-14 20:35:35,503 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140736215722320)
+2025-02-14 20:35:36,053 - main - INFO - WebSocket connected for service: audio (client_id: 140736225202960)
+2025-02-14 20:35:36,072 - main - INFO - WebSocket connected for service: volume (client_id: 140736215651920)
+2025-02-14 20:35:36,376 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736215918288)
+2025-02-14 20:36:29,828 - main - INFO - WebSocket connected for service: audio (client_id: 140736215910352)
+2025-02-14 20:36:29,845 - main - INFO - WebSocket connected for service: volume (client_id: 140736215963984)
+2025-02-14 20:36:29,858 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140736213916304)
+2025-02-14 20:36:44,989 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140736213916304)
+2025-02-14 20:36:44,991 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140736215910352)
+2025-02-14 20:36:44,994 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140736215963984)

@@ -16,7 +16,7 @@ async def get_status():
     """Récupère l'état actuel de la connexion Bluetooth"""
     if not bluetooth_manager:
         raise HTTPException(status_code=500, detail="Bluetooth manager not initialized")
-    
+
     return {
         "connected_device": bluetooth_manager.connected_device,
         "has_active_connection": bluetooth_manager.connected_device is not None
@@ -27,9 +27,9 @@ async def disconnect_current():
     """Déconnecte l'appareil actuellement connecté"""
     if not bluetooth_manager:
         raise HTTPException(status_code=500, detail="Bluetooth manager not initialized")
-    
+
     if not bluetooth_manager.connected_device:
         raise HTTPException(status_code=404, detail="No device currently connected")
-    
+
     success = await bluetooth_manager.disconnect_current_device()
     return {"success": success}
