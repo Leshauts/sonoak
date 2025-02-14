@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 class VolumeManager:
     # Limites réelles du volume ALSA
     MIN_VOLUME = 20
-    MAX_VOLUME = 80
+    MAX_VOLUME = 92
     VOLUME_STEP = 5  # Change de 5% le volume affiché à chaque clic
 
     def __init__(self, websocket_manager):

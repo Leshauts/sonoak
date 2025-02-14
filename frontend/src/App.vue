@@ -24,6 +24,7 @@ const logoState = computed(() => {
 </script>
 
 <template>
+  <div class="warm-filter"></div>
   <router-view />
 </template>
 

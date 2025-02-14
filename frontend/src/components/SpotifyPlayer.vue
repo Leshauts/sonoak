@@ -149,7 +149,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-04);
-    margin: var(--spacing-05) 0;
+    margin-bottom: var(--spacing-05);
   }
   
   .progress-bar {

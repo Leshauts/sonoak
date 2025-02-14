@@ -1,3 +1,4 @@
+# backend/main.py
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -195,6 +196,9 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,
-        log_level="debug"
+        reload=False,
+        log_level="info"
     )
+    
+        # reload=True,
+        # log_level="debug"

@@ -1,3 +1,4 @@
+# backend/services/bluetooth/manager.py
 import dbus
 import dbus.mainloop.glib
 import asyncio
