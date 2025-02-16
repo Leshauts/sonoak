@@ -4,10 +4,10 @@
     <div 
       :class="[
         'logo-container',
-        `logo--${state}`
+        `logo--${computedLogoState}`
       ]"
     >
-      <svg
+    <svg
         :class="svgClass"
         xmlns="http://www.w3.org/2000/svg"
         :width="width"
@@ -41,6 +41,10 @@
 </template>
 
 <script>
+import { useSpotifyStore } from '@/stores/spotify'
+import { useAudioStore } from '@/stores/audio'
+import { computed } from 'vue'
+
 export default {
   name: 'Sonoak',
   props: {
@@ -55,27 +59,33 @@ export default {
       validator: (value) => ['text', 'text-light'].includes(value)
     }
   },
-  computed: {
-    width() {
-      return this.state === 'intro' ? 196 : 131
-    },
-    height() {
-      return this.state === 'intro' ? 48 : 32
-    },
-    svgClass() {
-      return {
+  setup(props) {
+    const spotifyStore = useSpotifyStore()
+    const audioStore = useAudioStore()
+
+    const computedLogoState = computed(() => {
+      // Si la source actuelle n'est pas Spotify, utiliser l'état normal
+      if (audioStore.currentSource !== 'spotify') {
+        return props.state
+      }
+
+      // Pour Spotify, montrer le logo sauf si un player est actif
+      return spotifyStore.playerActive ? 'hidden' : props.state
+    })
+
+    return {
+      computedLogoState,
+      width: computed(() => props.state === 'intro' ? 196 : 131),
+      height: computed(() => props.state === 'intro' ? 48 : 32),
+      svgClass: computed(() => ({
         'transition-all': true,
         'duration-500': true
-      }
-    },
-    pathClass() {
-      return {
+      })),
+      pathClass: computed(() => ({
         'transition-opacity': true,
         'duration-500': true
-      }
-    },
-    currentColor() {
-      return this.color === 'text' ? 'var(--text)' : 'var(--text-light)'
+      })),
+      currentColor: computed(() => props.color === 'text' ? 'var(--text)' : 'var(--text-light)')
     }
   }
 }

@@ -62,7 +62,7 @@ export default {
 .pop-in {
   display: flex;
   width: 280px;
-  padding: 24px;
+  padding: 32px 24px 24px 24px;
   flex-direction: column;
   align-items: center;
   gap: 16px;

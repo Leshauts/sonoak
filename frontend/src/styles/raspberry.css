@@ -2,19 +2,22 @@
     * {
         cursor: none !important;
     }
-    .warm-filter {
+
+    body::before {
+        content: "";
         position: fixed;
         top: 0;
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: rgba(255, 140, 0, 0.2);
+        background-color: rgba(255, 140, 0, 0.33);
         pointer-events: none;
-        mix-blend-mode:multiply;
+        mix-blend-mode: multiply;
         z-index: 9999;
-      }
+    }
+
     .main-view {
         /* fix screen position in the case */
-        transform: translateX(-5px); 
+        transform: translateX(-5px);
     }
 }

@@ -286,7 +286,7 @@ export default {
 .pop-in {
   display: flex;
   width: 280px;
-  padding: 24px 16px 16px 16px;
+  padding: 32px 24px 16px 24px;
   flex-direction: column;
   align-items: center;
   border-radius: 16px;
