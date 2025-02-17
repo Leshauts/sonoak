@@ -192,8 +192,7 @@ export default {
     },
 
     async handleItemClick(item) {
-      if (!this.isDragging) {
-        // Au lieu de naviguer, on change la source audio
+      if (!this.isDragging && !this.isDraggingMouse) {
         const sourceMap = {
           '/spotify': 'spotify',
           '/bluetooth': 'bluetooth',
@@ -208,7 +207,7 @@ export default {
 
 
     async switchSource(source) {
-      if (!this.isDragging) {
+      if (!this.isDragging && !this.isDraggingMouse) {
         await this.audioStore.switchSource(source)
       }
     },
@@ -217,6 +216,9 @@ export default {
     // Mouse event handlers
     handleMouseDown(event) {
       event.preventDefault();
+      this.mouseStartTime = Date.now();
+      this.mouseMoveCount = 0;
+      this.isDraggingMouse = false;
       this.initializeTouch(event.clientY);
       window.addEventListener('mousemove', this.handleMouseMove);
       window.addEventListener('mouseup', this.handleMouseUp);
@@ -224,6 +226,13 @@ export default {
 
     handleMouseMove(event) {
       event.preventDefault();
+      this.mouseMoveCount++;
+
+      // Définit isDraggingMouse à true après 3 mouvements
+      if (this.mouseMoveCount > 3) {
+        this.isDraggingMouse = true;
+      }
+
       this.updateTouchPosition(event.clientY);
       this.handleDrag(event.clientY);
     },
@@ -472,7 +481,7 @@ export default {
   bottom: 8px;
   border-radius: 99px;
   background: var(--text);
-  opacity:0.5;
+  opacity: 0.5;
   transition: all 0.2s ease;
   animation: all 0.2s forwards;
 }

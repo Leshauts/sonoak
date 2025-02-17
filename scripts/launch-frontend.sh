@@ -11,7 +11,9 @@ sleep 5
 
 # Lancer Chromium en mode kiosk (rajouter "--kiosk \")
 chromium-browser \
+  --kiosk \
   --touch-events \
+  --simulate-touch-screen \
   --enable-touch-events \
   --enable-touch-ui \
   --disable-pinch \
@@ -26,3 +28,6 @@ chromium-browser \
   --start-maximized \
   --incognito \
   http://localhost:5173
+
+
+
