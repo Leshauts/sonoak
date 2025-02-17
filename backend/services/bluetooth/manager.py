@@ -6,6 +6,8 @@ import subprocess
 import time
 from typing import Dict, List, Optional
 from datetime import datetime
+from services.audio.manager import AudioSource
+
 
 def set_a2dp_sink(device_address: str):
     """Configure l'audio A2DP pour le périphérique Bluetooth."""

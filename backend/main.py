@@ -1,20 +1,16 @@
-# backend/main.py
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 from contextlib import asynccontextmanager
 from typing import Dict, Any
-import asyncio  # Ajoutez cette ligne
+import asyncio
 import logging
 import logging.handlers
 import os
 from datetime import datetime
 
-from services.audio.manager import AudioManager
+from services.audio.manager import AudioManager, AudioSource
 from services.volume.manager import VolumeManager
-import uvicorn
-
-# Vos imports existants
 from services.bluetooth.manager import BluetoothManager
 from services.bluetooth.events import BluetoothEventHandler
 from services.bluetooth.routes import router as bluetooth_router, init_routes
@@ -23,27 +19,26 @@ from services.snapcast.routes import router as snapcast_router, init_routes as i
 from services.spotify.manager import SpotifyManager
 from services.spotify.player_manager import SpotifyPlayerManager
 from services.spotify.routes import router as spotify_router, init_routes as init_spotify_routes
-from services.navigation.manager import NavigationManager
 from services.volume.rotary_controller import RotaryVolumeController
 from websocket.manager import WebSocketManager
 
-# Créer le dossier logs s'il n'existe pas
+import uvicorn
+
+# Configuration du logging
 log_directory = os.path.join(os.path.dirname(__file__), 'logs')
 os.makedirs(log_directory, exist_ok=True)
 
-# Configuration du logging de base
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
-# Création du logger principal
 logger = logging.getLogger(__name__)
 
-# Configuration du file handler avec rotation
+# Handlers de logging
 file_handler = logging.handlers.RotatingFileHandler(
     os.path.join(log_directory, 'backend.log'),
-    maxBytes=1024 * 1024,  # 1MB
+    maxBytes=1024 * 1024,
     backupCount=5
 )
 file_handler.setFormatter(logging.Formatter(
@@ -51,7 +46,6 @@ file_handler.setFormatter(logging.Formatter(
 ))
 logger.addHandler(file_handler)
 
-# Ajout d'un handler pour la console
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -59,83 +53,140 @@ console_handler.setFormatter(logging.Formatter(
 logger.addHandler(console_handler)
 
 # Gestionnaires globaux
-websocket_manager = None
-bluetooth_manager = None
-snapcast_manager = None
-spotify_manager = None
-spotify_player = None
-navigation_manager = None
-bluetooth_events = None
-volume_manager = None
-audio_manager = None
+class ServiceManager:
+    def __init__(self):
+        self.websocket_manager = None
+        self.volume_manager = None
+        self.audio_manager = None
+        self.bluetooth_manager = None
+        self.snapcast_manager = None
+        self.spotify_manager = None
+        self.spotify_player = None
+        self.rotary_controller = None
+        self.bluetooth_events = None
+        self.services_status = {}
+
+    async def initialize_services(self):
+        try:
+            # 1. WebSocket Manager (dépendance fondamentale)
+            self.websocket_manager = WebSocketManager()
+            logger.info("WebSocket Manager initialized")
+
+            # 2. Volume Manager
+            self.volume_manager = VolumeManager(self.websocket_manager)
+            await self.volume_manager.initialize()
+            logger.info("Volume Manager initialized")
+
+            # 3. Rotary Controller
+            self.rotary_controller = RotaryVolumeController(self.volume_manager)
+            await self.rotary_controller.initialize()
+            logger.info("Rotary Controller initialized")
+
+            # 4. Audio Manager (dépend de WebSocket)
+            self.audio_manager = AudioManager(self.websocket_manager)
+            await self.audio_manager.initialize()
+            logger.info("Audio Manager initialized")
+
+            # 5. Services de lecture (dépendent de Audio Manager)
+            self.bluetooth_manager = BluetoothManager(self.websocket_manager, self.audio_manager)
+            logger.info("Bluetooth Manager initialized")
+
+            self.snapcast_manager = SnapcastManager(self.websocket_manager, self.audio_manager)
+            logger.info("Snapcast Manager initialized")
+
+            self.spotify_manager = SpotifyManager(self.websocket_manager, self.audio_manager)
+            logger.info("Spotify Manager initialized")
+
+            self.spotify_player = SpotifyPlayerManager(self.websocket_manager, self.spotify_manager)
+            logger.info("Spotify Player Manager initialized")
+
+            # 6. Event handlers
+            self.bluetooth_events = BluetoothEventHandler(self.bluetooth_manager)
+            self.bluetooth_events.setup_signal_handlers()
+            logger.info("Bluetooth events handler initialized")
+
+            # 7. Démarrage des services
+            await self.start_services()
+            
+            return True
+
+        except Exception as e:
+            logger.error(f"Error during services initialization: {e}", exc_info=True)
+            return False
+
+    async def start_services(self):
+        """Démarre les services dans l'ordre approprié"""
+        try:
+            # Démarrage de Snapcast
+            await self.snapcast_manager.get_clients_status()
+            logger.info("Snapcast service started")
+
+            # Démarrage de Spotify
+            await self.spotify_manager.connect_to_events()
+            await self.spotify_player.start_polling()
+            logger.info("Spotify services started")
+
+            # Démarrage du Bluetooth
+            # Le service Bluetooth est déjà actif via les event handlers
+
+            self.update_services_status()
+            logger.info("All services started successfully")
+
+        except Exception as e:
+            logger.error(f"Error starting services: {e}", exc_info=True)
+            raise
+
+    def update_services_status(self):
+        """Met à jour le statut de tous les services"""
+        self.services_status = {
+            "bluetooth": {
+                "active": self.bluetooth_manager is not None,
+                "initialized": getattr(self.bluetooth_manager, 'initialized', False)
+            },
+            "snapcast": {
+                "active": self.snapcast_manager is not None,
+                "connected": getattr(self.snapcast_manager, 'server_available', False)
+            },
+            "spotify": {
+                "active": self.spotify_manager is not None,
+                "connected": getattr(self.spotify_manager, 'connected', False)
+            },
+            "volume": {
+                "active": self.volume_manager is not None,
+                "initialized": getattr(self.volume_manager, 'mixer', None) is not None
+            }
+        }
+
+    def cleanup(self):
+        """Nettoie les ressources des services"""
+        if self.rotary_controller:
+            self.rotary_controller.cleanup()
+        
+        # Autres nettoyages si nécessaire
+        logger.info("Services cleanup completed")
+
+service_manager = ServiceManager()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global websocket_manager, bluetooth_manager, snapcast_manager, spotify_manager
-    global spotify_player, audio_manager, bluetooth_events, volume_manager, rotary_controller
-
-    logger.info("Initializing services...")
+    """Gestion du cycle de vie de l'application"""
+    logger.info("Starting application...")
     
     try:
-        # Websocket Manager
-        websocket_manager = WebSocketManager()
-        logger.debug("WebSocket Manager initialized")
-        
-        # Volume Manager
-        volume_manager = VolumeManager(websocket_manager)
-        await volume_manager.initialize()
-        logger.debug("Volume Manager initialized")
-        
-        # Rotary Controller
-        rotary_controller = RotaryVolumeController(volume_manager)
-        await rotary_controller.initialize()
-        logger.debug("Rotary Controller initialized")
-        
-        # Audio Manager
-        audio_manager = AudioManager(websocket_manager)
-        await audio_manager.initialize()
-        logger.debug("Audio Manager initialized")
-        
-        # Service Managers
-        bluetooth_manager = BluetoothManager(websocket_manager, audio_manager)
-        logger.debug("Bluetooth Manager initialized")
-        
-        snapcast_manager = SnapcastManager(websocket_manager, audio_manager)
-        logger.debug("Snapcast Manager initialized")
-        
-        spotify_manager = SpotifyManager(websocket_manager, audio_manager)
-        logger.debug("Spotify Manager initialized")
-        
-        spotify_player = SpotifyPlayerManager(websocket_manager, spotify_manager)
-        logger.debug("Spotify Player Manager initialized")
-
-        # Event handlers
-        bluetooth_events = BluetoothEventHandler(bluetooth_manager)
-        bluetooth_events.setup_signal_handlers()
-        logger.debug("Event handlers initialized")
-
-        # Initialize routes
-        init_routes(bluetooth_manager)
-        init_snapcast_routes(snapcast_manager)
-        init_spotify_routes(spotify_manager)
-        logger.debug("Routes initialized")
-
-        # Start services
-        logger.info("Starting services...")
-        await snapcast_manager.get_clients_status()
-        await spotify_manager.connect_to_events()
-        await spotify_player.start_polling()
-
+        if await service_manager.initialize_services():
+            logger.info("All services initialized successfully")
+        else:
+            logger.error("Failed to initialize all services")
+            
         yield
+        
     except Exception as e:
-        logger.error(f"Error during startup: {e}", exc_info=True)
+        logger.error(f"Critical error during startup: {e}", exc_info=True)
         raise
     finally:
-        logger.info("Shutting down services...")
-        # Nettoyage du rotary controller
-        if 'rotary_controller' in globals():
-            rotary_controller.cleanup()
-        
+        logger.info("Shutting down application...")
+        service_manager.cleanup()
+
 app = FastAPI(lifespan=lifespan)
 
 # Configuration CORS
@@ -147,64 +198,58 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Inclure les routes
+# Routes API
 app.include_router(bluetooth_router, prefix="/api/bluetooth", tags=["bluetooth"])
 app.include_router(snapcast_router, prefix="/api/snapcast", tags=["snapcast"])
 app.include_router(spotify_router, prefix="/api/spotify", tags=["spotify"])
 
 @app.websocket("/ws/{service}")
 async def websocket_endpoint(websocket: WebSocket, service: str):
-    """Enhanced WebSocket endpoint with better disconnect handling"""
     client_id = id(websocket)
     logger.debug(f"New WebSocket connection request for service: {service} (client_id: {client_id})")
-    
-    if not await websocket_manager.connect(websocket, service):
+
+    if not await service_manager.websocket_manager.connect(websocket, service):
         logger.error(f"Failed to establish WebSocket connection for {service}")
         return
-    
+
     logger.info(f"WebSocket connected for service: {service} (client_id: {client_id})")
-    
+
     try:
         while True:
             try:
                 data = await websocket.receive_json()
-                logger.debug(f"Received WebSocket message for {service} (client_id: {client_id}): {data}")
                 
-                # Handle ping/pong for connection health check
                 if data.get("type") == "pong":
                     continue
-                
-                # Service-specific message handling with timeouts
+
                 try:
                     async with asyncio.timeout(5.0):
                         if service == "audio":
-                            await audio_manager.handle_message(data)
+                            await service_manager.audio_manager.handle_message(data)
                         elif service == "volume":
-                            await volume_manager.handle_message(data)
+                            await service_manager.volume_manager.handle_message(data)
                         elif service == "bluetooth":
-                            await bluetooth_manager.handle_message(data)
+                            await service_manager.bluetooth_manager.handle_message(data)
                         elif service == "snapcast":
-                            await snapcast_manager.handle_message(data)
+                            await service_manager.snapcast_manager.handle_message(data)
                         elif service == "spotify":
                             message_type = data.get("type")
                             if message_type in ["play_pause", "next_track", "previous_track", "get_status"]:
-                                await spotify_player.handle_message(data)
+                                await service_manager.spotify_player.handle_message(data)
                             else:
-                                await spotify_manager.handle_message(data)
+                                await service_manager.spotify_manager.handle_message(data)
                         else:
-                            logger.warning(f"Unknown service: {service} (client_id: {client_id})")
+                            logger.warning(f"Unknown service: {service}")
+                            
                 except asyncio.TimeoutError:
                     logger.error(f"Timeout processing message for {service}")
-                    try:
-                        await websocket.send_json({
-                            "type": "error",
-                            "error": "Request timeout",
-                            "service": service
-                        })
-                    except Exception as e:
-                        logger.error(f"Failed to send timeout error: {e}")
-                    
-            except starlette.websockets.WebSocketDisconnect:
+                    await websocket.send_json({
+                        "type": "error",
+                        "error": "Request timeout",
+                        "service": service
+                    })
+
+            except WebSocketDisconnect:
                 logger.info(f"WebSocket disconnected normally for {service} (client_id: {client_id})")
                 break
             except Exception as e:
@@ -215,55 +260,29 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
                         "error": str(e),
                         "service": service
                     })
-                except Exception as send_error:
-                    logger.error(f"Failed to send error message: {send_error}")
+                except:
                     break
-                
-    except starlette.websockets.WebSocketDisconnect:
+
+    except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected normally for {service} (client_id: {client_id})")
     except Exception as e:
         logger.error(f"WebSocket error for {service}: {e}", exc_info=True)
     finally:
         try:
             logger.info(f"Cleaning up WebSocket for service: {service} (client_id: {client_id})")
-            websocket_manager.disconnect(websocket, service)
+            service_manager.websocket_manager.disconnect(websocket, service)
         except Exception as cleanup_error:
             logger.error(f"Error during WebSocket cleanup: {cleanup_error}")
 
-# Add this rate limiting class
-class RateLimiter:
-    def __init__(self, max_requests: int, time_window: int):
-        self.max_requests = max_requests
-        self.time_window = time_window
-        self.requests = {}
-        
-    async def can_proceed(self, client_id: str) -> bool:
-        now = datetime.now()
-        if client_id not in self.requests:
-            self.requests[client_id] = []
-            
-        # Remove old requests
-        self.requests[client_id] = [
-            req_time for req_time in self.requests[client_id]
-            if (now - req_time).total_seconds() < self.time_window
-        ]
-        
-        if len(self.requests[client_id]) >= self.max_requests:
-            return False
-            
-        self.requests[client_id].append(now)
-        return True
-
 @app.get("/health")
 async def health_check() -> Dict[str, Any]:
-    """Endpoint de vérification de santé"""
+    """Endpoint de vérification de santé détaillé"""
+    service_manager.update_services_status()
     return {
         "status": "healthy",
-        "services": {
-            "bluetooth": bluetooth_manager is not None,
-            "snapcast": snapcast_manager is not None,
-            "spotify": spotify_manager is not None,
-            "volume": volume_manager is not None
+        "services": service_manager.services_status,
+        "audio": {
+            "current_source": service_manager.audio_manager.current_source.value if service_manager.audio_manager else None
         }
     }
 
@@ -275,6 +294,3 @@ if __name__ == "__main__":
         reload=False,
         log_level="info"
     )
-    
-        # reload=True,
-        # log_level="debug"

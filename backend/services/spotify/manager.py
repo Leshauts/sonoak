@@ -3,6 +3,7 @@ import json
 import aiohttp
 from typing import List, Dict
 import traceback
+from services.audio.manager import AudioSource
 
 class SpotifyManager:
     def __init__(self, websocket_manager, audio_manager=None):

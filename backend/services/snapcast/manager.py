@@ -3,6 +3,7 @@ import json
 import websockets
 from typing import List, Dict
 import traceback
+from services.audio.manager import AudioSource
 
 class SnapcastManager:
     def __init__(self, websocket_manager, audio_manager=None):
@@ -150,7 +151,10 @@ class SnapcastManager:
         
         if message_type == "get_status":
             await self.get_clients_status()
-            if self.clients and self.audio_manager:  # Ajout de cette condition
+            
+            # Vérifier si la source audio actuelle est déjà sur MACOS
+            if self.audio_manager and self.audio_manager.current_source == AudioSource.MACOS:
+                print("La source audio est déjà sur MacOS, reconfirmation...")
                 await self.audio_manager.switch_source(AudioSource.MACOS)
 
     async def set_client_volume(self, client_id: str, volume: int) -> bool:
