@@ -147,13 +147,22 @@ class BluetoothManager:
 
     async def handle_disconnection(self, device_path: str):
         """Gère la déconnexion d'un appareil"""
-        if self.active_device and self.active_device["path"] == device_path:
-            print(f"Appareil actif déconnecté: {self.active_device['name']}")
-            self.active_device = None
-            # Notifier AudioManager
-            if self.audio_manager:
-                await self.audio_manager.switch_source(AudioSource.NONE)
-            await self.notify_devices_status()
+        try:
+            if self.active_device and self.active_device["path"] == device_path:
+                print(f"Appareil actif déconnecté: {self.active_device['name']}")
+                # Réinitialiser l'état actif
+                self.active_device = None
+                
+                # Notifier AudioManager
+                if self.audio_manager:
+                    await self.audio_manager.switch_source(AudioSource.NONE)
+                
+                # Notifier immédiatement le frontend
+                await self.notify_devices_status()
+                
+                print("État de déconnexion envoyé au frontend")
+        except Exception as e:
+            print(f"Erreur lors de la gestion de la déconnexion: {e}")
 
     def _check_existing_connections(self):
         """Vérifie les appareils déjà connectés"""

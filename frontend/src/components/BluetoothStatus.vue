@@ -61,30 +61,6 @@ export default {
       return device.name === 'Nom inconnu' ? 'Connexion en cours...' : `${device.name}`
     },
 
-    requestInitialStatus() {
-      this.isLoading = true;
-      this.checkStatus();
-    },
-
-    disconnectDevice(address) {
-      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.isDisconnecting = true;
-        try {
-          this.ws.send(JSON.stringify({
-            type: 'disconnect_device',
-            data: { address }
-          }));
-
-          setTimeout(() => {
-            this.isDisconnecting = false;
-          }, 3000);
-        } catch (error) {
-          console.error('Erreur lors de la déconnexion:', error);
-          this.handleDisconnect();
-        }
-      }
-    },
-
     async initWebSocket() {
       if (this.isUnmounting) return;
 
@@ -107,7 +83,7 @@ export default {
           this.wsConnected = true;
           this.connectionError = null;
           this.reconnectAttempts = 0;
-          this.requestInitialStatus();
+          this.checkStatus();
           this.startPeriodicCheck();
         };
 
@@ -118,9 +94,8 @@ export default {
             console.log('Message WebSocket reçu:', data);
 
             if (data.type === 'devices_status') {
-              const { activeDevice } = data;
-              this.activeDevice = activeDevice || null;
-              this.isLoading = false;
+              console.log('Mise à jour du statut des appareils:', data);
+              this.updateDeviceStatus(data);
             }
           } catch (error) {
             console.error('Erreur parsing message WebSocket:', error);
@@ -151,9 +126,94 @@ export default {
       }
     },
 
-    resetState() {
-      this.activeDevice = null;
-      this.isDisconnecting = false;
+    updateDeviceStatus(data) {
+      console.log('Mise à jour du statut:', data);
+      this.activeDevice = data.activeDevice || null;
+      this.isLoading = false;
+      
+      // Si plus d'appareil actif, réinitialiser l'état de déconnexion
+      if (!data.activeDevice) {
+        this.isDisconnecting = false;
+      }
+    },
+
+    async disconnectDevice(address) {
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+        console.error('WebSocket non connecté');
+        return;
+      }
+
+      this.isDisconnecting = true;
+      console.log('Déconnexion de l\'appareil:', address);
+
+      try {
+        this.ws.send(JSON.stringify({
+          type: 'disconnect_device',
+          data: { address }
+        }));
+
+        // Forcer une vérification de statut après un court délai
+        setTimeout(() => {
+          this.checkStatus();
+          // Réinitialiser l'état de déconnexion après 3 secondes si nécessaire
+          setTimeout(() => {
+            if (this.isDisconnecting) {
+              this.isDisconnecting = false;
+            }
+          }, 3000);
+        }, 500);
+      } catch (error) {
+        console.error('Erreur lors de la déconnexion:', error);
+        this.isDisconnecting = false;
+        this.handleDisconnect();
+      }
+    },
+
+    checkStatus() {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        console.log('Vérification du statut Bluetooth');
+        try {
+          this.ws.send(JSON.stringify({
+            type: 'get_status',
+            data: {}
+          }));
+        } catch (error) {
+          console.error('Erreur lors de l\'envoi du statut:', error);
+          this.handleDisconnect();
+        }
+      }
+    },
+
+    startPeriodicCheck() {
+      this.stopPeriodicCheck(); // Arrêter l'ancien check si existant
+      this.periodicCheck = setInterval(() => {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN && !this.isUnmounting) {
+          this.checkStatus();
+        }
+      }, 5000);
+    },
+
+    stopPeriodicCheck() {
+      if (this.periodicCheck) {
+        clearInterval(this.periodicCheck);
+        this.periodicCheck = null;
+      }
+    },
+
+    handleDisconnect() {
+      if (this.isUnmounting) return;
+      this.cleanupWebSocket();
+      
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        console.log(`Tentative de reconnexion ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`);
+        this.reconnectAttempts++;
+        
+        this.reconnectTimer = setTimeout(() => {
+          if (!this.wsConnected && !this.isUnmounting) {
+            this.initWebSocket();
+          }
+        }, 2000);
+      }
     },
 
     async cleanupWebSocket() {
@@ -170,95 +230,26 @@ export default {
         this.ws.onmessage = null;
         this.ws.onopen = null;
 
-        try {
-          if (this.ws.readyState === WebSocket.OPEN) {
-            this.ws.close();
-          }
-        } catch (error) {
-          console.error('Erreur fermeture WebSocket:', error);
+        if (this.ws.readyState === WebSocket.OPEN) {
+          this.ws.close();
         }
         this.ws = null;
       }
 
       this.wsConnected = false;
-      if (!this.isUnmounting) {
-        this.activeDevice = null;
-        this.isDisconnecting = false;
-      }
-    },
-
-    handleDisconnect() {
-      if (this.isUnmounting) return;
-
-      this.cleanupWebSocket();
-
-      if (this.reconnectAttempts < this.maxReconnectAttempts) {
-        console.log(`Tentative de reconnexion ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts} dans 2 secondes...`);
-        this.reconnectAttempts++;
-
-        this.reconnectTimer = setTimeout(() => {
-          if (!this.wsConnected && !this.isUnmounting) {
-            this.initWebSocket();
-          }
-        }, 2000);
-      } else {
-        console.error('Nombre maximum de tentatives de reconnexion atteint');
-        this.connectionError = new Error('Impossible de se reconnecter au serveur');
-      }
-    },
-
-    checkStatus() {
-      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        // Ne vérifier que si on n'a pas d'appareil actif ou si on est en cours de déconnexion
-        if (!this.activeDevice || this.isDisconnecting) {
-          try {
-            this.ws.send(JSON.stringify({
-              type: 'get_status',
-              data: {}
-            }));
-          } catch (error) {
-            console.error('Erreur lors de l\'envoi du statut:', error);
-            this.handleDisconnect();
-          }
-        }
-      }
-    },
-
-    startPeriodicCheck() {
-      this.periodicCheck = setInterval(() => {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN && !this.isUnmounting) {
-          this.checkStatus();
-        } else {
-          this.handleDisconnect();
-        }
-      }, 5000);  // Passé de 2000 à 5000
-    },
-
-    stopPeriodicCheck() {
-      if (this.periodicCheck) {
-        clearInterval(this.periodicCheck);
-        this.periodicCheck = null;
-      }
     }
   },
 
   mounted() {
-    console.log('Composant monté, initialisation du WebSocket');
+    console.log('BluetoothStatus monté');
     this.isUnmounting = false;
     this.initWebSocket();
   },
 
   beforeUnmount() {
-    console.log('Nettoyage du composant');
+    console.log('BluetoothStatus démontage');
     this.isUnmounting = true;
     this.cleanupWebSocket();
-  },
-
-  beforeRouteLeave(to, from, next) {
-    console.log('Navigation sortante détectée');
-    this.isUnmounting = true;
-    this.cleanupWebSocket();
-    next();
   }
 }
 </script>

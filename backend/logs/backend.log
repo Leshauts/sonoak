@@ -9706,3 +9706,1098 @@ NameError: name 'AudioSource' is not defined
 2025-02-17 17:00:05,710 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733260146320)
 2025-02-17 17:00:08,089 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733260320464)
 2025-02-17 17:00:08,401 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733260335824)
+2025-02-17 17:03:55,874 - main - INFO - WebSocket connected for service: audio (client_id: 140733260347216)
+2025-02-17 17:03:55,913 - main - INFO - WebSocket connected for service: volume (client_id: 140733260363216)
+2025-02-17 17:03:55,957 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733260374224)
+2025-02-17 17:03:58,794 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733260320464)
+2025-02-17 17:03:58,795 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733260320464)
+2025-02-17 17:03:58,799 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733260415056)
+2025-02-17 17:03:58,805 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733260335824)
+2025-02-17 17:03:58,806 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733260335824)
+2025-02-17 17:03:58,844 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733260374224)
+2025-02-17 17:03:58,844 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733260374224)
+2025-02-17 17:03:58,869 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733260422864)
+2025-02-17 17:03:59,123 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733260483664)
+2025-02-17 17:04:00,670 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733260415056)
+2025-02-17 17:04:00,673 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733260415056)
+2025-02-17 17:04:00,681 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733260483664)
+2025-02-17 17:04:00,682 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733260483664)
+2025-02-17 17:04:00,689 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733260422864)
+2025-02-17 17:04:00,689 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733260422864)
+2025-02-17 17:04:00,703 - main - INFO - WebSocket connected for service: spotify (client_id: 140733260486160)
+2025-02-17 17:04:00,798 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733260495760)
+2025-02-17 17:04:00,927 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733249990480)
+2025-02-17 17:04:01,379 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733249993360)
+2025-02-17 17:04:43,156 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733260486160)
+2025-02-17 17:04:43,156 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733260486160)
+2025-02-17 17:04:43,157 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733260347216)
+2025-02-17 17:04:43,157 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733260347216)
+2025-02-17 17:04:43,157 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733260363216)
+2025-02-17 17:04:43,158 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733260363216)
+2025-02-17 17:04:43,158 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733249990480)
+2025-02-17 17:04:43,158 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733249990480)
+2025-02-17 17:12:00,215 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733250014224)
+2025-02-17 17:12:00,534 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733260399120)
+2025-02-17 17:16:30,185 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733250014224)
+2025-02-17 17:16:30,186 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733250014224)
+2025-02-17 17:16:30,192 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733249988368)
+2025-02-17 17:16:31,794 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733260337360)
+2025-02-17 17:16:31,797 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733260399120)
+2025-02-17 17:16:31,797 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733260399120)
+2025-02-17 17:16:50,071 - main - ERROR - Error handling bluetooth message: WebSocket is not connected. Need to call "accept" first.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 220, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 133, in receive_json
+    raise RuntimeError('WebSocket is not connected. Need to call "accept" first.')
+RuntimeError: WebSocket is not connected. Need to call "accept" first.
+2025-02-17 17:16:50,073 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733260337360)
+2025-02-17 17:16:51,117 - main - ERROR - Error handling bluetooth message: WebSocket is not connected. Need to call "accept" first.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 220, in websocket_endpoint
+    data = await websocket.receive_json()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 133, in receive_json
+    raise RuntimeError('WebSocket is not connected. Need to call "accept" first.')
+RuntimeError: WebSocket is not connected. Need to call "accept" first.
+2025-02-17 17:16:51,118 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733249988368)
+2025-02-17 17:16:51,119 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733470842384)
+2025-02-17 17:16:51,119 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733470842384)
+2025-02-17 17:16:51,120 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733260090128)
+2025-02-17 17:16:51,120 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733260090128)
+2025-02-17 17:16:51,120 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733259834512)
+2025-02-17 17:16:51,120 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733259834512)
+2025-02-17 17:16:51,121 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733259577360)
+2025-02-17 17:16:51,121 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733259577360)
+2025-02-17 17:16:51,121 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733259564496)
+2025-02-17 17:16:51,122 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733259564496)
+2025-02-17 17:16:51,122 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733260102032)
+2025-02-17 17:16:51,122 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733260102032)
+2025-02-17 17:16:51,123 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471537232)
+2025-02-17 17:16:51,123 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471537232)
+2025-02-17 17:16:51,123 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733259807120)
+2025-02-17 17:16:51,124 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733259807120)
+2025-02-17 17:16:51,124 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733470904848)
+2025-02-17 17:16:51,124 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733470904848)
+2025-02-17 17:16:51,124 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471040464)
+2025-02-17 17:16:51,124 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471040464)
+2025-02-17 17:16:51,125 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471111632)
+2025-02-17 17:16:51,125 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471111632)
+2025-02-17 17:16:51,125 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733259606608)
+2025-02-17 17:16:51,125 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733259606608)
+2025-02-17 17:16:51,125 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733470715216)
+2025-02-17 17:16:51,125 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733470715216)
+2025-02-17 17:16:51,126 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471367824)
+2025-02-17 17:16:51,126 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471367824)
+2025-02-17 17:16:51,126 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471322384)
+2025-02-17 17:16:51,126 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471322384)
+2025-02-17 17:16:51,126 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471604048)
+2025-02-17 17:16:51,126 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471604048)
+2025-02-17 17:16:51,126 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471653200)
+2025-02-17 17:16:51,127 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471653200)
+2025-02-17 17:16:51,127 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471669584)
+2025-02-17 17:16:51,127 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471669584)
+2025-02-17 17:16:51,127 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733470989072)
+2025-02-17 17:16:51,127 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733470989072)
+2025-02-17 17:16:51,127 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733471412944)
+2025-02-17 17:16:51,128 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733471412944)
+2025-02-17 17:16:51,128 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733259716944)
+2025-02-17 17:16:51,128 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733259716944)
+2025-02-17 17:16:51,128 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471128848)
+2025-02-17 17:16:51,128 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471128848)
+2025-02-17 17:16:51,128 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733259712784)
+2025-02-17 17:16:51,129 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733259712784)
+2025-02-17 17:16:51,129 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733249993360)
+2025-02-17 17:16:51,129 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733249993360)
+2025-02-17 17:16:51,129 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471193616)
+2025-02-17 17:16:51,129 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471193616)
+2025-02-17 17:16:51,129 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733471179856)
+2025-02-17 17:16:51,129 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733471179856)
+2025-02-17 17:16:51,130 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471474768)
+2025-02-17 17:16:51,130 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471474768)
+2025-02-17 17:16:51,130 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733259497808)
+2025-02-17 17:16:51,130 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733259497808)
+2025-02-17 17:16:51,130 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733260495760)
+2025-02-17 17:16:51,130 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733260495760)
+2025-02-17 17:16:51,131 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733259792656)
+2025-02-17 17:16:51,131 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733259792656)
+2025-02-17 17:16:51,131 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733471587536)
+2025-02-17 17:16:51,131 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733471587536)
+2025-02-17 17:16:51,131 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733470724496)
+2025-02-17 17:16:51,131 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733470724496)
+2025-02-17 17:16:51,131 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733470923728)
+2025-02-17 17:16:51,131 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733470923728)
+2025-02-17 17:16:51,132 - main - INFO - Shutting down application...
+2025-02-17 17:16:51,233 - main - INFO - Services cleanup completed
+2025-02-17 17:16:52,029 - main - INFO - Starting application...
+2025-02-17 17:16:52,030 - main - INFO - WebSocket Manager initialized
+2025-02-17 17:16:52,031 - main - INFO - Volume Manager initialized
+2025-02-17 17:16:52,032 - main - INFO - Rotary Controller initialized
+2025-02-17 17:16:52,032 - main - INFO - Audio Manager initialized
+2025-02-17 17:16:52,048 - main - INFO - Bluetooth Manager initialized
+2025-02-17 17:16:52,048 - main - INFO - Snapcast Manager initialized
+2025-02-17 17:16:52,048 - main - INFO - Spotify Manager initialized
+2025-02-17 17:16:52,048 - main - INFO - Spotify Player Manager initialized
+2025-02-17 17:16:52,049 - main - INFO - Bluetooth events handler initialized
+2025-02-17 17:16:52,088 - main - INFO - Snapcast service started
+2025-02-17 17:16:52,094 - main - INFO - Spotify services started
+2025-02-17 17:16:52,094 - main - INFO - All services started successfully
+2025-02-17 17:16:52,094 - main - INFO - All services initialized successfully
+2025-02-17 17:16:52,201 - main - INFO - WebSocket connected for service: spotify (client_id: 140732153442896)
+2025-02-17 17:16:52,344 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732153500368)
+2025-02-17 17:16:53,392 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732153571216)
+2025-02-17 17:16:53,392 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732153573712)
+2025-02-17 17:16:53,407 - main - INFO - WebSocket connected for service: audio (client_id: 140732153676432)
+2025-02-17 17:16:53,419 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732153685136)
+2025-02-17 17:16:53,433 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732153723984)
+2025-02-17 17:16:53,448 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732153810512)
+2025-02-17 17:16:53,474 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732153848464)
+2025-02-17 17:16:53,487 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732153882000)
+2025-02-17 17:16:53,507 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732153989456)
+2025-02-17 17:16:53,640 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732154062096)
+2025-02-17 17:16:53,934 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732154087696)
+2025-02-17 17:16:54,021 - main - INFO - WebSocket connected for service: volume (client_id: 140732154100048)
+2025-02-17 17:16:54,095 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732154160848)
+2025-02-17 17:16:54,298 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732154207184)
+2025-02-17 17:16:54,340 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732154252432)
+2025-02-17 17:17:06,039 - main - ERROR - Timeout processing message for snapcast
+2025-02-17 17:17:14,937 - main - INFO - Starting application...
+2025-02-17 17:17:14,938 - main - INFO - WebSocket Manager initialized
+2025-02-17 17:17:14,939 - main - INFO - Volume Manager initialized
+2025-02-17 17:17:14,940 - main - INFO - Rotary Controller initialized
+2025-02-17 17:17:14,940 - main - INFO - Audio Manager initialized
+2025-02-17 17:17:14,963 - main - INFO - Bluetooth Manager initialized
+2025-02-17 17:17:14,963 - main - INFO - Snapcast Manager initialized
+2025-02-17 17:17:14,963 - main - INFO - Spotify Manager initialized
+2025-02-17 17:17:14,964 - main - INFO - Spotify Player Manager initialized
+2025-02-17 17:17:14,964 - main - INFO - Bluetooth events handler initialized
+2025-02-17 17:17:14,970 - main - INFO - Snapcast service started
+2025-02-17 17:17:14,977 - main - INFO - Spotify services started
+2025-02-17 17:17:14,977 - main - INFO - All services started successfully
+2025-02-17 17:17:14,977 - main - INFO - All services initialized successfully
+2025-02-17 17:17:39,452 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732080018576)
+2025-02-17 17:17:39,474 - main - INFO - WebSocket connected for service: spotify (client_id: 140732052745552)
+2025-02-17 17:17:39,494 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732052823888)
+2025-02-17 17:17:39,516 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732052900752)
+2025-02-17 17:17:39,537 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732052917200)
+2025-02-17 17:17:39,559 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732052928656)
+2025-02-17 17:17:39,580 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732052989392)
+2025-02-17 17:17:39,596 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053033680)
+2025-02-17 17:17:39,617 - main - INFO - WebSocket connected for service: audio (client_id: 140732053099280)
+2025-02-17 17:17:39,637 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053127376)
+2025-02-17 17:17:39,657 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053139728)
+2025-02-17 17:17:39,675 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053201488)
+2025-02-17 17:17:39,696 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732053235408)
+2025-02-17 17:17:39,712 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053280592)
+2025-02-17 17:17:39,729 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053293008)
+2025-02-17 17:17:39,747 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053424720)
+2025-02-17 17:18:30,417 - main - INFO - WebSocket connected for service: volume (client_id: 140732053528144)
+2025-02-17 17:18:30,727 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732080018576)
+2025-02-17 17:18:30,727 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732080018576)
+2025-02-17 17:18:30,734 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140732052745552)
+2025-02-17 17:18:30,734 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140732052745552)
+2025-02-17 17:18:30,736 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732052823888)
+2025-02-17 17:18:30,737 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732052823888)
+2025-02-17 17:18:30,737 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732052900752)
+2025-02-17 17:18:30,737 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732052900752)
+2025-02-17 17:18:30,737 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732052917200)
+2025-02-17 17:18:30,737 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732052917200)
+2025-02-17 17:18:30,737 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732052928656)
+2025-02-17 17:18:30,737 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732052928656)
+2025-02-17 17:18:30,737 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732052989392)
+2025-02-17 17:18:30,737 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732052989392)
+2025-02-17 17:18:30,737 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053033680)
+2025-02-17 17:18:30,737 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053033680)
+2025-02-17 17:18:30,738 - main - INFO - WebSocket disconnected normally for audio (client_id: 140732053099280)
+2025-02-17 17:18:30,738 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732053099280)
+2025-02-17 17:18:30,738 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053127376)
+2025-02-17 17:18:30,738 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053127376)
+2025-02-17 17:18:30,740 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053424720)
+2025-02-17 17:18:30,740 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053424720)
+2025-02-17 17:18:30,740 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140732053235408)
+2025-02-17 17:18:30,740 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732053235408)
+2025-02-17 17:18:30,740 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053280592)
+2025-02-17 17:18:30,740 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053280592)
+2025-02-17 17:18:30,740 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053293008)
+2025-02-17 17:18:30,741 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053293008)
+2025-02-17 17:18:30,741 - main - INFO - WebSocket disconnected normally for volume (client_id: 140732053528144)
+2025-02-17 17:18:30,741 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732053528144)
+2025-02-17 17:18:30,741 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053139728)
+2025-02-17 17:18:30,742 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053139728)
+2025-02-17 17:18:30,742 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053201488)
+2025-02-17 17:18:30,742 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053201488)
+2025-02-17 17:18:31,600 - main - INFO - WebSocket connected for service: audio (client_id: 140732053293264)
+2025-02-17 17:18:31,620 - main - INFO - WebSocket connected for service: volume (client_id: 140732052817744)
+2025-02-17 17:18:36,515 - main - INFO - WebSocket connected for service: audio (client_id: 140732053556240)
+2025-02-17 17:18:36,569 - main - INFO - WebSocket connected for service: volume (client_id: 140732053566352)
+2025-02-17 17:18:44,600 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053341520)
+2025-02-17 17:18:44,913 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053546768)
+2025-02-17 17:18:52,625 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053341520)
+2025-02-17 17:18:52,625 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053341520)
+2025-02-17 17:18:52,628 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053546768)
+2025-02-17 17:18:52,628 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053546768)
+2025-02-17 17:18:52,635 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732053424912)
+2025-02-17 17:18:52,943 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732053589584)
+2025-02-17 17:18:54,635 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053036560)
+2025-02-17 17:18:54,945 - main - INFO - WebSocket connected for service: snapcast (client_id: 140732053631696)
+2025-02-17 17:19:01,408 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140732053424912)
+2025-02-17 17:19:01,408 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732053424912)
+2025-02-17 17:19:01,413 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140732053589584)
+2025-02-17 17:19:01,413 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732053589584)
+2025-02-17 17:19:01,415 - main - INFO - WebSocket connected for service: spotify (client_id: 140732053679632)
+2025-02-17 17:19:01,734 - main - INFO - WebSocket connected for service: spotify (client_id: 140731833276304)
+2025-02-17 17:19:03,439 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732080152656)
+2025-02-17 17:19:03,772 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140731833277904)
+2025-02-17 17:30:09,690 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140732080152656)
+2025-02-17 17:30:09,691 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732080152656)
+2025-02-17 17:30:09,698 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732053551056)
+2025-02-17 17:30:10,089 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140731833277904)
+2025-02-17 17:30:10,090 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140731833277904)
+2025-02-17 17:30:10,401 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732053301456)
+2025-02-17 17:35:34,101 - main - INFO - WebSocket disconnected normally for audio (client_id: 140732053556240)
+2025-02-17 17:35:34,101 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732053556240)
+2025-02-17 17:35:34,102 - main - INFO - WebSocket disconnected normally for volume (client_id: 140732052817744)
+2025-02-17 17:35:34,102 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732052817744)
+2025-02-17 17:35:34,103 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140732053301456)
+2025-02-17 17:35:34,103 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732053301456)
+2025-02-17 17:35:34,104 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140731833276304)
+2025-02-17 17:35:34,104 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140731833276304)
+2025-02-17 17:35:34,105 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053036560)
+2025-02-17 17:35:34,105 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053036560)
+2025-02-17 17:35:34,106 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140732053551056)
+2025-02-17 17:35:34,106 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732053551056)
+2025-02-17 17:35:34,106 - main - INFO - WebSocket disconnected normally for audio (client_id: 140732053293264)
+2025-02-17 17:35:34,106 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732053293264)
+2025-02-17 17:35:34,107 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140732053679632)
+2025-02-17 17:35:34,107 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140732053679632)
+2025-02-17 17:35:34,107 - main - INFO - WebSocket disconnected normally for volume (client_id: 140732053566352)
+2025-02-17 17:35:34,107 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732053566352)
+2025-02-17 17:35:34,107 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140732053631696)
+2025-02-17 17:35:34,107 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140732053631696)
+2025-02-17 17:35:34,201 - main - INFO - Shutting down application...
+2025-02-17 17:35:34,301 - main - INFO - Services cleanup completed
+2025-02-17 17:35:35,346 - main - INFO - Starting application...
+2025-02-17 17:35:35,347 - main - INFO - WebSocket Manager initialized
+2025-02-17 17:35:35,349 - main - INFO - Volume Manager initialized
+2025-02-17 17:35:35,350 - main - INFO - Rotary Controller initialized
+2025-02-17 17:35:35,351 - main - INFO - Audio Manager initialized
+2025-02-17 17:35:35,369 - main - INFO - Bluetooth Manager initialized
+2025-02-17 17:35:35,370 - main - INFO - Snapcast Manager initialized
+2025-02-17 17:35:35,370 - main - INFO - Spotify Manager initialized
+2025-02-17 17:35:35,370 - main - INFO - Spotify Player Manager initialized
+2025-02-17 17:35:35,371 - main - ERROR - Error during services initialization: BluetoothEventHandler() takes no arguments
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 104, in initialize_services
+    self.bluetooth_events = BluetoothEventHandler(self.bluetooth_manager)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: BluetoothEventHandler() takes no arguments
+2025-02-17 17:35:35,372 - main - ERROR - Failed to initialize all services
+2025-02-17 17:35:36,107 - main - INFO - WebSocket connected for service: audio (client_id: 140735347033936)
+2025-02-17 17:35:36,122 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735347047632)
+2025-02-17 17:35:36,136 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735347194576)
+2025-02-17 17:35:36,151 - main - INFO - WebSocket connected for service: spotify (client_id: 140735345011472)
+2025-02-17 17:35:36,558 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735345077136)
+2025-02-17 17:35:36,582 - main - INFO - WebSocket connected for service: audio (client_id: 140735345121488)
+2025-02-17 17:35:36,607 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735345167312)
+2025-02-17 17:35:36,620 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735345077136)
+2025-02-17 17:35:36,621 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735345077136)
+2025-02-17 17:35:36,639 - main - INFO - WebSocket connected for service: spotify (client_id: 140735345177168)
+2025-02-17 17:35:39,108 - main - INFO - WebSocket connected for service: volume (client_id: 140735345226512)
+2025-02-17 17:35:39,430 - main - INFO - WebSocket connected for service: volume (client_id: 140735345253456)
+2025-02-17 17:35:39,911 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735345330448)
+2025-02-17 17:35:40,236 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735345341264)
+2025-02-17 17:35:43,503 - main - INFO - WebSocket connected for service: audio (client_id: 140735345370000)
+2025-02-17 17:35:43,547 - main - INFO - WebSocket connected for service: volume (client_id: 140735345415568)
+2025-02-17 17:35:43,574 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735345477264)
+2025-02-17 17:36:00,997 - main - INFO - WebSocket disconnected normally for volume (client_id: 140735345415568)
+2025-02-17 17:36:00,997 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140735345415568)
+2025-02-17 17:36:02,005 - main - INFO - WebSocket disconnected normally for audio (client_id: 140735345370000)
+2025-02-17 17:36:02,005 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140735345370000)
+2025-02-17 17:36:02,006 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735345477264)
+2025-02-17 17:36:02,006 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735345477264)
+2025-02-17 17:40:27,053 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140735345167312)
+2025-02-17 17:40:27,053 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140735345167312)
+2025-02-17 17:40:27,053 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735347194576)
+2025-02-17 17:40:27,054 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735347194576)
+2025-02-17 17:40:27,054 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735345330448)
+2025-02-17 17:40:27,054 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735345330448)
+2025-02-17 17:40:27,055 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140735347047632)
+2025-02-17 17:40:27,055 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140735347047632)
+2025-02-17 17:40:27,055 - main - INFO - WebSocket disconnected normally for audio (client_id: 140735347033936)
+2025-02-17 17:40:27,055 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140735347033936)
+2025-02-17 17:40:27,056 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140735345177168)
+2025-02-17 17:40:27,056 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140735345177168)
+2025-02-17 17:40:27,057 - main - INFO - WebSocket disconnected normally for volume (client_id: 140735345226512)
+2025-02-17 17:40:27,057 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140735345226512)
+2025-02-17 17:40:27,057 - main - INFO - WebSocket disconnected normally for volume (client_id: 140735345253456)
+2025-02-17 17:40:27,057 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140735345253456)
+2025-02-17 17:40:27,058 - main - INFO - WebSocket disconnected normally for audio (client_id: 140735345121488)
+2025-02-17 17:40:27,058 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140735345121488)
+2025-02-17 17:40:27,058 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735345341264)
+2025-02-17 17:40:27,058 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735345341264)
+2025-02-17 17:40:27,058 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140735345011472)
+2025-02-17 17:40:27,059 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140735345011472)
+2025-02-17 17:40:27,152 - main - INFO - Shutting down application...
+2025-02-17 17:40:27,253 - main - INFO - Services cleanup completed
+2025-02-17 17:40:28,050 - main - INFO - Starting application...
+2025-02-17 17:40:28,050 - main - INFO - WebSocket Manager initialized
+2025-02-17 17:40:28,052 - main - INFO - Volume Manager initialized
+2025-02-17 17:40:28,052 - main - INFO - Rotary Controller initialized
+2025-02-17 17:40:28,052 - main - INFO - Audio Manager initialized
+2025-02-17 17:40:28,065 - main - INFO - Bluetooth Manager initialized
+2025-02-17 17:40:28,065 - main - INFO - Snapcast Manager initialized
+2025-02-17 17:40:28,065 - main - INFO - Spotify Manager initialized
+2025-02-17 17:40:28,065 - main - INFO - Spotify Player Manager initialized
+2025-02-17 17:40:28,065 - main - ERROR - Error during services initialization: BluetoothEventHandler() takes no arguments
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 104, in initialize_services
+    self.bluetooth_events = BluetoothEventHandler(self.bluetooth_manager)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: BluetoothEventHandler() takes no arguments
+2025-02-17 17:40:28,066 - main - ERROR - Failed to initialize all services
+2025-02-17 17:40:29,057 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735351670480)
+2025-02-17 17:40:29,077 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735351684432)
+2025-02-17 17:40:29,090 - main - INFO - WebSocket connected for service: audio (client_id: 140735351847696)
+2025-02-17 17:40:29,097 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735351670480)
+2025-02-17 17:40:29,097 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735351670480)
+2025-02-17 17:40:29,102 - main - INFO - WebSocket connected for service: spotify (client_id: 140735341211664)
+2025-02-17 17:40:29,477 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735341274128)
+2025-02-17 17:40:29,502 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735341318288)
+2025-02-17 17:40:29,521 - main - INFO - WebSocket connected for service: spotify (client_id: 140735341347152)
+2025-02-17 17:40:29,540 - main - INFO - WebSocket connected for service: audio (client_id: 140735341360336)
+2025-02-17 17:40:29,549 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735341274128)
+2025-02-17 17:40:29,549 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735341274128)
+2025-02-17 17:40:32,063 - main - INFO - WebSocket connected for service: volume (client_id: 140735341423696)
+2025-02-17 17:40:32,383 - main - INFO - WebSocket connected for service: volume (client_id: 140735341450832)
+2025-02-17 17:41:12,011 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735341529296)
+2025-02-17 17:41:12,336 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735341540624)
+2025-02-17 17:43:27,769 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140735341211664)
+2025-02-17 17:43:27,770 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140735341211664)
+2025-02-17 17:43:27,771 - main - INFO - WebSocket disconnected normally for audio (client_id: 140735341360336)
+2025-02-17 17:43:27,771 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140735341360336)
+2025-02-17 17:43:27,772 - main - INFO - WebSocket disconnected normally for audio (client_id: 140735351847696)
+2025-02-17 17:43:27,772 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140735351847696)
+2025-02-17 17:43:27,772 - main - INFO - WebSocket disconnected normally for volume (client_id: 140735341450832)
+2025-02-17 17:43:27,772 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140735341450832)
+2025-02-17 17:43:27,773 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140735341318288)
+2025-02-17 17:43:27,773 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140735341318288)
+2025-02-17 17:43:27,774 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735341540624)
+2025-02-17 17:43:27,774 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735341540624)
+2025-02-17 17:43:27,774 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140735351684432)
+2025-02-17 17:43:27,774 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140735351684432)
+2025-02-17 17:43:27,775 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735341529296)
+2025-02-17 17:43:27,775 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735341529296)
+2025-02-17 17:43:27,775 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140735341347152)
+2025-02-17 17:43:27,775 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140735341347152)
+2025-02-17 17:43:27,775 - main - INFO - WebSocket disconnected normally for volume (client_id: 140735341423696)
+2025-02-17 17:43:27,776 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140735341423696)
+2025-02-17 17:43:27,869 - main - INFO - Shutting down application...
+2025-02-17 17:43:27,970 - main - INFO - Services cleanup completed
+2025-02-17 17:43:28,963 - main - INFO - Starting application...
+2025-02-17 17:43:28,963 - main - INFO - WebSocket Manager initialized
+2025-02-17 17:43:28,966 - main - INFO - Volume Manager initialized
+2025-02-17 17:43:28,966 - main - INFO - Rotary Controller initialized
+2025-02-17 17:43:28,967 - main - INFO - Audio Manager initialized
+2025-02-17 17:43:28,991 - main - INFO - Bluetooth Manager initialized
+2025-02-17 17:43:28,991 - main - INFO - Snapcast Manager initialized
+2025-02-17 17:43:28,991 - main - INFO - Spotify Manager initialized
+2025-02-17 17:43:28,991 - main - INFO - Spotify Player Manager initialized
+2025-02-17 17:43:28,992 - main - INFO - Bluetooth events handler initialized
+2025-02-17 17:43:29,098 - main - INFO - Snapcast service started
+2025-02-17 17:43:29,104 - main - INFO - Spotify services started
+2025-02-17 17:43:29,104 - main - INFO - All services started successfully
+2025-02-17 17:43:29,104 - main - INFO - All services initialized successfully
+2025-02-17 17:43:29,776 - main - INFO - WebSocket connected for service: spotify (client_id: 140733486381392)
+2025-02-17 17:43:29,790 - main - INFO - WebSocket connected for service: audio (client_id: 140733486437712)
+2025-02-17 17:43:29,804 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733486497872)
+2025-02-17 17:43:29,819 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733486510160)
+2025-02-17 17:43:30,187 - main - INFO - WebSocket connected for service: audio (client_id: 140733486576912)
+2025-02-17 17:43:30,219 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733486617680)
+2025-02-17 17:43:30,254 - main - INFO - WebSocket connected for service: spotify (client_id: 140733486629456)
+2025-02-17 17:43:30,288 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733486641872)
+2025-02-17 17:43:32,776 - main - INFO - WebSocket connected for service: volume (client_id: 140733486752720)
+2025-02-17 17:43:33,092 - main - INFO - WebSocket connected for service: volume (client_id: 140733486744208)
+2025-02-17 17:43:56,777 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733486873360)
+2025-02-17 17:43:57,082 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733486931792)
+2025-02-17 17:47:01,530 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733486873360)
+2025-02-17 17:47:01,530 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733486873360)
+2025-02-17 17:47:01,535 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733486752720)
+2025-02-17 17:47:01,535 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733486752720)
+2025-02-17 17:47:01,538 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733486510160)
+2025-02-17 17:47:01,538 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733486510160)
+2025-02-17 17:47:01,541 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733486497872)
+2025-02-17 17:47:01,542 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733486497872)
+2025-02-17 17:47:01,543 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733486437712)
+2025-02-17 17:47:01,543 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733486437712)
+2025-02-17 17:47:01,545 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733486381392)
+2025-02-17 17:47:01,546 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733486381392)
+2025-02-17 17:47:01,606 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733486576912)
+2025-02-17 17:47:01,607 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733486576912)
+2025-02-17 17:47:01,609 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733486617680)
+2025-02-17 17:47:01,610 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733486617680)
+2025-02-17 17:47:01,613 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733486744208)
+2025-02-17 17:47:01,622 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733486744208)
+2025-02-17 17:47:01,623 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733486629456)
+2025-02-17 17:47:01,623 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733486629456)
+2025-02-17 17:47:01,624 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733486931792)
+2025-02-17 17:47:01,624 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733486931792)
+2025-02-17 17:47:01,625 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733486641872)
+2025-02-17 17:47:01,625 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733486641872)
+2025-02-17 17:47:01,701 - main - INFO - Shutting down application...
+2025-02-17 17:47:01,802 - main - INFO - Services cleanup completed
+2025-02-17 17:47:19,207 - main - INFO - Starting application...
+2025-02-17 17:47:19,211 - main - INFO - WebSocket Manager initialized
+2025-02-17 17:47:19,212 - main - INFO - Volume Manager initialized
+2025-02-17 17:47:19,213 - main - INFO - Rotary Controller initialized
+2025-02-17 17:47:19,213 - main - INFO - Audio Manager initialized
+2025-02-17 17:47:19,238 - main - INFO - Bluetooth Manager initialized
+2025-02-17 17:47:19,238 - main - INFO - Snapcast Manager initialized
+2025-02-17 17:47:19,238 - main - INFO - Spotify Manager initialized
+2025-02-17 17:47:19,239 - main - INFO - Spotify Player Manager initialized
+2025-02-17 17:47:19,239 - main - INFO - Bluetooth events handler initialized
+2025-02-17 17:47:19,245 - main - INFO - Snapcast service started
+2025-02-17 17:47:19,254 - main - INFO - Spotify services started
+2025-02-17 17:47:19,254 - main - INFO - All services started successfully
+2025-02-17 17:47:19,254 - main - INFO - All services initialized successfully
+2025-02-17 17:47:28,715 - main - INFO - WebSocket connected for service: audio (client_id: 140733824631824)
+2025-02-17 17:47:28,741 - main - INFO - WebSocket connected for service: spotify (client_id: 140733824612624)
+2025-02-17 17:47:28,762 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733824682384)
+2025-02-17 17:47:28,782 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733824692496)
+2025-02-17 17:47:32,783 - main - INFO - WebSocket connected for service: volume (client_id: 140733824852496)
+2025-02-17 17:47:57,995 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733824631824)
+2025-02-17 17:47:57,996 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733824631824)
+2025-02-17 17:47:57,996 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733824692496)
+2025-02-17 17:47:57,996 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733824692496)
+2025-02-17 17:47:57,996 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733824612624)
+2025-02-17 17:47:57,996 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733824612624)
+2025-02-17 17:47:57,996 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733824682384)
+2025-02-17 17:47:57,996 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733824682384)
+2025-02-17 17:47:57,997 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733824852496)
+2025-02-17 17:47:57,997 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733824852496)
+2025-02-17 17:47:58,995 - main - INFO - WebSocket connected for service: audio (client_id: 140733824954192)
+2025-02-17 17:47:59,015 - main - INFO - WebSocket connected for service: volume (client_id: 140733824963984)
+2025-02-17 17:48:03,416 - main - INFO - WebSocket connected for service: audio (client_id: 140733824802896)
+2025-02-17 17:48:03,493 - main - INFO - WebSocket connected for service: volume (client_id: 140733824696016)
+2025-02-17 17:48:18,596 - main - INFO - WebSocket connected for service: spotify (client_id: 140733824850320)
+2025-02-17 17:48:18,930 - main - INFO - WebSocket connected for service: spotify (client_id: 140733824990096)
+2025-02-17 17:48:21,051 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733825047184)
+2025-02-17 17:48:21,349 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733825077072)
+2025-02-17 17:51:05,318 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733824696016)
+2025-02-17 17:51:05,318 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733824696016)
+2025-02-17 17:51:05,319 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733824802896)
+2025-02-17 17:51:05,319 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733824802896)
+2025-02-17 17:51:05,319 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733825047184)
+2025-02-17 17:51:05,319 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733825047184)
+2025-02-17 17:51:05,319 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733824850320)
+2025-02-17 17:51:05,319 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733824850320)
+2025-02-17 17:51:05,429 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733824990096)
+2025-02-17 17:51:05,430 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733824990096)
+2025-02-17 17:51:05,430 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733825077072)
+2025-02-17 17:51:05,430 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733825077072)
+2025-02-17 17:51:05,431 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733824963984)
+2025-02-17 17:51:05,431 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733824963984)
+2025-02-17 17:51:05,431 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733824954192)
+2025-02-17 17:51:05,432 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733824954192)
+2025-02-17 17:51:05,530 - main - INFO - Shutting down application...
+2025-02-17 17:51:05,631 - main - INFO - Services cleanup completed
+2025-02-17 17:51:23,192 - main - INFO - Starting application...
+2025-02-17 17:51:23,196 - main - INFO - WebSocket Manager initialized
+2025-02-17 17:51:23,198 - main - INFO - Volume Manager initialized
+2025-02-17 17:51:23,199 - main - INFO - Rotary Controller initialized
+2025-02-17 17:51:23,199 - main - INFO - Audio Manager initialized
+2025-02-17 17:51:23,229 - main - INFO - Bluetooth Manager initialized
+2025-02-17 17:51:23,229 - main - INFO - Snapcast Manager initialized
+2025-02-17 17:51:23,229 - main - INFO - Spotify Manager initialized
+2025-02-17 17:51:23,230 - main - INFO - Spotify Player Manager initialized
+2025-02-17 17:51:23,230 - main - INFO - Bluetooth events handler initialized
+2025-02-17 17:51:23,238 - main - INFO - Snapcast service started
+2025-02-17 17:51:23,246 - main - INFO - Spotify services started
+2025-02-17 17:51:23,247 - main - INFO - All services started successfully
+2025-02-17 17:51:23,247 - main - INFO - All services initialized successfully
+2025-02-17 17:51:35,830 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734593891856)
+2025-02-17 17:51:35,858 - main - INFO - WebSocket connected for service: audio (client_id: 140734566625680)
+2025-02-17 17:51:35,870 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734593891856)
+2025-02-17 17:51:35,870 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734593891856)
+2025-02-17 17:51:35,879 - main - INFO - WebSocket connected for service: spotify (client_id: 140734566778640)
+2025-02-17 17:51:38,829 - main - INFO - WebSocket connected for service: volume (client_id: 140734566840528)
+2025-02-17 17:52:03,350 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734566625680)
+2025-02-17 17:52:03,351 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734566625680)
+2025-02-17 17:52:03,356 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140734566778640)
+2025-02-17 17:52:03,356 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140734566778640)
+2025-02-17 17:52:03,357 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734566840528)
+2025-02-17 17:52:03,357 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734566840528)
+2025-02-17 17:52:04,336 - main - INFO - WebSocket connected for service: audio (client_id: 140734566828816)
+2025-02-17 17:52:04,356 - main - INFO - WebSocket connected for service: volume (client_id: 140734566925392)
+2025-02-17 17:52:08,261 - main - INFO - WebSocket connected for service: audio (client_id: 140734566946960)
+2025-02-17 17:52:08,350 - main - INFO - WebSocket connected for service: volume (client_id: 140734566936656)
+2025-02-17 17:52:24,266 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734566828816)
+2025-02-17 17:52:24,266 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734566828816)
+2025-02-17 17:52:24,266 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734566925392)
+2025-02-17 17:52:24,266 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734566925392)
+2025-02-17 17:52:24,755 - main - INFO - WebSocket connected for service: audio (client_id: 140734566781392)
+2025-02-17 17:52:24,776 - main - INFO - WebSocket connected for service: volume (client_id: 140734566998224)
+2025-02-17 17:52:28,017 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734567005840)
+2025-02-17 17:52:28,282 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734566782800)
+2025-02-17 17:53:08,628 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734567005840)
+2025-02-17 17:53:08,629 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734567005840)
+2025-02-17 17:53:08,635 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734566782800)
+2025-02-17 17:53:08,636 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734566782800)
+2025-02-17 17:53:08,645 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734567189136)
+2025-02-17 17:53:08,950 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734567036496)
+2025-02-17 17:53:13,741 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140734567189136)
+2025-02-17 17:53:13,741 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734567189136)
+2025-02-17 17:53:13,746 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140734567036496)
+2025-02-17 17:53:13,747 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734567036496)
+2025-02-17 17:53:13,758 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734567101584)
+2025-02-17 17:53:14,058 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734567227536)
+2025-02-17 17:53:15,760 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734567221392)
+2025-02-17 17:53:16,073 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734567241680)
+2025-02-17 17:54:08,887 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734566781392)
+2025-02-17 17:54:08,887 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734566781392)
+2025-02-17 17:54:08,888 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734566998224)
+2025-02-17 17:54:08,888 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734566998224)
+2025-02-17 17:54:08,888 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734567227536)
+2025-02-17 17:54:08,888 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734567227536)
+2025-02-17 17:54:08,888 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140734567241680)
+2025-02-17 17:54:08,888 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734567241680)
+2025-02-17 17:54:09,618 - main - INFO - WebSocket connected for service: audio (client_id: 140734567351824)
+2025-02-17 17:54:09,651 - main - INFO - WebSocket connected for service: volume (client_id: 140734567366800)
+2025-02-17 17:54:09,971 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734566998480)
+2025-02-17 17:58:03,706 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734566936656)
+2025-02-17 17:58:03,707 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734566936656)
+2025-02-17 17:58:03,708 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734567351824)
+2025-02-17 17:58:03,709 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734567351824)
+2025-02-17 17:58:03,709 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734566998480)
+2025-02-17 17:58:03,710 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734566998480)
+2025-02-17 17:58:03,711 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734567366800)
+2025-02-17 17:58:03,711 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734567366800)
+2025-02-17 17:58:03,711 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140734567221392)
+2025-02-17 17:58:03,711 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734567221392)
+2025-02-17 17:58:03,712 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734566946960)
+2025-02-17 17:58:03,712 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734566946960)
+2025-02-17 17:58:03,712 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734567101584)
+2025-02-17 17:58:03,712 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734567101584)
+2025-02-17 17:58:03,806 - main - INFO - Shutting down application...
+2025-02-17 17:58:03,907 - main - INFO - Services cleanup completed
+2025-02-17 17:58:05,049 - main - INFO - Starting application...
+2025-02-17 17:58:05,049 - main - INFO - WebSocket Manager initialized
+2025-02-17 17:58:05,051 - main - INFO - Volume Manager initialized
+2025-02-17 17:58:05,052 - main - INFO - Rotary Controller initialized
+2025-02-17 17:58:05,052 - main - INFO - Audio Manager initialized
+2025-02-17 17:58:05,072 - main - INFO - Bluetooth Manager initialized
+2025-02-17 17:58:05,073 - main - INFO - Snapcast Manager initialized
+2025-02-17 17:58:05,073 - main - INFO - Spotify Manager initialized
+2025-02-17 17:58:05,073 - main - INFO - Spotify Player Manager initialized
+2025-02-17 17:58:05,073 - main - INFO - Bluetooth events handler initialized
+2025-02-17 17:58:05,137 - main - INFO - Snapcast service started
+2025-02-17 17:58:05,142 - main - INFO - Spotify services started
+2025-02-17 17:58:05,142 - main - INFO - All services started successfully
+2025-02-17 17:58:05,142 - main - INFO - All services initialized successfully
+2025-02-17 17:58:05,712 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735010353872)
+2025-02-17 17:58:05,726 - main - INFO - WebSocket connected for service: audio (client_id: 140735010427024)
+2025-02-17 17:58:05,739 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735010437968)
+2025-02-17 17:58:06,546 - main - INFO - WebSocket connected for service: audio (client_id: 140735010488208)
+2025-02-17 17:58:06,567 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735010565648)
+2025-02-17 17:58:07,573 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735010600080)
+2025-02-17 17:58:07,888 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735010629200)
+2025-02-17 17:58:08,711 - main - INFO - WebSocket connected for service: volume (client_id: 140735010706832)
+2025-02-17 17:58:08,871 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140735010600080)
+2025-02-17 17:58:08,871 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140735010600080)
+2025-02-17 17:58:08,878 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140735010629200)
+2025-02-17 17:58:08,878 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140735010629200)
+2025-02-17 17:58:08,886 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735010713488)
+2025-02-17 17:58:09,194 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140735010724688)
+2025-02-17 17:58:09,366 - main - INFO - WebSocket connected for service: volume (client_id: 140735010767056)
+2025-02-17 17:58:10,879 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735010782992)
+2025-02-17 17:58:11,373 - main - INFO - WebSocket connected for service: snapcast (client_id: 140735010866000)
+2025-02-17 17:58:55,423 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140735010782992)
+2025-02-17 17:58:55,423 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140735010782992)
+2025-02-17 17:58:55,425 - main - INFO - WebSocket disconnected normally for volume (client_id: 140735010706832)
+2025-02-17 17:58:55,425 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140735010706832)
+2025-02-17 17:58:55,426 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735010713488)
+2025-02-17 17:58:55,427 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735010713488)
+2025-02-17 17:58:55,429 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735010437968)
+2025-02-17 17:58:55,429 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735010437968)
+2025-02-17 17:58:55,430 - main - INFO - WebSocket disconnected normally for audio (client_id: 140735010427024)
+2025-02-17 17:58:55,430 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140735010427024)
+2025-02-17 17:58:55,431 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140735010353872)
+2025-02-17 17:58:55,433 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140735010353872)
+2025-02-17 17:58:55,547 - main - INFO - WebSocket disconnected normally for audio (client_id: 140735010488208)
+2025-02-17 17:58:55,547 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140735010488208)
+2025-02-17 17:58:55,547 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140735010866000)
+2025-02-17 17:58:55,548 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140735010866000)
+2025-02-17 17:58:55,548 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735010724688)
+2025-02-17 17:58:55,548 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735010724688)
+2025-02-17 17:58:55,548 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140735010565648)
+2025-02-17 17:58:55,549 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140735010565648)
+2025-02-17 17:58:55,549 - main - INFO - WebSocket disconnected normally for volume (client_id: 140735010767056)
+2025-02-17 17:58:55,549 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140735010767056)
+2025-02-17 17:58:55,647 - main - INFO - Shutting down application...
+2025-02-17 17:58:55,747 - main - INFO - Services cleanup completed
+2025-02-17 17:59:13,340 - main - INFO - Starting application...
+2025-02-17 17:59:13,343 - main - INFO - WebSocket Manager initialized
+2025-02-17 17:59:13,345 - main - INFO - Volume Manager initialized
+2025-02-17 17:59:13,345 - main - INFO - Rotary Controller initialized
+2025-02-17 17:59:13,346 - main - INFO - Audio Manager initialized
+2025-02-17 17:59:13,371 - main - INFO - Bluetooth Manager initialized
+2025-02-17 17:59:13,372 - main - INFO - Snapcast Manager initialized
+2025-02-17 17:59:13,372 - main - INFO - Spotify Manager initialized
+2025-02-17 17:59:13,372 - main - INFO - Spotify Player Manager initialized
+2025-02-17 17:59:13,372 - main - INFO - Bluetooth events handler initialized
+2025-02-17 17:59:13,380 - main - INFO - Snapcast service started
+2025-02-17 17:59:13,389 - main - INFO - Spotify services started
+2025-02-17 17:59:13,389 - main - INFO - All services started successfully
+2025-02-17 17:59:13,389 - main - INFO - All services initialized successfully
+2025-02-17 17:59:21,051 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734739635856)
+2025-02-17 17:59:21,080 - main - INFO - WebSocket connected for service: volume (client_id: 140734739652944)
+2025-02-17 17:59:51,603 - main - INFO - WebSocket connected for service: audio (client_id: 140734739707408)
+2025-02-17 17:59:51,684 - main - INFO - WebSocket connected for service: volume (client_id: 140734739833552)
+2025-02-17 17:59:57,464 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734739853968)
+2025-02-17 18:00:02,844 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734739652944)
+2025-02-17 18:00:02,845 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734739652944)
+2025-02-17 18:00:02,845 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734739635856)
+2025-02-17 18:00:02,845 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734739635856)
+2025-02-17 18:00:20,385 - main - INFO - WebSocket connected for service: audio (client_id: 140734739948368)
+2025-02-17 18:00:20,415 - main - INFO - WebSocket connected for service: volume (client_id: 140734758709136)
+2025-02-17 18:00:20,724 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734739846096)
+2025-02-17 18:00:53,391 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734758709136)
+2025-02-17 18:00:53,391 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734758709136)
+2025-02-17 18:00:53,392 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734739846096)
+2025-02-17 18:00:53,392 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734739846096)
+2025-02-17 18:00:53,392 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734739948368)
+2025-02-17 18:00:53,392 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734739948368)
+2025-02-17 18:00:53,907 - main - INFO - WebSocket connected for service: audio (client_id: 140734739983504)
+2025-02-17 18:00:53,926 - main - INFO - WebSocket connected for service: volume (client_id: 140734739649040)
+2025-02-17 18:00:54,227 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734740076496)
+2025-02-17 18:05:08,833 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734739649040)
+2025-02-17 18:05:08,833 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734739649040)
+2025-02-17 18:05:08,833 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734740076496)
+2025-02-17 18:05:08,833 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734740076496)
+2025-02-17 18:05:08,834 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734739983504)
+2025-02-17 18:05:08,834 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734739983504)
+2025-02-17 18:05:09,413 - main - INFO - WebSocket connected for service: audio (client_id: 140734740190608)
+2025-02-17 18:05:09,436 - main - INFO - WebSocket connected for service: volume (client_id: 140734740056720)
+2025-02-17 18:05:09,740 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734740080464)
+2025-02-17 18:05:28,336 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734740190608)
+2025-02-17 18:05:28,336 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734740190608)
+2025-02-17 18:05:28,336 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734740056720)
+2025-02-17 18:05:28,336 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734740056720)
+2025-02-17 18:05:28,337 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734740080464)
+2025-02-17 18:05:28,337 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734740080464)
+2025-02-17 18:05:28,724 - main - INFO - WebSocket connected for service: audio (client_id: 140734740067664)
+2025-02-17 18:05:28,740 - main - INFO - WebSocket connected for service: volume (client_id: 140734740130320)
+2025-02-17 18:05:29,045 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734740228560)
+2025-02-17 18:05:44,860 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734740067664)
+2025-02-17 18:05:44,860 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734740067664)
+2025-02-17 18:05:44,861 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734740228560)
+2025-02-17 18:05:44,861 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734740228560)
+2025-02-17 18:05:44,861 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734740130320)
+2025-02-17 18:05:44,862 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734740130320)
+2025-02-17 18:05:45,244 - main - INFO - WebSocket connected for service: audio (client_id: 140734740196048)
+2025-02-17 18:05:45,262 - main - INFO - WebSocket connected for service: volume (client_id: 140734740273616)
+2025-02-17 18:05:45,566 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734740338256)
+2025-02-17 18:06:31,430 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734740196048)
+2025-02-17 18:06:31,430 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734740196048)
+2025-02-17 18:06:31,430 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734740273616)
+2025-02-17 18:06:31,430 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734740273616)
+2025-02-17 18:06:31,431 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734740338256)
+2025-02-17 18:06:31,431 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734740338256)
+2025-02-17 18:06:31,838 - main - INFO - WebSocket connected for service: audio (client_id: 140734739634896)
+2025-02-17 18:06:31,860 - main - INFO - WebSocket connected for service: volume (client_id: 140734740348368)
+2025-02-17 18:06:32,164 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734740084816)
+2025-02-17 18:10:18,716 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734739833552)
+2025-02-17 18:10:18,717 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734739833552)
+2025-02-17 18:10:18,717 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734739707408)
+2025-02-17 18:10:18,718 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734739707408)
+2025-02-17 18:10:18,721 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734739853968)
+2025-02-17 18:10:18,721 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734739853968)
+2025-02-17 18:10:18,773 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734740348368)
+2025-02-17 18:10:18,774 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734740348368)
+2025-02-17 18:10:18,774 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734739634896)
+2025-02-17 18:10:18,774 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734739634896)
+2025-02-17 18:10:18,775 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734740084816)
+2025-02-17 18:10:18,775 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734740084816)
+2025-02-17 18:10:18,873 - main - INFO - Shutting down application...
+2025-02-17 18:10:18,974 - main - INFO - Services cleanup completed
+2025-02-17 18:10:36,955 - main - INFO - Starting application...
+2025-02-17 18:10:36,956 - main - INFO - WebSocket Manager initialized
+2025-02-17 18:10:36,958 - main - INFO - Volume Manager initialized
+2025-02-17 18:10:36,959 - main - INFO - Rotary Controller initialized
+2025-02-17 18:10:36,959 - main - INFO - Audio Manager initialized
+2025-02-17 18:10:36,984 - main - INFO - Bluetooth Manager initialized
+2025-02-17 18:10:36,984 - main - INFO - Snapcast Manager initialized
+2025-02-17 18:10:36,984 - main - INFO - Spotify Manager initialized
+2025-02-17 18:10:36,984 - main - INFO - Spotify Player Manager initialized
+2025-02-17 18:10:36,985 - main - INFO - Bluetooth events handler initialized
+2025-02-17 18:10:36,991 - main - INFO - Snapcast service started
+2025-02-17 18:10:37,008 - main - INFO - Spotify services started
+2025-02-17 18:10:37,009 - main - INFO - All services started successfully
+2025-02-17 18:10:37,009 - main - INFO - All services initialized successfully
+2025-02-17 18:10:49,252 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140732270503568)
+2025-02-17 18:10:49,273 - main - INFO - WebSocket connected for service: audio (client_id: 140732259890576)
+2025-02-17 18:10:49,285 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140732270503568)
+2025-02-17 18:10:49,285 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140732270503568)
+2025-02-17 18:10:49,294 - main - INFO - WebSocket connected for service: volume (client_id: 140732260012560)
+2025-02-17 18:11:03,985 - main - INFO - WebSocket connected for service: audio (client_id: 140732260076048)
+2025-02-17 18:11:04,063 - main - INFO - WebSocket connected for service: volume (client_id: 140732260106704)
+2025-02-17 18:12:35,131 - main - INFO - WebSocket disconnected normally for audio (client_id: 140732259890576)
+2025-02-17 18:12:35,131 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732259890576)
+2025-02-17 18:12:35,132 - main - INFO - WebSocket disconnected normally for volume (client_id: 140732260012560)
+2025-02-17 18:12:35,132 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732260012560)
+2025-02-17 18:12:35,133 - main - INFO - WebSocket disconnected normally for volume (client_id: 140732260106704)
+2025-02-17 18:12:35,134 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140732260106704)
+2025-02-17 18:12:35,140 - main - INFO - WebSocket connected for service: audio (client_id: 140732260116816)
+2025-02-17 18:12:35,141 - main - ERROR - Timeout processing message for audio
+2025-02-17 18:12:35,141 - main - ERROR - Error handling audio message: Cannot call "send" once a close message has been sent.
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 228, in websocket_endpoint
+    await service_manager.audio_manager.handle_message(data)
+  File "/home/leo/sonoak/backend/services/audio/manager.py", line 45, in handle_message
+    await self.switch_source(AudioSource(source))
+  File "/home/leo/sonoak/backend/services/audio/manager.py", line 73, in switch_source
+    success = await self._execute_script(script_name)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/leo/sonoak/backend/services/audio/manager.py", line 105, in _execute_script
+    stdout, stderr = await asyncio.wait_for(
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/tasks.py", line 466, in wait_for
+    await waiter
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 226, in websocket_endpoint
+    async with asyncio.timeout(5.0):
+  File "/usr/lib/python3.11/asyncio/timeouts.py", line 98, in __aexit__
+    raise TimeoutError
+TimeoutError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/leo/sonoak/backend/main.py", line 246, in websocket_endpoint
+    await websocket.send_json({
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 175, in send_json
+    await self.send({"type": "websocket.send", "text": text})
+  File "/home/leo/sonoak/backend/venv/lib/python3.11/site-packages/starlette/websockets.py", line 97, in send
+    raise RuntimeError('Cannot call "send" once a close message has been sent.')
+RuntimeError: Cannot call "send" once a close message has been sent.
+2025-02-17 18:12:35,240 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140732260076048)
+2025-02-17 18:13:11,694 - main - INFO - Starting application...
+2025-02-17 18:13:11,695 - main - INFO - WebSocket Manager initialized
+2025-02-17 18:13:11,696 - main - INFO - Volume Manager initialized
+2025-02-17 18:13:11,697 - main - INFO - Rotary Controller initialized
+2025-02-17 18:13:11,697 - main - INFO - Audio Manager initialized
+2025-02-17 18:13:11,724 - main - INFO - Bluetooth Manager initialized
+2025-02-17 18:13:11,724 - main - INFO - Snapcast Manager initialized
+2025-02-17 18:13:11,725 - main - INFO - Spotify Manager initialized
+2025-02-17 18:13:11,725 - main - INFO - Spotify Player Manager initialized
+2025-02-17 18:13:11,725 - main - INFO - Bluetooth events handler initialized
+2025-02-17 18:13:11,731 - main - INFO - Snapcast service started
+2025-02-17 18:13:11,738 - main - INFO - Spotify services started
+2025-02-17 18:13:11,738 - main - INFO - All services started successfully
+2025-02-17 18:13:11,738 - main - INFO - All services initialized successfully
+2025-02-17 18:13:59,214 - main - INFO - WebSocket connected for service: audio (client_id: 140733264178768)
+2025-02-17 18:13:59,298 - main - INFO - WebSocket connected for service: volume (client_id: 140733264251280)
+2025-02-17 18:14:04,528 - main - INFO - WebSocket connected for service: spotify (client_id: 140733264255312)
+2025-02-17 18:14:06,752 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733264315216)
+2025-02-17 18:14:08,061 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733264315216)
+2025-02-17 18:14:08,062 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733264315216)
+2025-02-17 18:14:08,067 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264399440)
+2025-02-17 18:14:09,566 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264399440)
+2025-02-17 18:14:09,566 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264399440)
+2025-02-17 18:14:09,574 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733264434320)
+2025-02-17 18:14:11,093 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733264434320)
+2025-02-17 18:14:11,094 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733264434320)
+2025-02-17 18:14:11,098 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264478800)
+2025-02-17 18:14:11,574 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264490448)
+2025-02-17 18:14:12,519 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264478800)
+2025-02-17 18:14:12,519 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264478800)
+2025-02-17 18:14:14,529 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264496656)
+2025-02-17 18:14:14,624 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264507344)
+2025-02-17 18:14:14,975 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264507344)
+2025-02-17 18:14:14,975 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264507344)
+2025-02-17 18:14:14,985 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733264534096)
+2025-02-17 18:14:16,987 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264600336)
+2025-02-17 18:14:17,037 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733264534096)
+2025-02-17 18:14:17,038 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733264534096)
+2025-02-17 18:14:17,043 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264613136)
+2025-02-17 18:14:18,129 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264613136)
+2025-02-17 18:14:18,129 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264613136)
+2025-02-17 18:14:19,382 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733264623312)
+2025-02-17 18:14:20,135 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264703184)
+2025-02-17 18:14:20,743 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733264623312)
+2025-02-17 18:14:20,743 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733264623312)
+2025-02-17 18:14:20,749 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264618000)
+2025-02-17 18:14:23,950 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264618000)
+2025-02-17 18:14:23,951 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264618000)
+2025-02-17 18:14:23,956 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733264743888)
+2025-02-17 18:14:25,962 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733264824336)
+2025-02-17 18:14:37,766 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264824336)
+2025-02-17 18:14:37,820 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264824336)
+2025-02-17 18:14:37,825 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264703184)
+2025-02-17 18:14:37,825 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264703184)
+2025-02-17 18:14:37,826 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264600336)
+2025-02-17 18:14:37,827 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264600336)
+2025-02-17 18:14:37,828 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733264743888)
+2025-02-17 18:14:37,828 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733264743888)
+2025-02-17 18:14:37,829 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264490448)
+2025-02-17 18:14:37,830 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264490448)
+2025-02-17 18:14:37,831 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733264251280)
+2025-02-17 18:14:37,831 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733264251280)
+2025-02-17 18:14:37,831 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733264178768)
+2025-02-17 18:14:37,832 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733264178768)
+2025-02-17 18:14:37,832 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733264496656)
+2025-02-17 18:14:37,832 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733264496656)
+2025-02-17 18:14:37,836 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733264255312)
+2025-02-17 18:14:37,836 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733264255312)
+2025-02-17 18:14:37,938 - main - INFO - Shutting down application...
+2025-02-17 18:14:38,046 - main - INFO - Services cleanup completed
+2025-02-17 18:14:55,127 - main - INFO - Starting application...
+2025-02-17 18:14:55,128 - main - INFO - WebSocket Manager initialized
+2025-02-17 18:14:55,130 - main - INFO - Volume Manager initialized
+2025-02-17 18:14:55,130 - main - INFO - Rotary Controller initialized
+2025-02-17 18:14:55,131 - main - INFO - Audio Manager initialized
+2025-02-17 18:14:55,155 - main - INFO - Bluetooth Manager initialized
+2025-02-17 18:14:55,156 - main - INFO - Snapcast Manager initialized
+2025-02-17 18:14:55,156 - main - INFO - Spotify Manager initialized
+2025-02-17 18:14:55,156 - main - INFO - Spotify Player Manager initialized
+2025-02-17 18:14:55,156 - main - INFO - Bluetooth events handler initialized
+2025-02-17 18:14:55,163 - main - INFO - Snapcast service started
+2025-02-17 18:14:55,170 - main - INFO - Spotify services started
+2025-02-17 18:14:55,170 - main - INFO - All services started successfully
+2025-02-17 18:14:55,170 - main - INFO - All services initialized successfully
+2025-02-17 18:15:05,796 - main - INFO - WebSocket connected for service: audio (client_id: 140734228080208)
+2025-02-17 18:15:08,308 - main - INFO - WebSocket connected for service: volume (client_id: 140734200677904)
+2025-02-17 18:15:29,268 - main - INFO - WebSocket connected for service: audio (client_id: 140734200829072)
+2025-02-17 18:15:29,348 - main - INFO - WebSocket connected for service: volume (client_id: 140734200795344)
+2025-02-17 18:15:33,499 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734200895696)
+2025-02-17 18:15:33,829 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734200972368)
+2025-02-17 18:15:42,264 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140734200895696)
+2025-02-17 18:15:42,265 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734200895696)
+2025-02-17 18:15:42,272 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140734200972368)
+2025-02-17 18:15:42,272 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734200972368)
+2025-02-17 18:15:42,279 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734201022608)
+2025-02-17 18:15:42,585 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734201033168)
+2025-02-17 18:15:44,278 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734200985552)
+2025-02-17 18:15:45,377 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734201057744)
+2025-02-17 18:17:06,299 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734201022608)
+2025-02-17 18:17:06,300 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734201022608)
+2025-02-17 18:17:06,308 - main - INFO - WebSocket connected for service: spotify (client_id: 140734200996816)
+2025-02-17 18:17:06,321 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734201033168)
+2025-02-17 18:17:06,321 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734201033168)
+2025-02-17 18:17:07,570 - main - INFO - WebSocket connected for service: spotify (client_id: 140734201088464)
+2025-02-17 18:17:21,368 - main - INFO - WebSocket connected for service: audio (client_id: 140734201223760)
+2025-02-17 18:17:21,398 - main - INFO - WebSocket connected for service: volume (client_id: 140734201153360)
+2025-02-17 18:17:21,411 - main - INFO - WebSocket connected for service: spotify (client_id: 140734201231376)
+2025-02-17 18:18:01,734 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734201223760)
+2025-02-17 18:18:01,734 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734201223760)
+2025-02-17 18:18:01,735 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734201153360)
+2025-02-17 18:18:01,735 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734201153360)
+2025-02-17 18:18:01,735 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140734201231376)
+2025-02-17 18:18:01,735 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140734201231376)
+2025-02-17 18:29:09,915 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734200795344)
+2025-02-17 18:29:09,915 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734200795344)
+2025-02-17 18:29:09,916 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734200829072)
+2025-02-17 18:29:09,917 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734200829072)
+2025-02-17 18:29:09,917 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140734200985552)
+2025-02-17 18:29:09,918 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734200985552)
+2025-02-17 18:29:09,919 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140734200996816)
+2025-02-17 18:29:09,920 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140734200996816)
+2025-02-17 18:29:09,974 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734228080208)
+2025-02-17 18:29:09,981 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734228080208)
+2025-02-17 18:29:09,983 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140734201057744)
+2025-02-17 18:29:09,983 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734201057744)
+2025-02-17 18:29:09,983 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734200677904)
+2025-02-17 18:29:09,983 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734200677904)
+2025-02-17 18:29:09,984 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140734201088464)
+2025-02-17 18:29:09,984 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140734201088464)
+2025-02-17 18:29:10,074 - main - INFO - Shutting down application...
+2025-02-17 18:29:10,175 - main - INFO - Services cleanup completed
+2025-02-17 18:29:27,326 - main - INFO - Starting application...
+2025-02-17 18:29:27,329 - main - INFO - WebSocket Manager initialized
+2025-02-17 18:29:27,332 - main - INFO - Volume Manager initialized
+2025-02-17 18:29:27,332 - main - INFO - Rotary Controller initialized
+2025-02-17 18:29:27,332 - main - INFO - Audio Manager initialized
+2025-02-17 18:29:27,361 - main - INFO - Bluetooth Manager initialized
+2025-02-17 18:29:27,362 - main - INFO - Snapcast Manager initialized
+2025-02-17 18:29:27,362 - main - INFO - Spotify Manager initialized
+2025-02-17 18:29:27,362 - main - INFO - Spotify Player Manager initialized
+2025-02-17 18:29:27,362 - main - INFO - Bluetooth events handler initialized
+2025-02-17 18:29:27,370 - main - INFO - Snapcast service started
+2025-02-17 18:29:27,378 - main - INFO - Spotify services started
+2025-02-17 18:29:27,378 - main - INFO - All services started successfully
+2025-02-17 18:29:27,379 - main - INFO - All services initialized successfully
+2025-02-17 18:29:40,178 - main - INFO - WebSocket connected for service: snapcast (client_id: 140734213963856)
+2025-02-17 18:29:40,200 - main - INFO - WebSocket connected for service: audio (client_id: 140734213996688)
+2025-02-17 18:29:40,220 - main - INFO - WebSocket connected for service: spotify (client_id: 140734214149584)
+2025-02-17 18:29:40,247 - main - INFO - WebSocket connected for service: volume (client_id: 140734214177808)
+2025-02-17 18:29:56,631 - main - INFO - WebSocket connected for service: audio (client_id: 140734214208080)
+2025-02-17 18:29:56,720 - main - INFO - WebSocket connected for service: volume (client_id: 140734214269776)
+2025-02-17 18:30:01,273 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734214344208)
+2025-02-17 18:30:01,630 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734214295696)
+2025-02-17 18:30:05,122 - main - INFO - WebSocket connected for service: audio (client_id: 140734214354320)
+2025-02-17 18:30:05,138 - main - INFO - WebSocket connected for service: volume (client_id: 140734214363472)
+2025-02-17 18:30:05,158 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734214440528)
+2025-02-17 18:30:22,558 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734214354320)
+2025-02-17 18:30:22,558 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734214354320)
+2025-02-17 18:30:22,559 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734214440528)
+2025-02-17 18:30:22,560 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734214440528)
+2025-02-17 18:30:22,560 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734214363472)
+2025-02-17 18:30:22,560 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734214363472)
+2025-02-17 18:30:45,005 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140734213963856)
+2025-02-17 18:30:45,005 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140734213963856)
+2025-02-17 18:30:45,005 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140734214149584)
+2025-02-17 18:30:45,006 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140734214149584)
+2025-02-17 18:30:45,006 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734214177808)
+2025-02-17 18:30:45,006 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734214177808)
+2025-02-17 18:30:45,007 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734213996688)
+2025-02-17 18:30:45,007 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734213996688)
+2025-02-17 18:30:45,008 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734214295696)
+2025-02-17 18:30:45,008 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734214295696)
+2025-02-17 18:30:45,604 - main - INFO - WebSocket connected for service: audio (client_id: 140734214149904)
+2025-02-17 18:30:45,625 - main - INFO - WebSocket connected for service: volume (client_id: 140734214442192)
+2025-02-17 18:30:45,929 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734214556240)
+2025-02-17 18:31:01,937 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734214149904)
+2025-02-17 18:31:01,937 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734214149904)
+2025-02-17 18:31:01,938 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734214556240)
+2025-02-17 18:31:01,939 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734214556240)
+2025-02-17 18:31:01,939 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734214442192)
+2025-02-17 18:31:01,939 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734214442192)
+2025-02-17 18:31:02,341 - main - INFO - WebSocket connected for service: audio (client_id: 140734214549904)
+2025-02-17 18:31:02,359 - main - INFO - WebSocket connected for service: volume (client_id: 140734214552528)
+2025-02-17 18:31:02,669 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734214413072)
+2025-02-17 18:32:41,777 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734214344208)
+2025-02-17 18:32:41,778 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734214344208)
+2025-02-17 18:32:41,793 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734241482384)
+2025-02-17 18:32:42,237 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734214413072)
+2025-02-17 18:32:42,237 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734214413072)
+2025-02-17 18:32:42,557 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734214491856)
+2025-02-17 18:33:02,754 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734214208080)
+2025-02-17 18:33:02,754 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734214208080)
+2025-02-17 18:33:02,755 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734214491856)
+2025-02-17 18:33:02,755 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734214491856)
+2025-02-17 18:33:02,756 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734241482384)
+2025-02-17 18:33:02,757 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734241482384)
+2025-02-17 18:33:02,758 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734214552528)
+2025-02-17 18:33:02,758 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734214552528)
+2025-02-17 18:33:02,758 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734214269776)
+2025-02-17 18:33:02,759 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734214269776)
+2025-02-17 18:33:02,759 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734214549904)
+2025-02-17 18:33:02,759 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734214549904)
+2025-02-17 18:33:02,855 - main - INFO - Shutting down application...
+2025-02-17 18:33:02,956 - main - INFO - Services cleanup completed
+2025-02-17 18:33:04,008 - main - INFO - Starting application...
+2025-02-17 18:33:04,009 - main - INFO - WebSocket Manager initialized
+2025-02-17 18:33:04,011 - main - INFO - Volume Manager initialized
+2025-02-17 18:33:04,012 - main - INFO - Rotary Controller initialized
+2025-02-17 18:33:04,012 - main - INFO - Audio Manager initialized
+2025-02-17 18:33:04,025 - main - INFO - Bluetooth Manager initialized
+2025-02-17 18:33:04,025 - main - INFO - Snapcast Manager initialized
+2025-02-17 18:33:04,026 - main - INFO - Spotify Manager initialized
+2025-02-17 18:33:04,026 - main - INFO - Spotify Player Manager initialized
+2025-02-17 18:33:04,027 - main - INFO - Bluetooth events handler initialized
+2025-02-17 18:33:04,066 - main - INFO - Snapcast service started
+2025-02-17 18:33:04,070 - main - INFO - Spotify services started
+2025-02-17 18:33:04,070 - main - INFO - All services started successfully
+2025-02-17 18:33:04,070 - main - INFO - All services initialized successfully
+2025-02-17 18:33:04,760 - main - INFO - WebSocket connected for service: audio (client_id: 140734340575056)
+2025-02-17 18:33:04,775 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734340634064)
+2025-02-17 18:33:05,370 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734340698448)
+2025-02-17 18:33:05,393 - main - INFO - WebSocket connected for service: audio (client_id: 140734340706256)
+2025-02-17 18:33:05,406 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734340698448)
+2025-02-17 18:33:05,406 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734340698448)
+2025-02-17 18:33:07,762 - main - INFO - WebSocket connected for service: volume (client_id: 140734340770960)
+2025-02-17 18:33:08,288 - main - INFO - WebSocket connected for service: spotify (client_id: 140734340806096)
+2025-02-17 18:33:08,365 - main - INFO - WebSocket connected for service: volume (client_id: 140734340761424)
+2025-02-17 18:33:08,597 - main - INFO - WebSocket connected for service: spotify (client_id: 140734340870672)
+2025-02-17 18:33:11,171 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734340913424)
+2025-02-17 18:33:11,478 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734340944208)
+2025-02-17 18:33:39,837 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734340913424)
+2025-02-17 18:33:39,837 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734340913424)
+2025-02-17 18:33:39,842 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734340944208)
+2025-02-17 18:33:39,843 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734340944208)
+2025-02-17 18:33:39,849 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734341059536)
+2025-02-17 18:33:40,157 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140734341128912)
+2025-02-17 18:34:01,815 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734341059536)
+2025-02-17 18:34:01,816 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734341059536)
+2025-02-17 18:34:01,821 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140734340806096)
+2025-02-17 18:34:01,822 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140734340806096)
+2025-02-17 18:34:01,828 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734340770960)
+2025-02-17 18:34:01,828 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734340770960)
+2025-02-17 18:34:01,829 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734340634064)
+2025-02-17 18:34:01,829 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734340634064)
+2025-02-17 18:34:01,839 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734340575056)
+2025-02-17 18:34:01,839 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734340575056)
+2025-02-17 18:34:01,900 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140734340870672)
+2025-02-17 18:34:01,915 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140734340870672)
+2025-02-17 18:34:01,917 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140734341128912)
+2025-02-17 18:34:01,917 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140734341128912)
+2025-02-17 18:34:01,917 - main - INFO - WebSocket disconnected normally for volume (client_id: 140734340761424)
+2025-02-17 18:34:01,917 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140734340761424)
+2025-02-17 18:34:01,918 - main - INFO - WebSocket disconnected normally for audio (client_id: 140734340706256)
+2025-02-17 18:34:01,918 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140734340706256)
+2025-02-17 18:34:01,999 - main - INFO - Shutting down application...
+2025-02-17 18:34:02,100 - main - INFO - Services cleanup completed
+2025-02-17 18:34:19,281 - main - INFO - Starting application...
+2025-02-17 18:34:19,284 - main - INFO - WebSocket Manager initialized
+2025-02-17 18:34:19,286 - main - INFO - Volume Manager initialized
+2025-02-17 18:34:19,286 - main - INFO - Rotary Controller initialized
+2025-02-17 18:34:19,287 - main - INFO - Audio Manager initialized
+2025-02-17 18:34:19,315 - main - INFO - Bluetooth Manager initialized
+2025-02-17 18:34:19,315 - main - INFO - Snapcast Manager initialized
+2025-02-17 18:34:19,315 - main - INFO - Spotify Manager initialized
+2025-02-17 18:34:19,315 - main - INFO - Spotify Player Manager initialized
+2025-02-17 18:34:19,316 - main - INFO - Bluetooth events handler initialized
+2025-02-17 18:34:19,323 - main - INFO - Snapcast service started
+2025-02-17 18:34:19,332 - main - INFO - Spotify services started
+2025-02-17 18:34:19,332 - main - INFO - All services started successfully
+2025-02-17 18:34:19,332 - main - INFO - All services initialized successfully
+2025-02-17 18:34:31,590 - main - INFO - WebSocket connected for service: spotify (client_id: 140733075301136)
+2025-02-17 18:34:31,614 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733064777232)
+2025-02-17 18:34:31,636 - main - INFO - WebSocket connected for service: audio (client_id: 140733064909392)
+2025-02-17 18:34:31,652 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733064777232)
+2025-02-17 18:34:31,652 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733064777232)
+2025-02-17 18:34:31,660 - main - INFO - WebSocket connected for service: volume (client_id: 140733064918032)
+2025-02-17 18:35:36,996 - main - INFO - WebSocket connected for service: audio (client_id: 140733065033488)
+2025-02-17 18:35:37,092 - main - INFO - WebSocket connected for service: volume (client_id: 140733064992848)
+2025-02-17 18:35:43,118 - main - INFO - WebSocket connected for service: audio (client_id: 140733065132112)
+2025-02-17 18:35:43,138 - main - INFO - WebSocket connected for service: volume (client_id: 140733065122704)
+2025-02-17 18:35:45,615 - main - INFO - WebSocket connected for service: spotify (client_id: 140733065138896)
+2025-02-17 18:35:45,705 - main - INFO - WebSocket connected for service: spotify (client_id: 140733065183440)
+2025-02-17 18:35:51,409 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733065183440)
+2025-02-17 18:35:51,409 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733065183440)
+2025-02-17 18:35:51,409 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733065122704)
+2025-02-17 18:35:51,409 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733065122704)
+2025-02-17 18:35:51,410 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733065132112)
+2025-02-17 18:35:51,410 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733065132112)
+2025-02-17 18:36:11,858 - main - INFO - WebSocket connected for service: audio (client_id: 140733065223888)
+2025-02-17 18:36:11,905 - main - INFO - WebSocket connected for service: volume (client_id: 140733065231632)
+2025-02-17 18:36:11,923 - main - INFO - WebSocket connected for service: spotify (client_id: 140733065274192)
+2025-02-17 18:36:20,975 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733065376656)
+2025-02-17 18:36:20,999 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733065419408)
+2025-02-17 18:36:21,292 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733065432784)
+2025-02-17 18:36:30,526 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733065376656)
+2025-02-17 18:36:30,526 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733065376656)
+2025-02-17 18:36:30,530 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733065432784)
+2025-02-17 18:36:30,530 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733065432784)
+2025-02-17 18:36:30,534 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733065502800)
+2025-02-17 18:36:30,583 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733065419408)
+2025-02-17 18:36:30,583 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733065419408)
+2025-02-17 18:36:30,607 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733065566672)
+2025-02-17 18:36:30,838 - main - INFO - WebSocket connected for service: bluetooth (client_id: 140733065614416)
+2025-02-17 18:36:32,540 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733065623760)
+2025-02-17 18:36:32,649 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733065666128)
+2025-02-17 18:36:33,370 - main - INFO - WebSocket connected for service: snapcast (client_id: 140733065672976)
+2025-02-17 18:36:34,618 - main - INFO - WebSocket disconnected normally for bluetooth (client_id: 140733065566672)
+2025-02-17 18:36:34,618 - main - INFO - Cleaning up WebSocket for service: bluetooth (client_id: 140733065566672)
+2025-02-17 18:36:35,618 - main - INFO - WebSocket disconnected normally for snapcast (client_id: 140733065666128)
+2025-02-17 18:36:35,618 - main - INFO - Cleaning up WebSocket for service: snapcast (client_id: 140733065666128)
+2025-02-17 18:36:35,619 - main - INFO - WebSocket disconnected normally for audio (client_id: 140733065223888)
+2025-02-17 18:36:35,619 - main - INFO - Cleaning up WebSocket for service: audio (client_id: 140733065223888)
+2025-02-17 18:36:35,619 - main - INFO - WebSocket disconnected normally for spotify (client_id: 140733065274192)
+2025-02-17 18:36:35,619 - main - INFO - Cleaning up WebSocket for service: spotify (client_id: 140733065274192)
+2025-02-17 18:36:35,619 - main - INFO - WebSocket disconnected normally for volume (client_id: 140733065231632)
+2025-02-17 18:36:35,619 - main - INFO - Cleaning up WebSocket for service: volume (client_id: 140733065231632)
