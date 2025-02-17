@@ -3,11 +3,11 @@
   <div class="bluetooth-container">
     <div class="bluetooth-wrapper">
       <div class="pop-in status">
-        <div v-if="isLoading" class="pop-in-content disconnected">
+        <!-- <div v-if="isLoading" class="pop-in-content disconnected">
           <LoaderIcon variant="md" />
           <p>Chargement de l'état Bluetooth...</p>
-        </div>
-        <div v-else-if="!activeDevice" class="pop-in-content disconnected">
+        </div> -->
+        <div v-if="!activeDevice" class="pop-in-content disconnected">
           <LoaderIcon variant="md" />
           <p>Sonoak est visible dans vos accessoires Bluetooth</p>
         </div>

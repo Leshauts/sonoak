@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useVolumeStore } from '@/stores/volume'
 import { SpringSolver } from './spring.js'
@@ -25,6 +25,7 @@ const isVisible = ref(false)
 const barPosition = ref(-128)
 const blurPosition = ref(100)
 let hideTimer = null
+let canShowAgain = true
 
 const springConfigs = {
   volumeBar: {
@@ -56,6 +57,8 @@ function animate(value, target, config) {
 }
 
 function showVolume() {
+  if (!canShowAgain) return
+
   if (hideTimer) {
     clearTimeout(hideTimer)
   }
@@ -64,9 +67,16 @@ function showVolume() {
   animate(barPosition, 0, springConfigs.volumeBar.show)
   animate(blurPosition, 12, springConfigs.gradientBlur.show)
   
+  canShowAgain = false
+  
   hideTimer = setTimeout(() => {
     hideVolume()
-  }, 5000)
+  }, 2500)
+
+  // Attendre 1 seconde avant de pouvoir réafficher
+  setTimeout(() => {
+    canShowAgain = true
+  }, 1000)
 }
 
 function hideVolume() {
@@ -74,6 +84,13 @@ function hideVolume() {
   animate(blurPosition, 100, springConfigs.gradientBlur.hide)
   isVisible.value = false
 }
+
+// Nettoyage des timers quand le composant est détruit
+onUnmounted(() => {
+  if (hideTimer) {
+    clearTimeout(hideTimer)
+  }
+})
 
 defineExpose({
   showVolume,
@@ -92,8 +109,8 @@ defineExpose({
 .volume-bar {
   width: 280px;
   padding: 16px;
-  border-radius: 12px;
-  background: rgba(220, 220, 220, 0.24);
+  border-radius: 16px;
+  background: rgba(195, 195, 195, 0.24);
   backdrop-filter: blur(12px);
 }
 

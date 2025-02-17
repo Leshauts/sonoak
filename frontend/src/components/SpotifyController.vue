@@ -2,13 +2,13 @@
   <div class="controller-wrapper">
     <div class="controller">
       <button class="control-button" @click="previous">
-        <PreviousIcon color="var(--text-light)" variant="lg" />
+        <PreviousIcon color="var(--text-secondary)" variant="lg" />
       </button>
       <button class="control-button" @click="togglePlay">
         <component :is="isPlaying ? 'PauseIcon' : 'PlayIcon'" color="var(--text)" variant="lg" />
       </button>
       <button class="control-button" @click="next">
-        <NextIcon color="var(--text-light)" variant="lg" />
+        <NextIcon color="var(--text-secondary)" variant="lg" />
       </button>
     </div>
   </div>

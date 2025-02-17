@@ -66,6 +66,7 @@ export default {
       isDragging: false,
       touchStartTime: 0,
       touchMoveCount: 0,
+      hideTimeout: null,
       menuItems: [
         { name: 'Spotify', source: 'spotify', iconName: 'spotify' },
         { name: 'Bluetooth', source: 'bluetooth', iconName: 'bluetooth' },
@@ -206,11 +207,44 @@ export default {
     },
 
 
-    async switchSource(source) {
-      if (!this.isDragging && !this.isDraggingMouse) {
-        await this.audioStore.switchSource(source)
+    startHideDockTimer() {
+      // Annule le timer existant s'il y en a un
+      if (this.hideTimeout) {
+        clearTimeout(this.hideTimeout);
+      }
+
+      // Crée un nouveau timer seulement si le dock est visible
+      if (this.isVisible) {
+        this.hideTimeout = setTimeout(() => {
+          if (this.isVisible) {
+            // Utilise la même animation que pour le drag
+            const endPosition = this.activeConfig.dock.hidePosition;
+            const animConfig = this.activeConfig.dock.animation.hide;
+
+            this.animateElement(
+              this.dockPosition,
+              endPosition,
+              animConfig,
+              (pos) => this.dockPosition = pos
+            );
+            this.isVisible = false;
+          }
+        }, 15000); // Temps d'affichage du dock
       }
     },
+
+    resetHideDockTimer() {
+      if (this.isVisible) {
+        this.startHideDockTimer();
+      }
+    },
+
+    async switchSource(source) {
+    if (!this.isDragging && !this.isDraggingMouse) {
+      await this.audioStore.switchSource(source);
+      this.resetHideDockTimer();
+    }
+  },
 
 
     // Mouse event handlers
@@ -332,6 +366,9 @@ export default {
       if (shouldSnap) {
         this.isVisible = !this.isVisible;
       }
+      if (this.isVisible) {
+      this.startHideDockTimer();
+    }
     },
 
     calculateVelocity(event) {
