@@ -69,7 +69,7 @@ export default {
   padding: var(--spacing-03);
   justify-content: center;
   align-items: center;
-  gap: 16%;
+  gap: 12%;
   border-radius: 24px;
   background: var(--background);
   width: 100%;
@@ -93,7 +93,7 @@ export default {
   }
 
   .controller {
-    gap: 8%;
+    gap: 10%;
   }
 }
 </style>

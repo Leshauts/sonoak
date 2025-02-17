@@ -385,7 +385,7 @@ export default {
 
 <style scoped>
 .dock-wrapper {
-  padding: 8% 8% 24px 8%;
+  padding: 96px 0 24px 0;
   position: absolute;
   left: 50%;
   bottom: 0;
@@ -410,7 +410,7 @@ export default {
   gap: var(--spacing-04);
   padding: var(--spacing-04);
   border-radius: 32px;
-  background: rgba(220, 220, 220, 0.24);
+  background: rgba(195, 195, 195, 0.24);
   backdrop-filter: blur(12px);
   position: relative;
   touch-action: none;
@@ -471,10 +471,10 @@ export default {
   left: 24px;
   bottom: 8px;
   border-radius: 99px;
-  background: var(--text-light, #A6ACA6);
-  transition: transform 0.2s ease;
-  opacity: 0;
-  animation: fadeIn 0.2s forwards;
+  background: var(--text);
+  opacity:0.5;
+  transition: all 0.2s ease;
+  animation: all 0.2s forwards;
 }
 
 .dock-grabber {
@@ -485,7 +485,7 @@ export default {
   position: fixed;
   transform: translateX(-50%);
   left: 50%;
-  top: 60px;
+  top: 73px;
   margin: 0 auto;
   background: #84848445;
 }
@@ -506,7 +506,7 @@ export default {
 
 @media (max-aspect-ratio: 3/2) {
   .dock-grabber {
-    top: 14px;
+    top: 77px;
   }
 
   .dock-icon {

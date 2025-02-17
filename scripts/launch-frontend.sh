@@ -11,7 +11,6 @@ sleep 5
 
 # Lancer Chromium en mode kiosk (rajouter "--kiosk \")
 chromium-browser \
-  --kiosk \
   --touch-events \
   --enable-touch-events \
   --enable-touch-ui \

@@ -10,7 +10,7 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: rgba(255, 140, 0, 0.33);
+        background-color: rgba(255, 119, 0, 0.48);
         pointer-events: none;
         mix-blend-mode: multiply;
         z-index: 9999;
