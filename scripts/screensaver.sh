@@ -1,22 +1,33 @@
 #!/bin/bash
 
-# Configuration de l'environnement graphique
-export DISPLAY=:0
-export XAUTHORITY=/home/leo/.Xauthority
-
-# Chemin vers le programme pour éteindre l'écran
+# Chemins vers vos programmes
 ETEINDRE_ECRAN="/home/leo/sonoak/RPi-USB-Brightness/64/lite/Raspi_USB_Backlight_nogui -b 0"
-
-# Chemin vers le programme pour allumer l'écran
 ALLUMER_ECRAN="/home/leo/sonoak/RPi-USB-Brightness/64/lite/Raspi_USB_Backlight_nogui -b 5"
+TEMPS_VEILLE=2400
 
-# Temps de mise en veille de l'écran en secondes
-TEMPS_VEILLE=10
+# Utiliser le chemin stable vers le WaveShare
+TOUCHSCREEN_DEVICE="/dev/input/by-id/usb-WaveShare_WS170120_220211-event-if00"
+
+echo "Utilisation du périphérique : $TOUCHSCREEN_DEVICE"
+
+# Définir le fichier de compteur dans /tmp avec un nom unique
+COMPTEUR_FILE="/tmp/screensaver_timer_$USER"
+
+# Créer le fichier s'il n'existe pas
+if [ ! -f "$COMPTEUR_FILE" ]; then
+    touch "$COMPTEUR_FILE"
+    chmod 777 "$COMPTEUR_FILE"
+fi
+
+# Initialiser le compteur
+echo "0" > "$COMPTEUR_FILE"
 
 # Fonction pour allumer l'écran
 allumer_ecran() {
     echo "Allumer l'écran"
     $ALLUMER_ECRAN
+    echo "0" > "$COMPTEUR_FILE"
+    echo "Compteur réinitialisé à 0"
 }
 
 # Fonction pour éteindre l'écran
@@ -25,42 +36,36 @@ eteindre_ecran() {
     $ETEINDRE_ECRAN
 }
 
-# Fonction pour réinitialiser le compteur
-reset_compteur() {
-    echo "Réinitialiser le compteur"
-    compteur=0
-}
+# Allumer l'écran au démarrage du script
+allumer_ecran
 
-# Initialiser le compteur
-compteur=0
+# Nettoyer à la sortie
+trap 'rm -f "$COMPTEUR_FILE"' EXIT
 
-# Attendre que l'environnement graphique soit prêt
-sleep 5
-
-# Récupérer la position initiale du curseur
-position_initiale=$(xdotool getmouselocation --shell | grep "X=" | cut -d'=' -f2)
-
-# Boucle principale
+# Démarrer l'incrémentation du compteur dans un processus séparé
+(
 while true; do
-    # Afficher la valeur du compteur
-    echo "Compteur : $compteur"
-
-    # Vérifier si le curseur a changé de position
-    nouvelle_position=$(xdotool getmouselocation --shell | grep "X=" | cut -d'=' -f2)
-    if [ "$nouvelle_position" != "$position_initiale" ]; then
-        allumer_ecran
-        reset_compteur
-        position_initiale="$nouvelle_position"
+    if [ -f "$COMPTEUR_FILE" ]; then
+        compteur=$(<"$COMPTEUR_FILE")
+        echo "Compteur : $compteur"
+        
+        if [ $compteur -ge $TEMPS_VEILLE ]; then
+            eteindre_ecran
+        fi
+        
+        echo $((compteur + 1)) > "$COMPTEUR_FILE"
+    else
+        echo "0" > "$COMPTEUR_FILE"
+        chmod 777 "$COMPTEUR_FILE"
     fi
-
-    # Vérifier si l'écran doit être éteint
-    if [ $compteur -ge $TEMPS_VEILLE ]; then
-        eteindre_ecran
-    fi
-
-    # Attendre 1 seconde
     sleep 1
+done
+) &
 
-    # Incrémenter le compteur
-    compteur=$((compteur + 1))
+# Surveiller les événements tactiles
+libinput debug-events --device "$TOUCHSCREEN_DEVICE" | while read -r line; do
+    if [[ $line =~ "TOUCH_DOWN" ]]; then
+        echo "Toucher détecté !"
+        allumer_ecran
+    fi
 done

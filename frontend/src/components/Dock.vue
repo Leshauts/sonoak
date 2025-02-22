@@ -240,11 +240,11 @@ export default {
     },
 
     async switchSource(source) {
-    if (!this.isDragging && !this.isDraggingMouse) {
-      await this.audioStore.switchSource(source);
-      this.resetHideDockTimer();
-    }
-  },
+      if (!this.isDragging && !this.isDraggingMouse) {
+        await this.audioStore.switchSource(source);
+        this.resetHideDockTimer();
+      }
+    },
 
 
     // Mouse event handlers
@@ -367,8 +367,8 @@ export default {
         this.isVisible = !this.isVisible;
       }
       if (this.isVisible) {
-      this.startHideDockTimer();
-    }
+        this.startHideDockTimer();
+      }
     },
 
     calculateVelocity(event) {
@@ -551,8 +551,12 @@ export default {
 }
 
 @media (max-aspect-ratio: 3/2) {
+  .dock-wrapper {
+    padding: 48px 0 24px 0;
+  }
+
   .dock-grabber {
-    top: 77px;
+    top: 30px;
   }
 
   .dock-icon {
