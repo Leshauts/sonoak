@@ -289,7 +289,7 @@ export default {
       this.touchMoveCount++;
 
       // On ne prévient le comportement par défaut que si on est en train de drag
-      if (this.touchMoveCount > 3) {
+      if (this.touchMoveCount > 15) {
         this.isDragging = true;
         event.preventDefault();
       }

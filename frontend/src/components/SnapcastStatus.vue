@@ -3,7 +3,7 @@
         <div v-if="isReady" class="pop-in">
             <div v-if="!serverAvailable" class="pop-in-content">
                 <LoaderIcon variant="md" />
-                <p>Sonoak est prêt à recevoir l'audio d'un ordinateur Mac</p>
+                <p>Sonoak est prêt à recevoir l'audio d'un Mac</p>
             </div>
             <div v-else class="pop-in-content">
                 <MacOSIcon variant="md" />

@@ -35,7 +35,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# Handlers de logging
+# Handlers de logging "INFO" + "ERROR" + "CRITICAL" (TEMPORAIREMENT DESACTIVE)
+'''
 file_handler = logging.handlers.RotatingFileHandler(
     os.path.join(log_directory, 'backend.log'),
     maxBytes=1024 * 1024,
@@ -51,6 +52,32 @@ console_handler.setFormatter(logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 ))
 logger.addHandler(console_handler)
+'''
+
+# Configuration commune pour tous les handlers
+log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Configurer pour les erreurs uniquement
+logger.setLevel(logging.ERROR)
+
+# Handlers de logging
+file_handler = logging.handlers.RotatingFileHandler(
+    os.path.join(log_directory, 'backend.log'),
+    maxBytes=1024 * 1024,
+    backupCount=5
+)
+file_handler.setFormatter(log_formatter)
+logger.addHandler(file_handler)
+
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(log_formatter)
+logger.addHandler(console_handler)
+
+# Pour réactiver tous les logs (y compris INFO), décommenter le bloc ci-dessous:
+"""
+# Configuration pour tous les logs (INFO et plus)
+logger.setLevel(logging.INFO)
+"""
 
 # Gestionnaires globaux
 class ServiceManager:
