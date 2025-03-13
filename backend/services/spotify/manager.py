@@ -11,7 +11,7 @@ class SpotifyManager:
         self.websocket_manager = websocket_manager
         self.audio_manager = audio_manager
         self.librespot_host = "localhost"
-        self.librespot_port = 3678
+        self.librespot_port = 4789
         self.current_status = {
             "connected": False,
             "username": None,

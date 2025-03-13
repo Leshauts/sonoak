@@ -8,7 +8,7 @@ class SpotifyPlayerManager:
         self.websocket_manager = websocket_manager
         self.spotify_manager = spotify_manager
         self.librespot_host = "localhost"
-        self.librespot_port = 3678
+        self.librespot_port = 4789
         self.current_track_metadata = None  # Pour les métadonnées persistantes
         self.playback_state = {            # Pour l'état de lecture
             "is_playing": False,

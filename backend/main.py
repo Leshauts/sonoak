@@ -144,21 +144,26 @@ class ServiceManager:
     async def start_services(self):
         """Démarre les services dans l'ordre approprié"""
         try:
-            # Démarrage de Snapcast
-            await self.snapcast_manager.get_clients_status()
-            logger.info("Snapcast service started")
-
+            # Vérifie d'abord si Bluetooth est disponible avant de démarrer Snapcast
+            bluetooth_available = self.bluetooth_manager is not None and getattr(self.bluetooth_manager, 'initialized', False)
+            
             # Démarrage de Spotify
             await self.spotify_manager.connect_to_events()
             await self.spotify_player.start_polling()
             logger.info("Spotify services started")
-
-            # Démarrage du Bluetooth
-            # Le service Bluetooth est déjà actif via les event handlers
-
+            
+            # Démarrage conditionnel de Snapcast (seulement si explicitement demandé ou si le source actuelle est MACOS)
+            current_source = getattr(self.audio_manager, 'current_source', None)
+            if current_source and current_source.value == "macos":
+                logger.info("Starting Snapcast because current source is MACOS")
+                await self.snapcast_manager.get_clients_status()
+                logger.info("Snapcast service started")
+            else:
+                logger.info("Skipping automatic Snapcast startup")
+            
             self.update_services_status()
             logger.info("All services started successfully")
-
+        
         except Exception as e:
             logger.error(f"Error starting services: {e}", exc_info=True)
             raise

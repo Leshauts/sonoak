@@ -31,7 +31,7 @@ export const useSpotifyStore = defineStore('spotify', {
 
       // Initialiser la connexion WebSocket avec go-librespot
       const librespotProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const librespotUrl = `${librespotProtocol}//${window.location.hostname}:3678/events`
+      const librespotUrl = `${librespotProtocol}//${window.location.hostname}:4789/events`
       
       this.librespotWs = new WebSocket(librespotUrl)
       this.librespotWs.onmessage = (event) => {
