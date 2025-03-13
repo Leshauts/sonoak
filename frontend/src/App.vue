@@ -1,30 +1,39 @@
 <!-- frontend/src/App.vue -->
 <script setup>
-import { ref, computed } from 'vue'
-import { RouterLink, RouterView, useRoute } from 'vue-router'
-import Dock from './components/Dock.vue'
-import VolumeBar from './components/VolumeBar.vue'
-import Logo from './components/logo/Sonoak.vue'
+import { onMounted, onBeforeUnmount } from 'vue'
+import { RouterView } from 'vue-router'
+import { useAudioStore } from './stores/audio'
+import { useSpotifyStore } from './stores/spotify'
+import { useVolumeStore } from './stores/volume'
+import { webSocketService } from './services/websocket'
 
-const volumeBar = ref(null)
-const route = useRoute()
+// Récupération des stores
+const audioStore = useAudioStore()
+const spotifyStore = useSpotifyStore()
+const volumeStore = useVolumeStore()
 
-const logoState = computed(() => {
-  switch (route.path) {
-    case '/':
-      return 'intro'
-    case '/bluetooth':
-    case '/macos':
-    case '/spotify':
-      return 'minified'
-    default:
-      return 'hidden'
-  }
+// Initialisation de la WebSocket et des stores au montage
+onMounted(() => {
+  console.log('Initialisation du WebSocket service et des stores')
+  // Connexion à la WebSocket centralisée
+  webSocketService.connect()
+  
+  // Initialisation des stores (abonnements aux événements)
+  audioStore.initialize()
+  spotifyStore.initialize()
+  volumeStore.initialize()
+})
+
+// Nettoyage des ressources au démontage
+onBeforeUnmount(() => {
+  console.log('Nettoyage des ressources WebSocket')
+  audioStore.cleanup()
+  spotifyStore.cleanup()
+  volumeStore.cleanup()
 })
 </script>
 
 <template>
-  <div class="warm-filter"></div>
   <router-view />
 </template>
 

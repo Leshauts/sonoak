@@ -54,19 +54,47 @@ class WebSocketManager:
         Broadcast message to all clients of a service with error handling
         """
         if service not in self.active_connections:
+            # Créer une entrée vide pour ce service
+            self.active_connections[service] = set()
+        
+        # Assurer que les connections "global" existent
+        if "global" not in self.active_connections:
+            self.active_connections["global"] = set()
+
+        # Préparer le message avec le champ service pour les clients globaux
+        wrapped_message = {"service": service, **message}
+        
+        # Envoyer à tous les clients globaux si le service n'est pas global
+        if service != "global" and self.active_connections["global"]:
+            await self._broadcast_message(wrapped_message, "global")
+        
+        # Envoyer aux clients spécifiques du service le message non-wrappé 
+        # (pour la rétrocompatibilité)
+        if service != "global" and self.active_connections[service]:
+            await self._broadcast_message(message, service)
+        
+        # Si c'est un message global, l'envoyer tel quel aux clients globaux
+        if service == "global" and self.active_connections["global"]:
+            await self._broadcast_message(message, "global")
+
+    async def _broadcast_message(self, message: dict, target_service: str):
+        """
+        Méthode interne pour diffuser un message aux clients d'un service
+        """
+        if target_service not in self.active_connections:
             return
 
         dead_connections = set()
-        for connection in self.active_connections[service].copy():
+        for connection in self.active_connections[target_service].copy():
             try:
                 await connection.send_json(message)
             except Exception as e:
-                logger.error(f"Error broadcasting to {service}: {e}")
+                logger.error(f"Error broadcasting to {target_service}: {e}")
                 dead_connections.add(connection)
 
         # Clean up dead connections
         for dead_conn in dead_connections:
-            self.disconnect(dead_conn, service)
+            self.disconnect(dead_conn, target_service)
 
     async def _heartbeat(self, websocket: WebSocket, service: str):
         """

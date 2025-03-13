@@ -1,9 +1,9 @@
+// frontend/src/stores/spotify.js
 import { defineStore } from 'pinia'
+import { webSocketService } from '../services/websocket'
 
 export const useSpotifyStore = defineStore('spotify', {
   state: () => ({
-    websocket: null,
-    librespotWs: null,  // Nouveau WebSocket pour go-librespot
     connected: localStorage.getItem("spotify_connected") === "true" || false,
     playbackStatus: JSON.parse(localStorage.getItem("spotify_playbackStatus")) || {
       trackName: null,
@@ -14,69 +14,65 @@ export const useSpotifyStore = defineStore('spotify', {
       isPlaying: false,
       volume: 0
     },
-    progressTime: 0,
-    startTime: 0,
-    progressInterval: null,
     progressTime: localStorage.getItem("spotify_progressTime") ? parseInt(localStorage.getItem("spotify_progressTime")) : 0,
     startTime: localStorage.getItem("spotify_startTime") ? parseInt(localStorage.getItem("spotify_startTime")) : 0,
+    progressInterval: null,
+    unsubscribe: null,
+    librespotWsUrl: null
   }),
 
   getters: {
-    isConnected: (state) => state.connected
+    isConnected: (state) => state.connected,
+    playerActive: (state) => !!state.playbackStatus.trackName
   },
 
   actions: {
-    initWebSocket() {
-      if (this.websocket) return
-
-      // Initialiser la connexion WebSocket avec go-librespot
-      const librespotProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const librespotUrl = `${librespotProtocol}//${window.location.hostname}:4789/events`
-      
-      this.librespotWs = new WebSocket(librespotUrl)
-      this.librespotWs.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data)
-          this.handleLibrespotEvent(data)
-        } catch (error) {
-          console.error('Erreur WebSocket Librespot:', error)
-        }
-      }
-
-      // WebSocket backend standard
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const wsUrl = `${protocol}//${window.location.hostname}:8000/ws/spotify`
-      
-      this.websocket = new WebSocket(wsUrl)
-      
-      this.websocket.onopen = () => {
-        console.log('WebSocket Spotify connecté')
+    initialize() {
+      if (!this.unsubscribe) {
+        // Configuration de la WebSocket librespot directe (non centralisée)
+        const librespotProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        this.librespotWsUrl = `${librespotProtocol}//${window.location.hostname}:4789/events`
+        this.connectToLibrespot()
+        
+        // S'abonner aux messages Spotify depuis notre service centralisé
+        this.unsubscribe = webSocketService.subscribe('spotify', (data) => {
+          if (data.type === 'spotify_status') {
+            this.updateConnectionStatus(data.status)
+            if (this.connected) {
+              this.requestPlaybackStatus()
+            }
+          } else if (data.type === 'playback_status' && data.status) {
+            this.updatePlaybackStatus(data.status)
+          }
+        })
+        
+        // Demander l'état actuel
         this.fetchStatusFromAPI()
         this.fetchPlaybackFromAPI()
         this.requestStatus()
       }
+    },
 
-      this.websocket.onmessage = async (event) => {
-        const data = JSON.parse(event.data)
-        console.log('Message Spotify reçu:', data)
-
-        if (data.type === 'spotify_status') {
-          this.updateConnectionStatus(data.status)
-          if (this.connected) {
-            this.requestPlaybackStatus()
+    connectToLibrespot() {
+      try {
+        const librespotWs = new WebSocket(this.librespotWsUrl)
+        
+        librespotWs.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data)
+            this.handleLibrespotEvent(data)
+          } catch (error) {
+            console.error('Erreur WebSocket Librespot:', error)
           }
-        } else if (data.type === 'playback_status' && data.status) {
-          this.updatePlaybackStatus(data.status)
         }
-      }
-
-      this.websocket.onclose = () => {
-        console.log('WebSocket Spotify déconnecté')
-        this.connected = false
-        localStorage.setItem("spotify_connected", "false")
-        this.websocket = null
-        this.clearTimers()
-        setTimeout(() => this.initWebSocket(), 2000)
+        
+        librespotWs.onclose = () => {
+          // Reconnexion automatique après délai
+          setTimeout(() => this.connectToLibrespot(), 2000)
+        }
+      } catch (error) {
+        console.error('Erreur connexion Librespot:', error)
+        setTimeout(() => this.connectToLibrespot(), 2000)
       }
     },
 
@@ -101,15 +97,11 @@ export const useSpotifyStore = defineStore('spotify', {
     },
 
     requestStatus() {
-      if (this.websocket?.readyState === WebSocket.OPEN) {
-        this.websocket.send(JSON.stringify({ type: 'get_status' }))
-      }
+      webSocketService.sendMessage('spotify', { type: 'get_status' })
     },
 
     requestPlaybackStatus() {
-      if (this.websocket?.readyState === WebSocket.OPEN) {
-        this.websocket.send(JSON.stringify({ type: 'get_playback_status' }))
-      }
+      webSocketService.sendMessage('spotify', { type: 'get_playback_status' })
     },
 
     updateConnectionStatus(status) {
@@ -175,53 +167,16 @@ export const useSpotifyStore = defineStore('spotify', {
       }
     },
 
-    // async seekTo(position) {
-    //   try {
-    //     if (this.websocket?.readyState === WebSocket.OPEN) {
-    //       this.websocket.send(JSON.stringify({
-    //         type: 'seek',
-    //         position: position
-    //       }))
-    //     }
-    //   } catch (error) {
-    //     console.error('Erreur lors du seek:', error)
-    //   }
-    // },
-
     playPause() {
-      if (this.websocket?.readyState === WebSocket.OPEN) {
-        this.websocket.send(JSON.stringify({ type: 'play_pause' }))
-      }
+      webSocketService.sendMessage('spotify', { type: 'play_pause' })
     },
 
     nextTrack() {
-      console.log('Next track button clicked') // Log de débogage
-      if (this.websocket?.readyState === WebSocket.OPEN) {
-        console.log('WebSocket is open, sending next_track message') // Log de débogage
-        this.websocket.send(JSON.stringify({ type: 'next_track' }))
-      } else {
-        console.log('WebSocket state:', this.websocket?.readyState) // Log en cas de problème
-      }
+      webSocketService.sendMessage('spotify', { type: 'next_track' })
     },
 
     previousTrack() {
-      if (this.websocket?.readyState === WebSocket.OPEN) {
-        this.websocket.send(JSON.stringify({ type: 'previous_track' }))
-      }
-    },
-
-    cleanup() {
-      this.clearTimers()
-      if (this.websocket) {
-        this.websocket.close()
-        this.websocket = null
-      }
-      if (this.librespotWs) {
-        this.librespotWs.close()
-        this.librespotWs = null
-      }
-      this.connected = false
-      localStorage.setItem("spotify_connected", "false")
+      webSocketService.sendMessage('spotify', { type: 'previous_track' })
     },
 
     async fetchStatusFromAPI() {
@@ -255,6 +210,16 @@ export const useSpotifyStore = defineStore('spotify', {
         this.connected = false
         localStorage.setItem("spotify_connected", "false")
       }
+    },
+    
+    cleanup() {
+      this.clearTimers()
+      if (this.unsubscribe) {
+        this.unsubscribe()
+        this.unsubscribe = null
+      }
+      this.connected = false
+      localStorage.setItem("spotify_connected", "false")
     }
   }
 })

@@ -50,9 +50,9 @@ export default {
 
     onMounted(() => {
       console.log('Dock mounted - Initializing volume websocket')
-      volumeStore.initializeWebSocket()
+      // Aucune initialisation nécessaire ici, elle est gérée dans App.vue
     })
-
+    
     return { audioStore, volumeStore }
   },
   data() {

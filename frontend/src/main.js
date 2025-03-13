@@ -2,10 +2,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
-import { useAudioStore } from './stores/audio'
 import './styles/main.css'
 import './styles/raspberry.css'
-
 
 // Création de l'application
 const app = createApp(App)
@@ -18,10 +16,6 @@ app.use(pinia)  // Installer Pinia en premier
 app.use(router)
 
 app.config.devtools = false 
-
-// Initialisation du store audio
-const audioStore = useAudioStore()
-audioStore.initWebSocket()
 
 // Montage de l'application
 app.mount('#app')

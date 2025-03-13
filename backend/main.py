@@ -235,76 +235,90 @@ app.include_router(bluetooth_router, prefix="/api/bluetooth", tags=["bluetooth"]
 app.include_router(snapcast_router, prefix="/api/snapcast", tags=["snapcast"])
 app.include_router(spotify_router, prefix="/api/spotify", tags=["spotify"])
 
-@app.websocket("/ws/{service}")
-async def websocket_endpoint(websocket: WebSocket, service: str):
+# Ajouter cet endpoint dans main.py, en remplaçant l'endpoint WebSocket existant
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
     client_id = id(websocket)
-    logger.debug(f"New WebSocket connection request for service: {service} (client_id: {client_id})")
+    logger.debug(f"Nouvelle connexion WebSocket (client_id: {client_id})")
 
-    if not await service_manager.websocket_manager.connect(websocket, service):
-        logger.error(f"Failed to establish WebSocket connection for {service}")
-        return
-
-    logger.info(f"WebSocket connected for service: {service} (client_id: {client_id})")
+    # Établir la connexion
+    await service_manager.websocket_manager.connect(websocket, "global")
+    
+    logger.info(f"WebSocket connecté (client_id: {client_id})")
 
     try:
         while True:
             try:
                 data = await websocket.receive_json()
                 
+                # Ignorer les messages pong (réponse aux pings)
                 if data.get("type") == "pong":
                     continue
 
+                # Extraire le service cible et le message
+                service = data.get("service", "global")
+                message = data.get("message", {})
+                
+                if not message:
+                    logger.warning(f"Message sans contenu pour le service {service}")
+                    continue
+                
+                logger.debug(f"Message reçu pour {service}: {message}")
+                
                 try:
                     async with asyncio.timeout(5.0):
+                        # Important: passer le message directement aux services car ils s'attendent
+                        # à recevoir le contenu brut, pas l'enveloppe
                         if service == "audio":
-                            await service_manager.audio_manager.handle_message(data)
+                            await service_manager.audio_manager.handle_message(message)
                         elif service == "volume":
-                            await service_manager.volume_manager.handle_message(data)
+                            await service_manager.volume_manager.handle_message(message)
                         elif service == "bluetooth":
-                            await service_manager.bluetooth_manager.handle_message(data)
+                            await service_manager.bluetooth_manager.handle_message(message)
                         elif service == "snapcast":
-                            await service_manager.snapcast_manager.handle_message(data)
+                            await service_manager.snapcast_manager.handle_message(message)
                         elif service == "spotify":
-                            message_type = data.get("type")
-                            if message_type in ["play_pause", "next_track", "previous_track", "get_status"]:
-                                await service_manager.spotify_player.handle_message(data)
+                            message_type = message.get("type")
+                            if message_type in ["play_pause", "next_track", "previous_track", "get_playback_status", "get_status"]:
+                                await service_manager.spotify_player.handle_message(message)
                             else:
-                                await service_manager.spotify_manager.handle_message(data)
+                                await service_manager.spotify_manager.handle_message(message)
                         else:
-                            logger.warning(f"Unknown service: {service}")
+                            logger.warning(f"Service inconnu: {service}")
                             
                 except asyncio.TimeoutError:
-                    logger.error(f"Timeout processing message for {service}")
+                    logger.error(f"Timeout pendant le traitement du message pour {service}")
                     await websocket.send_json({
+                        "service": service,
                         "type": "error",
-                        "error": "Request timeout",
-                        "service": service
+                        "error": "Request timeout"
                     })
 
             except WebSocketDisconnect:
-                logger.info(f"WebSocket disconnected normally for {service} (client_id: {client_id})")
+                logger.info(f"WebSocket déconnecté normalement (client_id: {client_id})")
                 break
             except Exception as e:
-                logger.error(f"Error handling {service} message: {e}", exc_info=True)
+                logger.error(f"Erreur de traitement du message: {e}", exc_info=True)
                 try:
                     await websocket.send_json({
+                        "service": "global",
                         "type": "error",
-                        "error": str(e),
-                        "service": service
+                        "error": str(e)
                     })
                 except:
                     break
 
     except WebSocketDisconnect:
-        logger.info(f"WebSocket disconnected normally for {service} (client_id: {client_id})")
+        logger.info(f"WebSocket déconnecté normalement (client_id: {client_id})")
     except Exception as e:
-        logger.error(f"WebSocket error for {service}: {e}", exc_info=True)
+        logger.error(f"Erreur WebSocket: {e}", exc_info=True)
     finally:
         try:
-            logger.info(f"Cleaning up WebSocket for service: {service} (client_id: {client_id})")
-            service_manager.websocket_manager.disconnect(websocket, service)
+            logger.info(f"Nettoyage de la connexion WebSocket (client_id: {client_id})")
+            service_manager.websocket_manager.disconnect(websocket, "global")
         except Exception as cleanup_error:
-            logger.error(f"Error during WebSocket cleanup: {cleanup_error}")
+            logger.error(f"Erreur pendant le nettoyage WebSocket: {cleanup_error}")
 
 @app.get("/health")
 async def health_check() -> Dict[str, Any]:
