@@ -17,8 +17,9 @@
 </template>
 
 <script>
-import MacOSIcon from '@/components/icons/MacOSIcon.vue';
-import LoaderIcon from '@/components/icons/LoaderIcon.vue';
+import { webSocketService } from '@/services/websocket'
+import MacOSIcon from '@/components/icons/MacOSIcon.vue'
+import LoaderIcon from '@/components/icons/LoaderIcon.vue'
 
 export default {
     name: 'SnapcastStatus',
@@ -28,13 +29,12 @@ export default {
     },
     data() {
         return {
-            ws: null,
             clients: [],
-            wsConnected: false,
             serverAvailable: false,
-            connectionError: null,
             isReady: false,
-            serverInfo: null
+            serverInfo: null,
+            periodicCheck: null,
+            unsubscribe: null
         }
     },
     computed: {
@@ -48,105 +48,53 @@ export default {
         }
     },
     methods: {
-        initWebSocket() {
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                return
-            }
-
-            try {
-                this.ws = new WebSocket(`ws://${window.location.hostname}:8000/ws/snapcast`);
-                console.log('Tentative de connexion WebSocket Snapcast');
-
-                this.ws.onopen = () => {
-                    console.log('WebSocket Snapcast connecté');
-                    this.wsConnected = true;
-                    this.connectionError = null;
-                    this.checkStatus();
-                }
-
-                this.ws.onmessage = (event) => {
-                    try {
-                        const data = JSON.parse(event.data);
-                        console.log('Message Snapcast reçu:', data);
-
-                        if (data.type === 'clients_status') {
-                            this.clients = data.clients;
-                            this.serverAvailable = data.server_available;
-                            this.serverInfo = data.server_info;
-                            if (!this.isReady) {
-                                this.isReady = true;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Erreur parsing message:', error);
-                    }
-                }
-
-                this.ws.onclose = (event) => {
-                    console.log('WebSocket Snapcast déconnecté', event.code, event.reason);
-                    this.wsConnected = false;
-                    this.handleDisconnect();
-                }
-
-                this.ws.onerror = (error) => {
-                    console.error('Erreur WebSocket Snapcast:', error);
-                    this.connectionError = error;
-                }
-            } catch (error) {
-                console.error('Erreur initialisation WebSocket Snapcast:', error);
-                this.connectionError = error;
-            }
-        },
-
         checkStatus() {
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                this.ws.send(JSON.stringify({
-                    type: 'get_status',
-                    data: {}
-                }));
-            }
+            webSocketService.sendMessage('snapcast', {
+                type: 'get_status',
+                data: {}
+            });
         },
 
         startPeriodicCheck() {
+            this.stopPeriodicCheck(); // Arrêter l'ancien check si existant
             this.periodicCheck = setInterval(() => {
                 this.checkStatus();
-            }, 2000);
+            }, 5000);
         },
 
-        handleDisconnect() {
-            clearInterval(this.periodicCheck);
-            setTimeout(() => {
-                if (!this.wsConnected) {
-                    this.initWebSocket();
-                }
-            }, 2000);
-        },
-
-        cleanupWebSocket() {
-            clearInterval(this.periodicCheck);
-            if (this.ws) {
-                this.ws.close();
-                this.ws = null;
+        stopPeriodicCheck() {
+            if (this.periodicCheck) {
+                clearInterval(this.periodicCheck);
+                this.periodicCheck = null;
             }
-            this.wsConnected = false;
-            this.isReady = false;
         }
     },
-
     mounted() {
         console.log('Composant Snapcast monté');
-        this.initWebSocket();
-    },
-
-    beforeUnmount() {
-        this.cleanupWebSocket();
-    },
-
-    watch: {
-        wsConnected(newVal) {
-            if (newVal) {
-                this.startPeriodicCheck();
+        
+        // S'abonner aux messages Snapcast via le service centralisé
+        this.unsubscribe = webSocketService.subscribe('snapcast', (data) => {
+            if (data.type === 'clients_status') {
+                console.log('Mise à jour du statut Snapcast:', data);
+                this.clients = data.clients;
+                this.serverAvailable = data.server_available;
+                this.serverInfo = data.server_info;
+                if (!this.isReady) {
+                    this.isReady = true;
+                }
             }
+        });
+        
+        // Demander l'état actuel
+        this.checkStatus();
+        this.startPeriodicCheck();
+    },
+    beforeUnmount() {
+        this.stopPeriodicCheck();
+        
+        // Se désabonner du service
+        if (this.unsubscribe) {
+            this.unsubscribe();
         }
     }
 }

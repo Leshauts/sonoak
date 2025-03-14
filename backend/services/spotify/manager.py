@@ -47,11 +47,13 @@ class SpotifyManager:
     async def get_status(self):
         """Récupère le statut via l'API REST"""
         try:
+            print(f"Récupération du statut Spotify depuis {self.librespot_host}:{self.librespot_port}")
             url = f'http://{self.librespot_host}:{self.librespot_port}/status'
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     if response.status == 200:
                         status = await response.json()
+                        print(f"Statut Spotify reçu: {status}")
                         old_connected = self.current_status["connected"]
                         
                         is_connected = not status.get("stopped", True) and status.get("username") is not None
@@ -63,20 +65,26 @@ class SpotifyManager:
                         }
 
                         if new_status != self.current_status:
+                            print(f"Changement de statut Spotify: {self.current_status} -> {new_status}")
                             self.current_status = new_status
                             
                             # Si le statut de connexion a changé
                             if old_connected != is_connected:
                                 if self.audio_manager:
                                     if is_connected:
+                                        print("Connexion Spotify détectée, basculement de la source audio")
                                         await self.audio_manager.switch_source(AudioSource.SPOTIFY)
                                     else:
+                                        print("Déconnexion Spotify détectée, réinitialisation de la source audio")
                                         await self.audio_manager.switch_source(AudioSource.NONE)
-                            
+                                
                             await self.notify_status()
+                    else:
+                        print(f"Erreur récupération statut Spotify: {response.status}")
         except aiohttp.ClientError as e:
             print(f"Erreur de connexion à go-librespot: {e}")
             if self.current_status["connected"]:
+                print("Perte de connexion Spotify détectée")
                 self.current_status = {
                     "connected": False,
                     "username": None,
@@ -84,7 +92,7 @@ class SpotifyManager:
                 }
                 await self.notify_status()
         except Exception as e:
-            print(f"Erreur inattendue: {e}")
+            print(f"Erreur inattendue lors de la récupération du statut Spotify: {e}")
             traceback.print_exc()
 
     async def notify_status(self):

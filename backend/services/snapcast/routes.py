@@ -1,3 +1,5 @@
+# backend/services/snapcast/routes.py
+
 from fastapi import APIRouter, HTTPException
 from typing import Dict
 

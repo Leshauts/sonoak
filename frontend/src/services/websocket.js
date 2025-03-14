@@ -13,6 +13,7 @@ class WebSocketService {
     this.messageQueue = [] // Messages reçus à traiter
     this.processingQueue = false
     this.lastProtocolError = null
+    this.connectionInProgress = false
   }
 
   /**
@@ -21,25 +22,59 @@ class WebSocketService {
   connect() {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       console.log('WebSocket déjà connecté')
-      return
+      return Promise.resolve(true)
     }
     
+    if (this.connectionInProgress) {
+      console.log('Connexion WebSocket déjà en cours')
+      return Promise.resolve(false)
+    }
+    
+    this.connectionInProgress = true
     this.cleanup()
     
-    const hostname = window.location.hostname === 'localhost' 
-      ? 'localhost' 
-      : window.location.hostname
+    return new Promise((resolve) => {
+      const hostname = window.location.hostname
+      const port = 8000 // Port fixe pour le backend
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      const wsUrl = `${protocol}//${hostname}:${port}/ws`
       
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const wsUrl = `${protocol}//${hostname}:8000/ws`
-    
-    console.log(`Connexion WebSocket à ${wsUrl}`)
-    this.socket = new WebSocket(wsUrl)
-    
-    this.socket.onopen = this.handleOpen.bind(this)
-    this.socket.onmessage = this.handleMessage.bind(this)
-    this.socket.onclose = this.handleClose.bind(this)
-    this.socket.onerror = this.handleError.bind(this)
+      console.log(`Connexion WebSocket à ${wsUrl}`)
+      this.socket = new WebSocket(wsUrl)
+      
+      this.socket.onopen = () => {
+        this.handleOpen()
+        this.connectionInProgress = false
+        resolve(true)
+      }
+      
+      this.socket.onmessage = this.handleMessage.bind(this)
+      
+      this.socket.onclose = (event) => {
+        this.handleClose(event)
+        this.connectionInProgress = false
+        resolve(false)
+      }
+      
+      this.socket.onerror = (error) => {
+        this.handleError(error)
+        this.connectionInProgress = false
+        resolve(false)
+      }
+      
+      // Timeout pour la connexion
+      setTimeout(() => {
+        if (this.connectionInProgress) {
+          this.connectionInProgress = false
+          if (this.socket && this.socket.readyState !== WebSocket.OPEN) {
+            console.error('Timeout de connexion WebSocket')
+            this.socket.close()
+            this.socket = null
+          }
+          resolve(false)
+        }
+      }, 5000)
+    })
   }
 
   /**
@@ -76,13 +111,13 @@ class WebSocketService {
    * @param {string} service - Nom du service destinataire 
    * @param {object} message - Message à envoyer
    */
-  sendMessage(service, message) {
+  async sendMessage(service, message) {
     const wrappedMessage = { service, message }
     
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       console.log(`WebSocket non connecté. Message mis en file d'attente: ${JSON.stringify(wrappedMessage)}`)
       this.pendingMessages.push(wrappedMessage)
-      this.connect()
+      await this.connect()
       return
     }
     
@@ -160,7 +195,7 @@ class WebSocketService {
       // Récupérer le contenu réel du message (en retirant l'enveloppe 'service')
       const messageContent = { ...data }
       delete messageContent.service
-
+      
       // Trouver les abonnés au service correspondant
       const callbacks = this.subscribers.get(service) || []
       

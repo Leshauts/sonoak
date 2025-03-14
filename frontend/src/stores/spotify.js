@@ -182,33 +182,48 @@ export const useSpotifyStore = defineStore('spotify', {
     async fetchStatusFromAPI() {
       try {
         const response = await fetch('/api/spotify/status')
-        if (response.ok) {
-          const data = await response.json()
-          this.updateConnectionStatus(data)
+        if (!response.ok) {
+          console.warn(`Erreur API Spotify status: ${response.status}`)
+          return
+        }
+        
+        const contentType = response.headers.get('content-type')
+        if (!contentType?.includes('application/json')) {
+          console.warn(`Réponse non-JSON (${contentType})`)
+          return
+        }
+        
+        const data = await response.json()
+        if (data && data.status) {
+          this.updateConnectionStatus(data.status)
         }
       } catch (err) {
         console.error("Erreur API Spotify (status):", err)
+        // Ne pas modifier l'état connecté en cas d'erreur pour éviter les déconnexions indésirables
       }
     },
 
     async fetchPlaybackFromAPI() {
       try {
         const response = await fetch('/api/spotify/playback')
-        const contentType = response.headers.get('content-type')
-        if (!contentType?.includes('application/json')) {
-          throw new Error(`Réponse invalide (${contentType}), JSON attendu`)
+        if (!response.ok) {
+          console.warn(`Erreur API Spotify playback: ${response.status}`)
+          return
         }
         
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+        const contentType = response.headers.get('content-type')
+        if (!contentType?.includes('application/json')) {
+          console.warn(`Réponse non-JSON (${contentType})`)
+          return
         }
         
         const data = await response.json()
-        this.updatePlaybackStatus(data)
+        if (data) {
+          this.updatePlaybackStatus(data)
+        }
       } catch (err) {
         console.error("Erreur API Spotify (playback):", err)
-        this.connected = false
-        localStorage.setItem("spotify_connected", "false")
+        // Continuer à utiliser les données existantes en cas d'erreur
       }
     },
     

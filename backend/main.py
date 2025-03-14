@@ -1,8 +1,11 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect
 from contextlib import asynccontextmanager
 from typing import Dict, Any
+import json
+import traceback
 import asyncio
 import logging
 import logging.handlers
@@ -221,14 +224,42 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Gestionnaire d'exceptions global pour éviter les erreurs 500 silencieuses"""
+    
+    # Journaliser l'erreur avec la stack trace complète
+    logger.error(f"Exception non gérée lors du traitement de {request.url}:")
+    logger.error(traceback.format_exc())
+    
+    # Détecter des types d'erreurs spécifiques
+    error_type = type(exc).__name__
+    error_message = str(exc)
+    
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": error_type,
+            "message": error_message,
+            "path": str(request.url),
+            "method": request.method
+        }
+    )
+    
 # Configuration CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
+    expose_headers=["*"]
 )
+
+# Initialisation des routes 
+init_routes(service_manager.bluetooth_manager)  # Pour Bluetooth
+init_snapcast_routes(service_manager.snapcast_manager)  # Pour Snapcast
+init_spotify_routes(service_manager.spotify_manager, service_manager.spotify_player)  # Pour Spotify
 
 # Routes API
 app.include_router(bluetooth_router, prefix="/api/bluetooth", tags=["bluetooth"])
@@ -280,7 +311,7 @@ async def websocket_endpoint(websocket: WebSocket):
                             await service_manager.snapcast_manager.handle_message(message)
                         elif service == "spotify":
                             message_type = message.get("type")
-                            if message_type in ["play_pause", "next_track", "previous_track", "get_playback_status", "get_status"]:
+                            if message_type in ["play_pause", "next_track", "previous_track", "get_playback_status", "seek"]:
                                 await service_manager.spotify_player.handle_message(message)
                             else:
                                 await service_manager.spotify_manager.handle_message(message)
@@ -298,6 +329,16 @@ async def websocket_endpoint(websocket: WebSocket):
             except WebSocketDisconnect:
                 logger.info(f"WebSocket déconnecté normalement (client_id: {client_id})")
                 break
+            except json.JSONDecodeError:
+                logger.error(f"Erreur de décodage JSON pour le client {client_id}")
+                try:
+                    await websocket.send_json({
+                        "service": "global",
+                        "type": "error",
+                        "error": "Invalid JSON format"
+                    })
+                except:
+                    break
             except Exception as e:
                 logger.error(f"Erreur de traitement du message: {e}", exc_info=True)
                 try:
