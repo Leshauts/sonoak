@@ -1,6 +1,7 @@
-# backend/services/audio/manager.py
 import asyncio
 import logging
+import subprocess
+import os
 from enum import Enum
 from pathlib import Path
 from typing import Optional
@@ -67,13 +68,23 @@ class AudioManager:
             
         try:
             self.is_switching = True
+            # Notifier immédiatement du changement en cours
+            await self._notify_state_change()
+            
             logger.info(f"Changement vers la source {source.value}")
             
             if script_name := self.source_scripts.get(source):
                 success = await self._execute_script(script_name)
                 if success:
+                    # Attendre que le service démarre (3 secondes)
+                    await asyncio.sleep(3)
+                    
                     self.current_source = source
                     await self._notify_state_change()
+                    
+                    # Donner du temps aux services pour s'initialiser
+                    await asyncio.sleep(1)
+                    
                     return True
                 else:
                     logger.error(f"Échec du script pour {source.value}")
@@ -84,6 +95,8 @@ class AudioManager:
                 
         finally:
             self.is_switching = False
+            # Notifier à nouveau avec is_switching = False
+            await self._notify_state_change()
             
     async def _execute_script(self, script_name: str) -> bool:
         """Exécute un script de changement de source"""
@@ -95,6 +108,8 @@ class AudioManager:
             
         try:
             script_path.chmod(0o755)
+            logger.info(f"Exécution du script: {script_path}")
+            
             process = await asyncio.create_subprocess_exec(
                 "sudo", str(script_path),
                 stdout=asyncio.subprocess.PIPE,
@@ -106,7 +121,14 @@ class AudioManager:
                     process.communicate(), 
                     timeout=30.0
                 )
-                return process.returncode == 0
+                
+                if process.returncode == 0:
+                    logger.info(f"Script {script_name} exécuté avec succès")
+                    return True
+                else:
+                    logger.error(f"Échec du script {script_name}: {stderr.decode().strip()}")
+                    return False
+                    
             except asyncio.TimeoutError:
                 logger.error(f"Timeout lors de l'exécution de {script_name}")
                 process.kill()
@@ -125,4 +147,5 @@ class AudioManager:
                 "is_switching": self.is_switching
             }
         }
+        logger.info(f"Envoi de l'état audio: {message}")
         await self.websocket_manager.broadcast_to_service(message, "audio")

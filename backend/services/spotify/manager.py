@@ -1,6 +1,7 @@
 import asyncio
 import json
 import aiohttp
+import os
 from typing import List, Dict
 import traceback
 from services.audio.manager import AudioSource
@@ -10,8 +11,8 @@ class SpotifyManager:
         print("Initialisation du SpotifyManager...")
         self.websocket_manager = websocket_manager
         self.audio_manager = audio_manager
-        self.librespot_host = "localhost"
-        self.librespot_port = 4789
+        self.librespot_host = os.environ.get("LIBRESPOT_HOST", "localhost")
+        self.librespot_port = int(os.environ.get("LIBRESPOT_PORT", "4789"))
         self.current_status = {
             "connected": False,
             "username": None,

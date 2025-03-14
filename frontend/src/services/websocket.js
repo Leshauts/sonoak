@@ -34,8 +34,7 @@ class WebSocketService {
     this.cleanup()
 
     return new Promise((resolve) => {
-      // Utiliser le hostname actuel au lieu de "localhost" en dur
-      const hostname = window.location.hostname
+      const hostname = '127.0.0.1';
       const port = 8000
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
       const wsUrl = `${protocol}//${hostname}:${port}/ws`

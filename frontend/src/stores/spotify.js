@@ -29,12 +29,7 @@ export const useSpotifyStore = defineStore('spotify', {
   actions: {
     initialize() {
       if (!this.unsubscribe) {
-        // Configuration de la WebSocket librespot directe (non centralisée)
-        const librespotProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        this.librespotWsUrl = `${librespotProtocol}//${window.location.hostname}:4789/events`
-        this.connectToLibrespot()
-        
-        // S'abonner aux messages Spotify depuis notre service centralisé
+        // S'abonner aux messages Spotify depuis le service WebSocket
         this.unsubscribe = webSocketService.subscribe('spotify', (data) => {
           if (data.type === 'spotify_status') {
             this.updateConnectionStatus(data.status)
@@ -45,18 +40,24 @@ export const useSpotifyStore = defineStore('spotify', {
             this.updatePlaybackStatus(data.status)
           }
         })
-        
-        // Demander l'état actuel
-        this.fetchStatusFromAPI()
-        this.fetchPlaybackFromAPI()
-        this.requestStatus()
+
+        // S'abonner aux changements d'état audio
+        webSocketService.subscribe('audio', (data) => {
+          if (data.type === 'audio_state_change') {
+            // Si on vient de passer à Spotify, initialiser la connexion WebSocket
+            if (data.data?.current_source === 'spotify') {
+              this.initWebSocket()
+              this.requestStatus()
+            }
+          }
+        })
       }
     },
 
     connectToLibrespot() {
       try {
         const librespotWs = new WebSocket(this.librespotWsUrl)
-        
+
         librespotWs.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data)
@@ -65,7 +66,7 @@ export const useSpotifyStore = defineStore('spotify', {
             console.error('Erreur WebSocket Librespot:', error)
           }
         }
-        
+
         librespotWs.onclose = () => {
           // Reconnexion automatique après délai
           setTimeout(() => this.connectToLibrespot(), 2000)
@@ -115,10 +116,10 @@ export const useSpotifyStore = defineStore('spotify', {
 
     updatePlaybackStatus(status) {
       console.log('Mise à jour du statut de lecture:', status)
-      
+
       // Vérifier si la position est définie et différente de 0
       const position = status.position || 0
-      
+
       this.playbackStatus = {
         trackName: status.track_name,
         artistNames: status.artist_names || [],
@@ -186,13 +187,13 @@ export const useSpotifyStore = defineStore('spotify', {
           console.warn(`Erreur API Spotify status: ${response.status}`)
           return
         }
-        
+
         const contentType = response.headers.get('content-type')
         if (!contentType?.includes('application/json')) {
           console.warn(`Réponse non-JSON (${contentType})`)
           return
         }
-        
+
         const data = await response.json()
         if (data && data.status) {
           this.updateConnectionStatus(data.status)
@@ -210,13 +211,13 @@ export const useSpotifyStore = defineStore('spotify', {
           console.warn(`Erreur API Spotify playback: ${response.status}`)
           return
         }
-        
+
         const contentType = response.headers.get('content-type')
         if (!contentType?.includes('application/json')) {
           console.warn(`Réponse non-JSON (${contentType})`)
           return
         }
-        
+
         const data = await response.json()
         if (data) {
           this.updatePlaybackStatus(data)
@@ -226,7 +227,7 @@ export const useSpotifyStore = defineStore('spotify', {
         // Continuer à utiliser les données existantes en cas d'erreur
       }
     },
-    
+
     cleanup() {
       this.clearTimers()
       if (this.unsubscribe) {

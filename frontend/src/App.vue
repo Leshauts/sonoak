@@ -18,10 +18,17 @@ onMounted(() => {
   // Connexion à la WebSocket centralisée
   webSocketService.connect()
   
-  // Initialisation des stores (abonnements aux événements)
+  // Initialisation prioritaire des stores audio et volume
   audioStore.initialize()
-  spotifyStore.initialize()
   volumeStore.initialize()
+  
+  // Initialiser Spotify uniquement quand la source audio sera Spotify
+  // On laisse la souscription en place pour qu'il s'initialise au besoin
+  webSocketService.subscribe('audio', (data) => {
+    if (data.type === 'audio_state_change' && data.data?.current_source === 'spotify') {
+      spotifyStore.initialize()
+    }
+  })
 })
 
 // Nettoyage des ressources au démontage

@@ -16,10 +16,21 @@
           </div>
           <div v-if="showIndicator" class="dock-indicator" :style="indicatorStyle" />
           <div class="dock-items-container">
-            <button v-for="(item, index) in menuItems" :key="item.source" @click="switchSource(item.source)"
-              class="dock-item" :class="{ 'active': audioStore.currentSource === item.source }" type="button">
-              <img :src="'/src/components/services/' + item.iconName + '.svg'" :alt="item.name" class="dock-icon">
-            </button>
+            <button 
+  v-for="(item, index) in menuItems" 
+  :key="item.source" 
+  @click="switchSource(item.source)"
+  class="dock-item" 
+  :class="{ 
+    'active': audioStore.currentSource === item.source,
+    'is-switching': audioStore.isSwitching && activeItem === item.source 
+  }" 
+  :disabled="audioStore.isSwitching"
+  type="button"
+>
+  <img :src="'/src/components/services/' + item.iconName + '.svg'" :alt="item.name" class="dock-icon">
+  <div v-if="audioStore.isSwitching && activeItem === item.source" class="loading-indicator"></div>
+</button>
           </div>
         </nav>
         <div class="dock-grabber" :style="{ opacity: grabberOpacity }"></div>
@@ -499,7 +510,29 @@ export default {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
+/* TEST CHARGEMENT DOCK */
+.dock-item.is-switching {
+  position: relative;
+}
 
+.loading-indicator {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: var(--text);
+  border-radius: 3px;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { opacity: 0.2; width: 8px; }
+  50% { opacity: 1; width: 24px; }
+  100% { opacity: 0.2; width: 8px; }
+}
+/* FIN : TEST CHARGEMENT DOCK */
 .dock-icon {
   width: 72px;
   height: 72px;

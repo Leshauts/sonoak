@@ -38,25 +38,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-# Handlers de logging "INFO" + "ERROR" + "CRITICAL" (TEMPORAIREMENT DESACTIVE)
-'''
-file_handler = logging.handlers.RotatingFileHandler(
-    os.path.join(log_directory, 'backend.log'),
-    maxBytes=1024 * 1024,
-    backupCount=5
-)
-file_handler.setFormatter(logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-))
-logger.addHandler(file_handler)
-
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-))
-logger.addHandler(console_handler)
-'''
-
 # Configuration commune pour tous les handlers
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -124,11 +105,23 @@ class ServiceManager:
             self.snapcast_manager = SnapcastManager(self.websocket_manager, self.audio_manager)
             logger.info("Snapcast Manager initialized")
 
-            self.spotify_manager = SpotifyManager(self.websocket_manager, self.audio_manager)
-            logger.info("Spotify Manager initialized")
+            try:
+                self.spotify_manager = SpotifyManager(self.websocket_manager, self.audio_manager)
+                logger.info("Spotify Manager initialized")
 
-            self.spotify_player = SpotifyPlayerManager(self.websocket_manager, self.spotify_manager)
-            logger.info("Spotify Player Manager initialized")
+                self.spotify_player = SpotifyPlayerManager(self.websocket_manager, self.spotify_manager)
+                logger.info("Spotify Player Manager initialized")
+            except Exception as e:
+                logger.error(f"Error initializing Spotify services: {e}", exc_info=True)
+                self.spotify_manager = None
+                self.spotify_player = None
+
+            # Enregistrer les gestionnaires de service dans l'AudioManager
+            self.audio_manager.register_service_managers(
+                spotify_manager=self.spotify_manager,
+                bluetooth_manager=self.bluetooth_manager,
+                snapcast_manager=self.snapcast_manager
+            )
 
             # 6. Event handlers
             self.bluetooth_events = BluetoothEventHandler(self.bluetooth_manager)
@@ -150,45 +143,52 @@ class ServiceManager:
             # Vérifie d'abord si Bluetooth est disponible avant de démarrer Snapcast
             bluetooth_available = self.bluetooth_manager is not None and getattr(self.bluetooth_manager, 'initialized', False)
             
-            # Démarrage de Spotify
-            await self.spotify_manager.connect_to_events()
-            await self.spotify_player.start_polling()
-            logger.info("Spotify services started")
+            # Démarrage de Spotify (seulement si initialisé)
+            if self.spotify_manager is not None:
+                try:
+                    await self.spotify_manager.connect_to_events()
+                    if self.spotify_player is not None:
+                        await self.spotify_player.start_polling()
+                    logger.info("Spotify services started")
+                except Exception as e:
+                    logger.error(f"Error starting Spotify services: {e}", exc_info=True)
             
             # Démarrage conditionnel de Snapcast (seulement si explicitement demandé ou si le source actuelle est MACOS)
-            current_source = getattr(self.audio_manager, 'current_source', None)
-            if current_source and current_source.value == "macos":
-                logger.info("Starting Snapcast because current source is MACOS")
-                await self.snapcast_manager.get_clients_status()
-                logger.info("Snapcast service started")
-            else:
-                logger.info("Skipping automatic Snapcast startup")
+            if self.audio_manager:
+                current_source = getattr(self.audio_manager, 'current_source', None)
+                if current_source and current_source.value == "macos" and self.snapcast_manager:
+                    logger.info("Starting Snapcast because current source is MACOS")
+                    await self.snapcast_manager.get_clients_status()
+                    logger.info("Snapcast service started")
+                else:
+                    logger.info("Skipping automatic Snapcast startup")
             
             self.update_services_status()
             logger.info("All services started successfully")
         
         except Exception as e:
             logger.error(f"Error starting services: {e}", exc_info=True)
-            raise
+            # Ne pas lever l'exception pour permettre au serveur de continuer malgré les erreurs
+            # raise
 
     def update_services_status(self):
         """Met à jour le statut de tous les services"""
         self.services_status = {
             "bluetooth": {
                 "active": self.bluetooth_manager is not None,
-                "initialized": getattr(self.bluetooth_manager, 'initialized', False)
+                "initialized": getattr(self.bluetooth_manager, 'initialized', False) if self.bluetooth_manager else False
             },
             "snapcast": {
                 "active": self.snapcast_manager is not None,
-                "connected": getattr(self.snapcast_manager, 'server_available', False)
+                "connected": getattr(self.snapcast_manager, 'server_available', False) if self.snapcast_manager else False
             },
             "spotify": {
                 "active": self.spotify_manager is not None,
-                "connected": getattr(self.spotify_manager, 'connected', False)
+                "connected": getattr(self.spotify_manager, 'connected', False) if self.spotify_manager else False
             },
             "volume": {
                 "active": self.volume_manager is not None,
-                "initialized": getattr(self.volume_manager, 'mixer', None) is not None
+                "initialized": getattr(self.volume_manager, 'mixer', None) is not None if self.volume_manager else False
             }
         }
 
@@ -257,16 +257,17 @@ app.add_middleware(
 )
 
 # Initialisation des routes 
-init_routes(service_manager.bluetooth_manager)  # Pour Bluetooth
-init_snapcast_routes(service_manager.snapcast_manager)  # Pour Snapcast
-init_spotify_routes(service_manager.spotify_manager, service_manager.spotify_player)  # Pour Spotify
+if service_manager.bluetooth_manager:
+    init_routes(service_manager.bluetooth_manager)  # Pour Bluetooth
+if service_manager.snapcast_manager:
+    init_snapcast_routes(service_manager.snapcast_manager)  # Pour Snapcast
+if service_manager.spotify_manager and service_manager.spotify_player:
+    init_spotify_routes(service_manager.spotify_manager, service_manager.spotify_player)  # Pour Spotify
 
 # Routes API
 app.include_router(bluetooth_router, prefix="/api/bluetooth", tags=["bluetooth"])
 app.include_router(snapcast_router, prefix="/api/snapcast", tags=["snapcast"])
 app.include_router(spotify_router, prefix="/api/spotify", tags=["spotify"])
-
-# Ajouter cet endpoint dans main.py, en remplaçant l'endpoint WebSocket existant
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -303,23 +304,70 @@ async def websocket_endpoint(websocket: WebSocket):
                 # Ajouter un timeout pour éviter les blocages
                 try:
                     async with asyncio.timeout(5.0):
-                        # Traitement selon le service
+                        # Traitement selon le service avec vérification que le service existe
                         if service == "audio":
-                            await service_manager.audio_manager.handle_message(message)
+                            if service_manager.audio_manager:
+                                await service_manager.audio_manager.handle_message(message)
+                            else:
+                                await websocket.send_json({
+                                    "service": service,
+                                    "type": "error",
+                                    "error": "Audio manager not available"
+                                })
                         elif service == "volume":
-                            await service_manager.volume_manager.handle_message(message)
+                            if service_manager.volume_manager:
+                                await service_manager.volume_manager.handle_message(message)
+                            else:
+                                await websocket.send_json({
+                                    "service": service,
+                                    "type": "error",
+                                    "error": "Volume manager not available"
+                                })
                         elif service == "bluetooth":
-                            await service_manager.bluetooth_manager.handle_message(message)
+                            if service_manager.bluetooth_manager:
+                                await service_manager.bluetooth_manager.handle_message(message)
+                            else:
+                                await websocket.send_json({
+                                    "service": service,
+                                    "type": "error",
+                                    "error": "Bluetooth manager not available"
+                                })
                         elif service == "snapcast":
-                            await service_manager.snapcast_manager.handle_message(message)
+                            if service_manager.snapcast_manager:
+                                await service_manager.snapcast_manager.handle_message(message)
+                            else:
+                                await websocket.send_json({
+                                    "service": service,
+                                    "type": "error",
+                                    "error": "Snapcast manager not available"
+                                })
                         elif service == "spotify":
                             message_type = message.get("type")
                             if message_type in ["play_pause", "next_track", "previous_track", "get_playback_status", "seek"]:
-                                await service_manager.spotify_player.handle_message(message)
+                                if service_manager.spotify_player:
+                                    await service_manager.spotify_player.handle_message(message)
+                                else:
+                                    await websocket.send_json({
+                                        "service": service,
+                                        "type": "error",
+                                        "error": "Spotify player not available"
+                                    })
                             else:
-                                await service_manager.spotify_manager.handle_message(message)
+                                if service_manager.spotify_manager:
+                                    await service_manager.spotify_manager.handle_message(message)
+                                else:
+                                    await websocket.send_json({
+                                        "service": service,
+                                        "type": "error",
+                                        "error": "Spotify manager not available"
+                                    })
                         else:
                             logger.warning(f"Service inconnu: {service}")
+                            await websocket.send_json({
+                                "service": service,
+                                "type": "error",
+                                "error": "Unknown service"
+                            })
                             
                 except asyncio.TimeoutError:
                     logger.error(f"Timeout pendant le traitement du message pour {service}")
