@@ -10,7 +10,14 @@ import asyncio
 import logging
 import logging.handlers
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from datetime import datetime
+
+from core.event_bus import EventBus
+from core.plugin_registry import PluginRegistry
+from plugins.system_service.volume import VolumePlugin
 
 from services.audio.manager import AudioManager, AudioSource
 from services.volume.manager import VolumeManager
@@ -76,6 +83,8 @@ class ServiceManager:
         self.rotary_controller = None
         self.bluetooth_events = None
         self.services_status = {}
+        self.event_bus = None
+        self.plugin_registry = None
 
     async def initialize_services(self):
         try:
@@ -83,10 +92,21 @@ class ServiceManager:
             self.websocket_manager = WebSocketManager()
             logger.info("WebSocket Manager initialized")
 
-            # 2. Volume Manager
+            # NOUVEAU: Initialiser le système de plugins
+            self.event_bus = EventBus()
+            self.plugin_registry = PluginRegistry(self.websocket_manager, self.event_bus)
+            logger.info("Plugin system initialized")
+            
+            # 2. Volume Manager (ancien système)
             self.volume_manager = VolumeManager(self.websocket_manager)
             await self.volume_manager.initialize()
             logger.info("Volume Manager initialized")
+            
+            # NOUVEAU: Enregistrer et initialiser le plugin Volume
+            # Nous gardons les deux systèmes en parallèle pour l'instant
+            volume_plugin = VolumePlugin(self.plugin_registry)
+            self.plugin_registry.register_plugin(volume_plugin)
+            logger.info("Volume Plugin registered")
 
             # 3. Rotary Controller
             self.rotary_controller = RotaryVolumeController(self.volume_manager)
@@ -130,6 +150,9 @@ class ServiceManager:
 
             # 7. Démarrage des services
             await self.start_services()
+            
+            await self.plugin_registry.initialize_plugins()
+            logger.info("All plugins initialized")
             
             return True
 
@@ -361,6 +384,17 @@ async def websocket_endpoint(websocket: WebSocket):
                                         "type": "error",
                                         "error": "Spotify manager not available"
                                     })
+                        elif service_manager.plugin_registry:
+                            try:
+                                await service_manager.plugin_registry.handle_message(service, message)
+                            except Exception as e:
+                                logger.error(f"Erreur plugin pour {service}: {e}")
+                                await websocket.send_json({
+                                    "service": service,
+                                    "type": "error",
+                                    "error": f"Plugin error: {str(e)}"
+                                })
+                        # Le else final reste inchangé
                         else:
                             logger.warning(f"Service inconnu: {service}")
                             await websocket.send_json({
@@ -414,14 +448,24 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.get("/health")
 async def health_check() -> Dict[str, Any]:
-    """Endpoint de vérification de santé détaillé"""
     service_manager.update_services_status()
+    
+    plugins_status = {}
+    if service_manager.plugin_registry:
+        for plugin_id, plugin in service_manager.plugin_registry.plugins.items():
+            plugins_status[plugin_id] = {
+                "name": plugin.name,
+                "active": plugin.is_active,
+                "type": plugin.plugin_type
+            }
+    
     return {
         "status": "healthy",
         "services": service_manager.services_status,
         "audio": {
             "current_source": service_manager.audio_manager.current_source.value if service_manager.audio_manager else None
-        }
+        },
+        "plugins": plugins_status  # Ajouter cette info
     }
 
 if __name__ == "__main__":

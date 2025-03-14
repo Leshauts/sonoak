@@ -1,3 +1,4 @@
+<!-- frontend/src/components/SpotifyStatus.vue -->
 <template>
   <Transition name="fade">
     <div v-if="isReady && !spotifyStore.isConnected" class="pop-in">
@@ -42,18 +43,22 @@ export default {
   },
   mounted() {
     const spotifyStore = useSpotifyStore()
-    
-    // Si le websocket existe déjà et est connecté
+
+    // If the websocket exists already and is connected
     if (spotifyStore.websocket && spotifyStore.websocket.readyState === WebSocket.OPEN) {
       this.isReady = true
     }
-    // Sinon, initialiser le websocket
-    else if (!spotifyStore.websocket) {
-      spotifyStore.initWebSocket()
+    // Otherwise, initialize the websocket and set isReady after a timeout
+    else {
+      // Set isReady to true after a short delay regardless
+      setTimeout(() => {
+        this.isReady = true
+      }, 1000)
+
+      if (!spotifyStore.websocket) {
+        spotifyStore.initWebSocket()
+      }
     }
-  },
-  beforeUnmount() {
-    this.isReady = false
   }
 }
 </script>

@@ -106,25 +106,24 @@ class WebSocketService {
     }
   }
 
-  /**
-   * Envoie un message à un service spécifique
-   * @param {string} service - Nom du service destinataire 
-   * @param {object} message - Message à envoyer
-   */
   async sendMessage(service, message) {
     const wrappedMessage = { service, message }
-
+  
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      console.log(`WebSocket non connecté. Message mis en file d'attente: ${JSON.stringify(wrappedMessage)}`)
+      console.log(`WebSocket not connected. Message queued: ${JSON.stringify(wrappedMessage)}`)
       this.pendingMessages.push(wrappedMessage)
-      await this.connect()
+      
+      // Only try to connect if not already in progress
+      if (!this.connectionInProgress) {
+        await this.connect()
+      }
       return
     }
-
+  
     try {
       this.socket.send(JSON.stringify(wrappedMessage))
     } catch (error) {
-      console.error(`Erreur d'envoi de message:`, error)
+      console.error(`Error sending message:`, error)
       this.pendingMessages.push(wrappedMessage)
       this.reconnect()
     }

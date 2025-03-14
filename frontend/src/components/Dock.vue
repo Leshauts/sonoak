@@ -252,6 +252,7 @@ export default {
 
     async switchSource(source) {
       if (!this.isDragging && !this.isDraggingMouse) {
+        console.log(`Switching to audio source: ${source}`);
         await this.audioStore.switchSource(source);
         this.resetHideDockTimer();
       }

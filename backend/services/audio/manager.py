@@ -1,3 +1,4 @@
+#backend/services/audio/manager.py
 import asyncio
 import logging
 import subprocess
@@ -53,6 +54,12 @@ class AudioManager:
             logger.error(f"Error handling message: {e}")
             raise
 
+    def register_service_managers(self, **managers):
+        """Register service managers for interaction"""
+        for service_name, manager in managers.items():
+            setattr(self, f"{service_name}", manager)
+        logger.info(f"Service managers registered: {list(managers.keys())}")
+    
     async def switch_source(self, source: AudioSource) -> bool:
         """
         Change la source audio active.
