@@ -61,19 +61,35 @@ class WebSocketManager:
         if "global" not in self.active_connections:
             self.active_connections["global"] = set()
 
-        # Préparer le message avec le champ service pour les clients globaux
+        # Vérifier si les connections sont encore valides
+        for service_name, connections in self.active_connections.items():
+            to_remove = set()
+            for conn in connections:
+                try:
+                    if not conn or conn.client_state.DISCONNECTED:
+                        to_remove.add(conn)
+                except Exception:
+                    to_remove.add(conn)
+            
+            # Nettoyer les connexions invalides
+            for conn in to_remove:
+                try:
+                    self.disconnect(conn, service_name)
+                except Exception as e:
+                    logger.error(f"Error cleaning invalid connection: {e}")
+
+        # Continuer avec le broadcast normal
         wrapped_message = {"service": service, **message}
         
         # Envoyer à tous les clients globaux si le service n'est pas global
         if service != "global" and self.active_connections["global"]:
             await self._broadcast_message(wrapped_message, "global")
         
-        # Envoyer aux clients spécifiques du service le message non-wrappé 
-        # (pour la rétrocompatibilité)
+        # Envoyer aux clients spécifiques du service
         if service != "global" and self.active_connections[service]:
             await self._broadcast_message(message, service)
         
-        # Si c'est un message global, l'envoyer tel quel aux clients globaux
+        # Si c'est un message global
         if service == "global" and self.active_connections["global"]:
             await self._broadcast_message(message, "global")
 
@@ -81,20 +97,35 @@ class WebSocketManager:
         """
         Méthode interne pour diffuser un message aux clients d'un service
         """
-        if target_service not in self.active_connections:
+        if target_service not in self.active_connections or not self.active_connections[target_service]:
+            logger.debug(f"No active connections for {target_service}, skipping broadcast")
             return
 
         dead_connections = set()
         for connection in self.active_connections[target_service].copy():
             try:
+                if connection.client_state.DISCONNECTED:
+                    logger.debug(f"Connection for {target_service} is already disconnected")
+                    dead_connections.add(connection)
+                    continue
+                    
                 await connection.send_json(message)
+            except RuntimeError as e:
+                if "Cannot call 'send' once a close message has been sent" in str(e):
+                    logger.warning(f"Connection for {target_service} is closing/closed")
+                else:
+                    logger.error(f"Error broadcasting to {target_service}: {e}")
+                dead_connections.add(connection)
             except Exception as e:
-                logger.error(f"Error broadcasting to {target_service}: {e}")
+                logger.error(f"Unknown error broadcasting to {target_service}: {e}")
                 dead_connections.add(connection)
 
         # Clean up dead connections
         for dead_conn in dead_connections:
-            self.disconnect(dead_conn, target_service)
+            try:
+                self.disconnect(dead_conn, target_service)
+            except Exception as e:
+                logger.error(f"Error during dead connection cleanup: {e}")
 
     async def _heartbeat(self, websocket: WebSocket, service: str):
         """
@@ -117,9 +148,13 @@ class WebSocketManager:
         """
         Handle connection errors with reconnection logic
         """
-        self.disconnect(websocket, service)
+        # S'assurer que la déconnexion est propre
+        try:
+            self.disconnect(websocket, service)
+        except Exception as e:
+            logger.error(f"Error during disconnect for {service}: {e}")
         
-        # Increment reconnection attempts
+        # Incrémenter les tentatives de reconnexion
         self.reconnect_attempts[service] = self.reconnect_attempts.get(service, 0) + 1
         
         if self.reconnect_attempts[service] <= self.max_reconnect_attempts:
@@ -127,10 +162,10 @@ class WebSocketManager:
             logger.info(f"Attempting to reconnect to {service} in {backoff} seconds...")
             await asyncio.sleep(backoff)
             
-            # Attempt reconnection
-            try:
-                await self.connect(websocket, service)
-            except Exception as e:
-                logger.error(f"Reconnection attempt failed for {service}: {e}")
+            # Ne pas tenter de réutiliser le même objet WebSocket
+            # Le client devrait se reconnecter de lui-même
+            logger.info(f"Ready for {service} to reconnect.")
         else:
             logger.error(f"Max reconnection attempts reached for {service}")
+            # Réinitialiser pour les futures tentatives
+            self.reconnect_attempts[service] = 0

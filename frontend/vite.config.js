@@ -20,13 +20,14 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://0.0.0.0:8000',
         changeOrigin: true,
         secure: false
       },
       '/ws': {
-        target: 'ws://localhost:8000',
-        ws: true
+        target: 'ws://0.0.0.0:8000',
+        ws: true,
+        changeOrigin: true
       }
     }
   },

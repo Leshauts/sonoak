@@ -273,10 +273,13 @@ async def websocket_endpoint(websocket: WebSocket):
     client_id = id(websocket)
     logger.debug(f"Nouvelle connexion WebSocket (client_id: {client_id})")
 
-    # Établir la connexion
-    await service_manager.websocket_manager.connect(websocket, "global")
-    
-    logger.info(f"WebSocket connecté (client_id: {client_id})")
+    # Établir la connexion avec gestion d'erreur
+    try:
+        await service_manager.websocket_manager.connect(websocket, "global")
+        logger.info(f"WebSocket connecté (client_id: {client_id})")
+    except Exception as e:
+        logger.error(f"Erreur lors de la connexion WebSocket: {e}")
+        return
 
     try:
         while True:
@@ -297,10 +300,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 logger.debug(f"Message reçu pour {service}: {message}")
                 
+                # Ajouter un timeout pour éviter les blocages
                 try:
                     async with asyncio.timeout(5.0):
-                        # Important: passer le message directement aux services car ils s'attendent
-                        # à recevoir le contenu brut, pas l'enveloppe
+                        # Traitement selon le service
                         if service == "audio":
                             await service_manager.audio_manager.handle_message(message)
                         elif service == "volume":

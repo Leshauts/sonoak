@@ -24,45 +24,46 @@ class WebSocketService {
       console.log('WebSocket déjà connecté')
       return Promise.resolve(true)
     }
-    
+
     if (this.connectionInProgress) {
       console.log('Connexion WebSocket déjà en cours')
       return Promise.resolve(false)
     }
-    
+
     this.connectionInProgress = true
     this.cleanup()
-    
+
     return new Promise((resolve) => {
+      // Utiliser le hostname actuel au lieu de "localhost" en dur
       const hostname = window.location.hostname
-      const port = 8000 // Port fixe pour le backend
+      const port = 8000
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
       const wsUrl = `${protocol}//${hostname}:${port}/ws`
-      
+
       console.log(`Connexion WebSocket à ${wsUrl}`)
       this.socket = new WebSocket(wsUrl)
-      
+
       this.socket.onopen = () => {
         this.handleOpen()
         this.connectionInProgress = false
         resolve(true)
       }
-      
+
       this.socket.onmessage = this.handleMessage.bind(this)
-      
+
       this.socket.onclose = (event) => {
         this.handleClose(event)
         this.connectionInProgress = false
         resolve(false)
       }
-      
+
       this.socket.onerror = (error) => {
         this.handleError(error)
         this.connectionInProgress = false
         resolve(false)
       }
-      
-      // Timeout pour la connexion
+
+      // Timeout pour éviter les connexions bloquées
       setTimeout(() => {
         if (this.connectionInProgress) {
           this.connectionInProgress = false
@@ -87,14 +88,14 @@ class WebSocketService {
     if (!this.subscribers.has(service)) {
       this.subscribers.set(service, [])
     }
-    
+
     this.subscribers.get(service).push(callback)
-    
+
     // Si c'est la première souscription, s'assurer que la connexion est établie
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       this.connect()
     }
-    
+
     return () => {
       if (this.subscribers.has(service)) {
         const callbacks = this.subscribers.get(service)
@@ -113,14 +114,14 @@ class WebSocketService {
    */
   async sendMessage(service, message) {
     const wrappedMessage = { service, message }
-    
+
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       console.log(`WebSocket non connecté. Message mis en file d'attente: ${JSON.stringify(wrappedMessage)}`)
       this.pendingMessages.push(wrappedMessage)
       await this.connect()
       return
     }
-    
+
     try {
       this.socket.send(JSON.stringify(wrappedMessage))
     } catch (error) {
@@ -138,13 +139,13 @@ class WebSocketService {
     this.isConnected.value = true
     this.reconnectAttempts = 0
     this.lastProtocolError = null
-    
+
     // Envoyer les messages en attente
     if (this.pendingMessages.length > 0) {
       console.log(`Envoi de ${this.pendingMessages.length} messages en attente`)
       const messages = [...this.pendingMessages]
       this.pendingMessages = []
-      
+
       messages.forEach(msg => {
         this.sendMessage(msg.service, msg.message)
       })
@@ -158,10 +159,10 @@ class WebSocketService {
   handleMessage(event) {
     try {
       const data = JSON.parse(event.data)
-      
+
       // Ajouter le message à la file d'attente
       this.messageQueue.push(data)
-      
+
       // Traiter la file d'attente si ce n'est pas déjà en cours
       if (!this.processingQueue) {
         this.processMessageQueue()
@@ -177,28 +178,28 @@ class WebSocketService {
    */
   async processMessageQueue() {
     this.processingQueue = true
-    
+
     while (this.messageQueue.length > 0) {
       const data = this.messageQueue.shift()
-      
+
       // Ignorer les pings
       if (data.type === 'ping') {
         this.socket.send(JSON.stringify({ type: 'pong' }))
         continue
       }
-      
+
       // Identifier le service associé au message
       // Si le message contient un champ 'service', l'utiliser
       // Sinon, considérer le message comme 'global'
       const service = data.service || 'global'
-      
+
       // Récupérer le contenu réel du message (en retirant l'enveloppe 'service')
       const messageContent = { ...data }
       delete messageContent.service
-      
+
       // Trouver les abonnés au service correspondant
       const callbacks = this.subscribers.get(service) || []
-      
+
       // Appeler les callbacks avec le contenu du message (sans l'enveloppe)
       for (const callback of callbacks) {
         try {
@@ -206,11 +207,11 @@ class WebSocketService {
         } catch (error) {
           console.error(`Erreur dans un callback pour ${service}:`, error)
         }
-        
+
         // Petite pause pour éviter de bloquer l'UI
         await new Promise(resolve => setTimeout(resolve, 0))
       }
-      
+
       // Si c'est un message global, vérifier s'il y a des abonnés spécifiques
       if (service !== 'global') {
         const globalCallbacks = this.subscribers.get('global') || []
@@ -220,12 +221,12 @@ class WebSocketService {
           } catch (error) {
             console.error('Erreur dans un callback global:', error)
           }
-          
+
           await new Promise(resolve => setTimeout(resolve, 0))
         }
       }
     }
-    
+
     this.processingQueue = false
   }
 
@@ -253,18 +254,28 @@ class WebSocketService {
     if (this.reconnectInterval) {
       clearTimeout(this.reconnectInterval)
     }
-    
+
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++
+      // Backoff exponentiel avec plafond à 30s
       const delay = Math.min(1000 * Math.pow(1.5, this.reconnectAttempts), 30000)
-      
+
       console.log(`Tentative de reconnexion ${this.reconnectAttempts}/${this.maxReconnectAttempts} dans ${delay}ms`)
-      
-      this.reconnectInterval = setTimeout(() => {
-        this.connect()
+
+      this.reconnectInterval = setTimeout(async () => {
+        try {
+          await this.connect()
+        } catch (error) {
+          console.error('Erreur lors de la tentative de reconnexion:', error)
+        }
       }, delay)
     } else {
       console.error('Nombre maximum de tentatives de reconnexion atteint')
+      // Réinitialiser le compteur après une pause plus longue
+      setTimeout(() => {
+        this.reconnectAttempts = 0
+        this.reconnect()
+      }, 60000) // Attendre une minute avant de recommencer
     }
   }
 
@@ -278,15 +289,15 @@ class WebSocketService {
       this.socket.onmessage = null
       this.socket.onclose = null
       this.socket.onerror = null
-      
+
       // Fermer la connexion si elle est ouverte
       if (this.socket.readyState === WebSocket.OPEN) {
         this.socket.close()
       }
-      
+
       this.socket = null
     }
-    
+
     if (this.reconnectInterval) {
       clearTimeout(this.reconnectInterval)
       this.reconnectInterval = null
